@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wrench, Cloud, Settings, Zap, Play, Star } from "lucide-react";
+import { Wrench, Cloud, Settings, Zap, Play, Pause, Star } from "lucide-react";
 import {
   projects,
   type Project,
@@ -349,31 +349,97 @@ function ArchitectureDiagram({ project }: { project: Project }) {
   );
 }
 
-// ─── Audio Player placeholder ─────────────────────────────────────────────────
+// ─── Audio Player ─────────────────────────────────────────────────────────────
 
-// Waveform heights are derived once per mount (stable via useMemo in parent).
-// We accept the pre-computed array to avoid regenerating on re-render.
-function AudioPlayerPlaceholder({ bars }: { bars: number[] }) {
+function formatTime(s: number): string {
+  if (!isFinite(s)) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
+function AudioPlayer({ bars }: { bars: number[] }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying]   = useState(false);
+  const [progress, setProgress] = useState(0);   // 0–1
+  const [duration, setDuration] = useState(0);
+  const [current,  setCurrent]  = useState(0);
+  const barContainerRef = useRef<HTMLDivElement>(null);
+
+  // Sync progress from audio timeupdate
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onTime = () => {
+      if (audio.duration) {
+        setProgress(audio.currentTime / audio.duration);
+        setCurrent(audio.currentTime);
+      }
+    };
+    const onLoaded = () => setDuration(audio.duration);
+    const onEnded  = () => { setPlaying(false); setProgress(0); setCurrent(0); };
+    audio.addEventListener("timeupdate",  onTime);
+    audio.addEventListener("loadedmetadata", onLoaded);
+    audio.addEventListener("ended",       onEnded);
+    return () => {
+      audio.removeEventListener("timeupdate",     onTime);
+      audio.removeEventListener("loadedmetadata", onLoaded);
+      audio.removeEventListener("ended",          onEnded);
+    };
+  }, []);
+
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+    } else {
+      audio.play();
+      setPlaying(true);
+    }
+  };
+
+  // Click on waveform to seek
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = ratio * audio.duration;
+    setProgress(ratio);
+  };
+
+  const playedBars = Math.round(progress * bars.length);
+
   return (
     <div
-      className="mt-6 rounded-lg border"
       style={{
-        borderColor: "var(--accent-border)",
-        background:  "var(--bg-elevated)",
-        padding:     "16px",
+        marginTop:    "1.25rem",
+        borderRadius: "0.5rem",
+        border:       "1px solid var(--accent-border)",
+        background:   "var(--bg-elevated)",
+        padding:      "14px 16px",
       }}
     >
-      <p className="mono-label mb-3">// audio sample</p>
+      {/* Hidden native audio element */}
+      <audio ref={audioRef} src="/audio/orpheus-demo.wav" preload="metadata" />
 
-      {/* Fake waveform */}
+      <p className="mono-label" style={{ marginBottom: "10px" }}>// audio sample</p>
+
+      {/* Waveform — click to seek */}
       <div
+        ref={barContainerRef}
+        onClick={handleSeek}
         style={{
           display:     "flex",
-          alignItems:  "flex-end",
+          alignItems:  "center",
           gap:         "2px",
-          height:      "32px",
-          marginBottom: "12px",
+          height:      "36px",
+          marginBottom: "10px",
+          cursor:      "pointer",
         }}
+        aria-label="Audio waveform — click to seek"
       >
         {bars.map((pct, i) => (
           <div
@@ -381,37 +447,68 @@ function AudioPlayerPlaceholder({ bars }: { bars: number[] }) {
             style={{
               width:        3,
               height:       `${pct}%`,
-              background:   "var(--text-muted)",
+              background:   i < playedBars ? "var(--accent)" : "var(--text-muted)",
               borderRadius: 1,
-              opacity:      0.5,
+              opacity:      i < playedBars ? 0.9 : 0.35,
               flexShrink:   0,
+              transition:   "background 0.05s, opacity 0.05s",
             }}
           />
         ))}
       </div>
 
-      {/* Play button row */}
+      {/* Controls row */}
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {/* Play / Pause button */}
         <button
-          disabled
-          aria-label="Play audio sample"
+          onClick={togglePlay}
+          aria-label={playing ? "Pause" : "Play"}
           style={{
             display:        "flex",
             alignItems:     "center",
             justifyContent: "center",
-            width:          30,
-            height:         30,
+            width:          28,
+            height:         28,
             borderRadius:   "50%",
-            border:         "1px solid var(--accent-border)",
-            background:     "transparent",
-            cursor:         "not-allowed",
-            opacity:        0.45,
-            color:          "var(--text-muted)",
+            border:         `1px solid ${playing ? "var(--accent)" : "var(--accent-border)"}`,
+            background:     playing ? "var(--accent-glow)" : "transparent",
+            cursor:         "pointer",
+            color:          playing ? "var(--accent)" : "var(--text-secondary)",
+            flexShrink:     0,
+            transition:     "border-color 0.2s, background 0.2s, color 0.2s",
           }}
         >
-          <Play size={12} />
+          {playing
+            ? <Pause size={11} strokeWidth={2} />
+            : <Play  size={11} strokeWidth={2} style={{ marginLeft: 1 }} />}
         </button>
-        <p className="mono-label" style={{ margin: 0 }}>// demo coming soon</p>
+
+        {/* Time display */}
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize:   "0.68rem",
+            color:      "var(--text-muted)",
+            letterSpacing: "0.04em",
+            userSelect: "none",
+          }}
+        >
+          {formatTime(current)} / {formatTime(duration)}
+        </span>
+
+        {/* Label */}
+        <span
+          style={{
+            marginLeft:  "auto",
+            fontFamily:  "'JetBrains Mono', monospace",
+            fontSize:    "0.62rem",
+            color:       "var(--text-muted)",
+            letterSpacing: "0.06em",
+            userSelect:  "none",
+          }}
+        >
+          Generated by fine-tuned Orpheus TTS
+        </span>
       </div>
     </div>
   );
@@ -905,7 +1002,7 @@ function ProjectRightPanel({ project }: { project: Project }) {
       </div>
 
       {/* AudioPlayer placeholder — Orpheus TTS only */}
-      {isOrpheus && <AudioPlayerPlaceholder bars={WAVEFORM_BARS} />}
+      {isOrpheus && <AudioPlayer bars={WAVEFORM_BARS} />}
     </div>
   );
 }
