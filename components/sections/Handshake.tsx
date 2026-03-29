@@ -233,7 +233,9 @@ function renderTerminalContent(revealedChars: number): React.ReactNode[] {
 
 export function Handshake() {
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-10% 0px" });
+  // Use a generous margin so typing starts as the section scrolls into view,
+  // not only when it's fully centered. "0px" means trigger on first pixel visible.
+  const isInView = useInView(sectionRef, { once: true, margin: "0px" });
   const revealedChars = useTypingAnimation(isInView);
   const isTypingDone = revealedChars >= TOTAL_CHARS;
 

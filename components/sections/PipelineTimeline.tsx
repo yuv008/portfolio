@@ -273,7 +273,6 @@ function PipelineNode({
             ? "0 0 0 1px rgba(0,212,255,0.15), 0 4px 32px rgba(0,212,255,0.12)"
             : "none",
           position: "relative",
-          overflow: "hidden",
         }}
         onClick={onToggle}
         role="button"
@@ -412,10 +411,13 @@ function PipelineNode({
             <motion.div
               key="expanded"
               id={`pipeline-body-${exp.id}`}
-              variants={expandVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{
+                height: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] },
+                opacity: { duration: 0.25, delay: 0.08 },
+              }}
               style={{ overflow: "hidden" }}
             >
               <div

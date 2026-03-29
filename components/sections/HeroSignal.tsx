@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 
 // ─── Node Graph Geometry ────────────────────────────────────────────────────
@@ -344,7 +344,6 @@ function NodeGraph({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function HeroSignal() {
-  const [animationDone, setAnimationDone] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile on mount and on resize
@@ -354,12 +353,6 @@ export function HeroSignal() {
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  // Trigger text appearance after signal animation completes
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimationDone(true), SIGNAL_TOTAL_MS + 600);
-    return () => clearTimeout(timer);
   }, []);
 
   const nodes = isMobile ? MOBILE_NODES : DESKTOP_NODES;
@@ -419,7 +412,7 @@ export function HeroSignal() {
         />
       </div>
 
-      {/* ── Text block ── */}
+      {/* ── Text block ── always visible, fades in shortly after mount ── */}
       <div
         style={{
           marginTop: "2.5rem",
@@ -428,58 +421,46 @@ export function HeroSignal() {
           flexDirection: "column",
           alignItems: "center",
           gap: "0.75rem",
-          minHeight: "8rem", // reserve space to prevent layout shift
+          minHeight: "8rem",
         }}
       >
-        <AnimatePresence>
-          {animationDone && (
-            <>
-              <motion.h1
-                key="name"
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  color: "var(--text-primary)",
-                  fontSize: "clamp(1.75rem, 5vw, 3rem)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
-                }}
-              >
-                Yuvraj Sanghai
-              </motion.h1>
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            color: "var(--text-primary)",
+            fontSize: "clamp(1.75rem, 5vw, 3rem)",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.2,
+          }}
+        >
+          Yuvraj Sanghai
+        </motion.h1>
 
-              <motion.p
-                key="tagline"
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={{ delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                  fontFamily: "'Satoshi', sans-serif",
-                  color: "var(--text-secondary)",
-                  fontSize: "1.125rem",
-                  lineHeight: 1.6,
-                  maxWidth: "42ch",
-                }}
-              >
-                I build the systems behind the intelligence.
-              </motion.p>
-            </>
-          )}
-        </AnimatePresence>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            fontFamily: "'Satoshi', sans-serif",
+            color: "var(--text-secondary)",
+            fontSize: "1.125rem",
+            lineHeight: 1.6,
+            maxWidth: "42ch",
+          }}
+        >
+          I build the systems behind the intelligence.
+        </motion.p>
       </div>
 
       {/* ── Scroll indicator ── */}
-      <AnimatePresence>
-        {animationDone && (
-          <motion.div
-            key="scroll"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             style={{
               position: "absolute",
               bottom: "2rem",
@@ -537,8 +518,6 @@ export function HeroSignal() {
               />
             </motion.svg>
           </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }

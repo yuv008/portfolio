@@ -674,7 +674,6 @@ interface SubTabDef {
 }
 
 const BASE_SUB_TABS: SubTabDef[] = [
-  { id: "architecture", label: "Architecture" },
   { id: "decisions",    label: "Decisions"    },
   { id: "metrics",      label: "Metrics"      },
   { id: "reflection",   label: "Reflection"   },
@@ -739,12 +738,12 @@ function ProjectLeftPanel({ project }: { project: Project }) {
   const hasJourney = Array.isArray(project.journey) && project.journey.length > 0;
   const subTabs    = hasJourney ? [...BASE_SUB_TABS, JOURNEY_TAB] : BASE_SUB_TABS;
 
-  const [subTab, setSubTab] = useState<SubTab>("architecture");
+  const [subTab, setSubTab] = useState<SubTab>("decisions");
 
   // Reset sub-tab if switching projects and landing on "journey" for a project
   // that has no journey data
   const safeTab: SubTab =
-    subTab === "journey" && !hasJourney ? "architecture" : subTab;
+    subTab === "journey" && !hasJourney ? "decisions" : subTab;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -798,7 +797,6 @@ function ProjectLeftPanel({ project }: { project: Project }) {
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}
           >
-            {safeTab === "architecture" && <ArchitectureInlinePanel project={project} />}
             {safeTab === "decisions"    && <DecisionsPanel          project={project} />}
             {safeTab === "metrics"      && <MetricsPanel            project={project} />}
             {safeTab === "reflection"   && <ReflectionPanel         project={project} />}

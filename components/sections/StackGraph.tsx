@@ -124,11 +124,17 @@ export function StackGraph() {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
+  // Initialize node positions as soon as dimensions are known (not gated on scroll)
   useEffect(() => {
-    if (!isInView) return;
+    if (dimensions.width === 0) return;
     const initialNodes = initializeNodes(dimensions.width, dimensions.height);
     nodesRef.current = initialNodes;
     setNodes([...initialNodes]);
+  }, [dimensions]);
+
+  // Run force simulation when section is in view
+  useEffect(() => {
+    if (!isInView || nodesRef.current.length === 0) return;
 
     let iteration = 0;
     const maxIterations = 300;
@@ -190,7 +196,8 @@ export function StackGraph() {
 
     animFrameRef.current = requestAnimationFrame(simulate);
     return () => cancelAnimationFrame(animFrameRef.current);
-  }, [isInView, dimensions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInView]);
 
   const isConnected = useCallback(
     (nodeId: string) => {
