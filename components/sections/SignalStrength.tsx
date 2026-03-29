@@ -4,50 +4,44 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { fadeInUp, staggerContainer, viewportConfig } from "@/lib/animations";
 
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
 const radarAxes = [
   { label: "Competition", value: 5 },
-  { label: "Academics", value: 5 },
-  { label: "Research", value: 3 },
-  { label: "Building", value: 5 },
-  { label: "Infrastructure", value: 4 },
+  { label: "Academics",   value: 5 },
+  { label: "Research",    value: 3 },
+  { label: "Building",    value: 5 },
+  { label: "Infra",       value: 4 },
 ];
 
-const achievements = [
-  {
-    category: "Competition",
-    items: [
-      "Winner at Devclash 2025 — DY Patil Pimpri (ShetNiyojan)",
-      "Winner at Synapse 2.0 — MKSSS CCOEW (Legify)",
-      "Winner at L&T NeuroHack — COEP Mindspark 24 (WarCast)",
-    ],
-  },
-  {
-    category: "Academics",
-    items: [
-      "MHT-CET 2022 — 99.35 %ile, Rank 971 / 400,000+",
-      "B.E. Computer Engineering, Honors in Data Science — PICT Pune",
-    ],
-  },
-  {
-    category: "Research",
-    items: [
-      "Co-authored paper on evidence-verified answer extraction for automated exam grading",
-    ],
-  },
-  {
-    category: "Open Source",
-    items: [
-      "Published fine-tuned TTS model + LoRA adapters on Hugging Face (yuv008)",
-    ],
-  },
+const quickStats = [
+  { value: "3×",       label: "hackathon wins"   },
+  { value: "99.35%",   label: "MHT-CET percentile" },
+  { value: "1",        label: "published paper"  },
+  { value: "4+",       label: "projects shipped" },
 ];
 
-function polarToCartesian(
-  cx: number,
-  cy: number,
-  r: number,
-  angle: number
-): [number, number] {
+// Category colour map — used for inline badges
+const categoryColors: Record<string, string> = {
+  Competition:   "var(--accent)",
+  Academics:     "var(--signal-green)",
+  Research:      "#ff6b9d",
+  "Open Source": "var(--signal-amber)",
+};
+
+const achievements: { category: string; text: string }[] = [
+  { category: "Competition",   text: "Winner — Devclash 2025, DY Patil Pimpri (ShetNiyojan)" },
+  { category: "Competition",   text: "Winner — Synapse 2.0, MKSSS CCOEW (Legify)" },
+  { category: "Competition",   text: "Winner — L&T NeuroHack, COEP Mindspark 24 (WarCast)" },
+  { category: "Academics",     text: "MHT-CET 2022 — 99.35 %ile, Rank 971 / 400,000+" },
+  { category: "Academics",     text: "B.E. Computer Engineering, Honors in Data Science — PICT Pune" },
+  { category: "Research",      text: "Co-authored paper on evidence-verified answer extraction for automated exam grading" },
+  { category: "Open Source",   text: "Published fine-tuned TTS model + LoRA adapters on Hugging Face (yuv008)" },
+];
+
+// ─── Radar chart ──────────────────────────────────────────────────────────────
+
+function polarToCartesian(cx: number, cy: number, r: number, angle: number): [number, number] {
   const rad = (angle - 90) * (Math.PI / 180);
   return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
 }
@@ -61,77 +55,69 @@ function RadarChart() {
     if (!isInView) return;
     let start: number | null = null;
     const duration = 1500;
-    const animate = (ts: number) => {
+    const tick = (ts: number) => {
       if (!start) start = ts;
-      const elapsed = ts - start;
-      const p = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setProgress(eased);
-      if (p < 1) requestAnimationFrame(animate);
+      const p = Math.min((ts - start) / duration, 1);
+      setProgress(1 - Math.pow(1 - p, 3));
+      if (p < 1) requestAnimationFrame(tick);
     };
-    requestAnimationFrame(animate);
+    requestAnimationFrame(tick);
   }, [isInView]);
 
-  const cx = 150;
-  const cy = 150;
-  const maxR = 120;
-  const numAxes = radarAxes.length;
-  const angleStep = 360 / numAxes;
-
-  const gridLevels = [1, 2, 3, 4, 5];
+  const cx = 160;
+  const cy = 160;
+  const maxR = 110;
+  const angleStep = 360 / radarAxes.length;
 
   const dataPoints = radarAxes.map((axis, i) => {
-    const angle = i * angleStep;
     const r = (axis.value / 5) * maxR * progress;
-    return polarToCartesian(cx, cy, r, angle);
+    return polarToCartesian(cx, cy, r, i * angleStep);
   });
 
-  const dataPath =
-    dataPoints.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ") + "Z";
+  const dataPath = dataPoints.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" ") + "Z";
 
   return (
-    <svg ref={ref} viewBox="0 0 300 300" className="w-full max-w-[300px] mx-auto">
+    <svg
+      ref={ref}
+      viewBox="0 0 320 320"
+      className="w-full"
+      style={{ maxWidth: 360, margin: "0 auto", display: "block" }}
+      aria-label="Radar chart showing skill signal strengths"
+    >
       {/* Grid rings */}
-      {gridLevels.map((level) => {
-        const points = Array.from({ length: numAxes }, (_, i) =>
+      {[1, 2, 3, 4, 5].map((level) => {
+        const pts = Array.from({ length: radarAxes.length }, (_, i) =>
           polarToCartesian(cx, cy, (level / 5) * maxR, i * angleStep)
         );
-        const path =
-          points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ") + "Z";
+        const path = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" ") + "Z";
         return (
           <path
             key={level}
             d={path}
             fill="none"
             stroke="var(--accent-border)"
-            strokeWidth={0.5}
-            opacity={0.3}
+            strokeWidth={level === 5 ? 1 : 0.5}
+            opacity={level === 5 ? 0.35 : 0.2}
           />
         );
       })}
 
-      {/* Axis lines */}
+      {/* Axis lines + labels */}
       {radarAxes.map((axis, i) => {
         const [ex, ey] = polarToCartesian(cx, cy, maxR, i * angleStep);
-        const [lx, ly] = polarToCartesian(cx, cy, maxR + 20, i * angleStep);
+        const [lx, ly] = polarToCartesian(cx, cy, maxR + 26, i * angleStep);
         return (
           <g key={axis.label}>
             <line
-              x1={cx}
-              y1={cy}
-              x2={ex}
-              y2={ey}
-              stroke="var(--accent-border)"
-              strokeWidth={0.5}
-              opacity={0.3}
+              x1={cx} y1={cy} x2={ex} y2={ey}
+              stroke="var(--accent-border)" strokeWidth={0.5} opacity={0.25}
             />
             <text
-              x={lx}
-              y={ly}
+              x={lx} y={ly}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="var(--text-muted)"
-              fontSize={9}
+              fill="var(--text-secondary)"
+              fontSize={9.5}
               fontFamily="'JetBrains Mono', monospace"
             >
               {axis.label}
@@ -140,22 +126,22 @@ function RadarChart() {
         );
       })}
 
-      {/* Data area */}
+      {/* Filled data area */}
       <path
         d={dataPath}
         fill="var(--accent)"
-        fillOpacity={0.15}
+        fillOpacity={0.12}
         stroke="var(--accent)"
-        strokeWidth={2}
+        strokeWidth={1.5}
       />
 
-      {/* Data points */}
+      {/* Data point dots */}
       {dataPoints.map((point, i) => (
         <circle
           key={i}
           cx={point[0]}
           cy={point[1]}
-          r={4}
+          r={3.5}
           fill="var(--accent)"
           stroke="var(--bg-primary)"
           strokeWidth={2}
@@ -165,76 +151,158 @@ function RadarChart() {
   );
 }
 
+// ─── Section ──────────────────────────────────────────────────────────────────
+
 export function SignalStrength() {
   return (
     <section id="signal" className="relative">
       <div className="container-main">
+
+        {/* Heading */}
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="animate"
+          viewport={viewportConfig}
+          style={{ marginBottom: "3rem" }}
+        >
+          <motion.p variants={fadeInUp} className="mono-label" style={{ marginBottom: "0.75rem" }}>
+            // signal
+          </motion.p>
+          <motion.h2 variants={fadeInUp} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            Signal Strength
+          </motion.h2>
+        </motion.div>
+
+        {/* Radar chart — centered hero visual */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={viewportConfig}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          style={{ maxWidth: 360, margin: "0 auto 3rem" }}
+        >
+          <RadarChart />
+        </motion.div>
+
+        {/* Quick-stat row */}
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="animate"
+          viewport={viewportConfig}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "1px",
+            background: "var(--accent-border)",
+            border: "1px solid var(--accent-border)",
+            borderRadius: "0.75rem",
+            overflow: "hidden",
+            marginBottom: "3rem",
+          }}
+        >
+          {quickStats.map((stat) => (
+            <motion.div
+              key={stat.label}
+              variants={fadeInUp}
+              style={{
+                background: "var(--bg-card)",
+                padding: "1.25rem 1.5rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "1.75rem",
+                  fontWeight: 700,
+                  color: "var(--accent)",
+                  lineHeight: 1,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {stat.value}
+              </span>
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "0.68rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "var(--text-muted)",
+                }}
+              >
+                {stat.label}
+              </span>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Flat achievement list */}
         <motion.div
           variants={staggerContainer}
           initial="initial"
           whileInView="animate"
           viewport={viewportConfig}
         >
-          <motion.p variants={fadeInUp} className="mono-label mb-3">
-            // signal
+          <motion.p variants={fadeInUp} className="mono-label" style={{ marginBottom: "1.25rem" }}>
+            // achievements
           </motion.p>
-          <motion.h2
-            variants={fadeInUp}
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            Signal Strength
-          </motion.h2>
-        </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-12 mt-12 items-start">
-          {/* Radar Chart */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={viewportConfig}
-            transition={{ duration: 0.6 }}
-          >
-            <RadarChart />
-          </motion.div>
-
-          {/* Achievement list */}
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={viewportConfig}
-            className="space-y-8"
-          >
-            {achievements.map((group) => (
-              <motion.div key={group.category} variants={fadeInUp}>
-                <h3
-                  className="text-sm font-semibold mb-3"
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {achievements.map((item, i) => {
+              const color = categoryColors[item.category] ?? "var(--accent)";
+              return (
+                <motion.div
+                  key={i}
+                  variants={fadeInUp}
                   style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    color: "var(--accent)",
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: "1rem",
+                    padding: "0.875rem 0",
+                    borderTop: "1px solid var(--accent-border)",
+                    ...(i === achievements.length - 1 ? { borderBottom: "1px solid var(--accent-border)" } : {}),
                   }}
                 >
-                  {group.category}
-                </h3>
-                <ul className="space-y-2">
-                  {group.items.map((item, i) => (
-                    <li
-                      key={i}
-                      className="text-sm flex items-start gap-2"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      <span
-                        className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: "var(--accent)" }}
-                      />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+                  {/* Category badge */}
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "0.62rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.07em",
+                      color,
+                      background: `${color}14`,
+                      border: `1px solid ${color}40`,
+                      padding: "2px 7px",
+                      borderRadius: "4px",
+                      flexShrink: 0,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {item.category}
+                  </span>
+
+                  {/* Achievement text */}
+                  <span
+                    style={{
+                      fontSize: "0.875rem",
+                      color: "var(--text-secondary)",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {item.text}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+
       </div>
     </section>
   );
