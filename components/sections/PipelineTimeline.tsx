@@ -221,6 +221,7 @@ function OutputRow({ item }: { item: OutputMetric }) {
         )}
       </span>
       <span
+        title={isPercentage ? `Improvement from baseline${item.before && item.after ? `: ${item.before} → ${item.after}` : ""}` : undefined}
         style={{
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: "0.8125rem",
@@ -231,6 +232,7 @@ function OutputRow({ item }: { item: OutputMetric }) {
               : "var(--signal-amber)"
             : "var(--accent)",
           whiteSpace: "nowrap",
+          cursor: isPercentage ? "help" : "default",
         }}
       >
         {item.change}

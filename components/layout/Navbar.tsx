@@ -25,7 +25,7 @@ export function Navbar() {
           }
         });
       },
-      { rootMargin: "-40% 0px -50% 0px" }
+      { rootMargin: "-10% 0px -60% 0px" }
     );
 
     navLinks.forEach(({ href }) => {
@@ -46,8 +46,8 @@ export function Navbar() {
     >
       <div className="container-main flex items-center justify-between h-16 px-6">
         <a
-          href="#"
-          className="font-[var(--font-mono)] text-lg font-bold tracking-tight"
+          href="#hero"
+          className="font-[var(--font-mono)] text-lg font-bold tracking-tight focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:rounded"
           style={{ fontFamily: "var(--font-mono), 'JetBrains Mono', monospace" }}
         >
           <span className="text-[var(--accent)]">Y</span>
@@ -56,19 +56,28 @@ export function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map(({ label, href }) => (
-            <a
-              key={label}
-              href={href}
-              className={`mono-label transition-colors duration-200 hover:text-[var(--accent)] ${
-                activeSection === href.slice(1)
-                  ? "text-[var(--accent)]"
-                  : ""
-              }`}
-            >
-              {label}
-            </a>
-          ))}
+          {navLinks.map(({ label, href }) => {
+            const isActive = activeSection === href.slice(1);
+            return (
+              <a
+                key={label}
+                href={href}
+                className={`mono-label transition-colors duration-200 hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:rounded ${
+                  isActive ? "text-[var(--accent)]" : ""
+                }`}
+                style={{
+                  paddingBottom: "2px",
+                  borderBottom: isActive
+                    ? "2px solid var(--accent)"
+                    : "2px solid transparent",
+                  transition: "color 0.2s ease, border-color 0.2s ease",
+                }}
+                aria-current={isActive ? "true" : undefined}
+              >
+                {label}
+              </a>
+            );
+          })}
         </div>
 
         {/* Mobile menu button */}
@@ -91,21 +100,31 @@ export function Navbar() {
             transition={{ duration: 0.2 }}
             className="md:hidden bg-[var(--bg-elevated)] border-b border-[var(--accent-border)]/30"
           >
-            <div className="flex flex-col gap-4 p-6">
-              {navLinks.map(({ label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`mono-label transition-colors duration-200 hover:text-[var(--accent)] ${
-                    activeSection === href.slice(1)
-                      ? "text-[var(--accent)]"
-                      : ""
-                  }`}
-                >
-                  {label}
-                </a>
-              ))}
+            <div className="flex flex-col gap-1 p-6">
+              {navLinks.map(({ label, href }) => {
+                const isActive = activeSection === href.slice(1);
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`mono-label transition-colors duration-200 hover:text-[var(--accent)] ${
+                      isActive ? "text-[var(--accent)]" : ""
+                    }`}
+                    style={{
+                      padding: "0.75rem 0",
+                      borderLeft: isActive
+                        ? "2px solid var(--accent)"
+                        : "2px solid transparent",
+                      paddingLeft: "0.75rem",
+                      transition: "color 0.2s ease, border-color 0.2s ease",
+                    }}
+                    aria-current={isActive ? "true" : undefined}
+                  >
+                    {label}
+                  </a>
+                );
+              })}
             </div>
           </motion.div>
         )}

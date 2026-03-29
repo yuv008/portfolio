@@ -180,7 +180,7 @@ function ArchitectureDiagram({ project }: { project: Project }) {
           refY="3"
           orient="auto"
         >
-          <path d="M0,0 L0,6 L8,3 z" fill="var(--accent-border)" opacity={0.7} />
+          <path d="M0,0 L0,6 L8,3 z" fill="var(--accent-border)" opacity={0.9} />
         </marker>
 
         {/* Infra glow filter */}
@@ -996,9 +996,11 @@ function ProjectRightPanel({ project }: { project: Project }) {
         ))}
       </div>
 
-      {/* SVG diagram */}
-      <div style={{ flex: 1 }}>
-        <ArchitectureDiagram project={project} />
+      {/* SVG diagram — scrollable on mobile for complex diagrams */}
+      <div style={{ flex: 1, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+        <div style={{ minWidth: "280px" }}>
+          <ArchitectureDiagram project={project} />
+        </div>
       </div>
 
       {/* AudioPlayer placeholder — Orpheus TTS only */}

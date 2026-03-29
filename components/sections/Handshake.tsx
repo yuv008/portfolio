@@ -65,7 +65,15 @@ const TERMINAL_LINES: Segment[][] = [
     },
     { kind: "text", value: '",' },
   ],
-  [{ kind: "text", value: `  "phone": "${socialLinks.phone}",` }],
+  [
+    { kind: "text", value: '  "phone": "' },
+    {
+      kind: "link",
+      display: socialLinks.phone,
+      href: `tel:${socialLinks.phone.replace(/-/g, "")}`,
+    },
+    { kind: "text", value: '",' },
+  ],
   [
     { kind: "text", value: '  "github": "' },
     {
@@ -315,6 +323,9 @@ export function Handshake() {
 
           {/* Terminal body */}
           <div
+            role="region"
+            aria-label="Contact information terminal"
+            aria-live="polite"
             style={{
               padding: "2rem",
               fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
@@ -379,60 +390,68 @@ export function Handshake() {
             icon={<Mail size={18} strokeWidth={1.5} />}
           />
 
-          {/* HuggingFace — text link (no icon in lucide) */}
-          <a
+          {/* HuggingFace */}
+          <SocialIconLink
             href={socialLinks.huggingface}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="HuggingFace"
-            style={
-              {
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                padding: "0.5rem 0.75rem",
-                border: "1px solid var(--accent-border)",
-                borderRadius: "0.375rem",
-                background: "var(--bg-elevated)",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "0.75rem",
-                color: "var(--text-secondary)",
-                textDecoration: "none",
-                transition: "color 0.2s ease, border-color 0.2s ease, background 0.2s ease",
-                letterSpacing: "0.03em",
-              } as React.CSSProperties
+            label="HuggingFace"
+            icon={
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm0 2c2.395 0 4.59.865 6.285 2.29-.25.095-.495.21-.73.345-1.085.625-1.835 1.625-2.085 2.795A4.98 4.98 0 0012 8a4.98 4.98 0 00-3.47 1.43c-.25-1.17-1-2.17-2.085-2.795a8.97 8.97 0 00-.73-.345A8.96 8.96 0 0112 3zm-6.5 5.68c.92.395 1.57 1.205 1.77 2.195A4.97 4.97 0 007 13c0 .575.1 1.125.27 1.64-.505.36-1.02.655-1.545.865a8.99 8.99 0 01-.72-3.505c0-1.01.165-1.98.465-2.88a6.99 6.99 0 01.03-.44zm13 0c.02.145.03.29.03.44.3.9.465 1.87.465 2.88a9 9 0 01-.72 3.505 7.03 7.03 0 01-1.545-.865c.17-.515.27-1.065.27-1.64a4.97 4.97 0 00-.27-1.625c.2-.99.85-1.8 1.77-2.195zM12 10a3 3 0 110 6 3 3 0 010-6zm0 2a1 1 0 100 2 1 1 0 000-2z"/>
+              </svg>
             }
+          />
+        </motion.div>
+
+        {/* ── Availability label ── */}
+        <p
+          className="mono-label"
+          style={{
+            marginTop: "1rem",
+            textAlign: "center",
+            color: "var(--text-muted)",
+          }}
+        >
+          // currently open to opportunities
+        </p>
+
+        {/* ── Post-animation CTA ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: isTypingDone ? 1 : 0, y: isTypingDone ? 0 : 8 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          style={{ marginTop: "1.5rem", textAlign: "center" }}
+        >
+          <a
+            href={`mailto:${socialLinks.email}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.65rem 1.5rem",
+              background: "rgba(0,212,255,0.08)",
+              border: "1px solid var(--accent-border)",
+              borderRadius: "var(--radius-sm)",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "0.8rem",
+              color: "var(--accent)",
+              textDecoration: "none",
+              letterSpacing: "0.05em",
+              transition: "background 0.2s ease, border-color 0.2s ease",
+            }}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLAnchorElement;
-              el.style.color = "var(--accent)";
+              el.style.background = "rgba(0,212,255,0.15)";
               el.style.borderColor = "var(--accent)";
-              el.style.background = "var(--accent-glow)";
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLAnchorElement;
-              el.style.color = "var(--text-secondary)";
+              el.style.background = "rgba(0,212,255,0.08)";
               el.style.borderColor = "var(--accent-border)";
-              el.style.background = "var(--bg-elevated)";
             }}
           >
-            {/* Minimal HF logotype */}
-            <span style={{ fontSize: "1rem", lineHeight: 1 }} aria-hidden="true">
-              🤗
-            </span>
-            HuggingFace
+            <Mail size={15} strokeWidth={1.5} />
+            Send a message →
           </a>
-
-          {/* Availability label — pushed right on wider screens */}
-          <p
-            className="mono-label"
-            style={{
-              marginLeft: "auto",
-              color: "var(--text-muted)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            // currently open to opportunities
-          </p>
         </motion.div>
       </div>
     </motion.section>

@@ -52,7 +52,7 @@ const writingQueue: QueuePost[] = [
 
 export function TheLab() {
   return (
-    <section className="relative">
+    <section id="lab" className="relative">
       <div className="container-main">
 
         {/* ── Section heading ── */}
@@ -96,6 +96,16 @@ export function TheLab() {
               position: "relative",
               overflow: "hidden",
               marginBottom: "2.5rem",
+              cursor: "pointer",
+              transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLDivElement;
+              el.style.boxShadow = "0 0 40px rgba(0,212,255,0.12)";
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLDivElement;
+              el.style.boxShadow = "none";
             }}
           >
             {/* Subtle accent glow in top-left */}
@@ -268,22 +278,53 @@ export function TheLab() {
                       </span>
                     ))}
                     <span
+                      className="animate-pulse-glow"
                       style={{
                         fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: "0.65rem",
-                        color: "var(--text-muted)",
-                        letterSpacing: "0.07em",
+                        fontSize: "0.62rem",
+                        color: "var(--signal-amber)",
+                        background: "rgba(255,170,0,0.1)",
+                        border: "1px solid rgba(255,170,0,0.3)",
+                        padding: "2px 7px",
+                        borderRadius: "4px",
+                        letterSpacing: "0.06em",
                         textTransform: "uppercase",
-                        opacity: 0.55,
                       }}
                     >
-                      // soon
+                      Coming Soon
                     </span>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+        </motion.div>
+
+        {/* ── Notify CTA ── */}
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          whileInView="animate"
+          viewport={viewportConfig}
+          style={{ marginTop: "1.75rem", textAlign: "center" }}
+        >
+          <a
+            href="mailto:yuvrajms008@gmail.com?subject=Notify me for new posts&body=Hey Yuvraj, please notify me when you publish new articles."
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "0.75rem",
+              color: "var(--text-muted)",
+              textDecoration: "none",
+              letterSpacing: "0.04em",
+              transition: "color 0.2s ease",
+              borderBottom: "1px dashed var(--accent-border)",
+              paddingBottom: "1px",
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "var(--text-muted)")}
+          >
+            Notify me when published →
+          </a>
         </motion.div>
 
       </div>

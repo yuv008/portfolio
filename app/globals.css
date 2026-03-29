@@ -17,12 +17,20 @@
   --accent: #00d4ff;
   --accent-dim: #0088cc;
   --accent-glow: rgba(0, 212, 255, 0.15);
-  --accent-border: rgba(0, 212, 255, 0.25);
+  --accent-border: rgba(0, 212, 255, 0.35);
+  --accent-purple: #7c3aed;
 
   /* Signal colors */
   --signal-green: #00ff88;
   --signal-amber: #ffaa00;
   --signal-red: #ff4444;
+
+  /* Surfaces */
+  --surface-glass: rgba(255, 255, 255, 0.04);
+
+  /* Radius */
+  --radius-card: 12px;
+  --radius-sm: 6px;
 
   /* Effects */
   --grain-opacity: 0.03;
@@ -57,16 +65,17 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
 }
 
+h2 {
+  font-family: var(--font-display, 'Space Grotesk'), 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 1.75rem;
+  letter-spacing: -0.01em;
+}
+
 h1 {
   font-weight: 700;
   font-size: 3rem;
   letter-spacing: -0.02em;
-}
-
-h2 {
-  font-weight: 600;
-  font-size: 1.75rem;
-  letter-spacing: -0.01em;
 }
 
 h3 {
@@ -136,13 +145,15 @@ h3 {
 .glow-card {
   background: var(--bg-card);
   border: 1px solid var(--accent-border);
-  border-radius: 0.75rem;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  border-radius: var(--radius-card, 0.75rem);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  will-change: transform;
 }
 
 .glow-card:hover {
   box-shadow: 0 0 var(--glow-spread) var(--accent-glow);
   border-color: var(--accent);
+  transform: translateY(-2px) scale(1.005);
 }
 
 /* ── Section Spacing ── */
@@ -189,4 +200,19 @@ section {
 
 .animate-blink {
   animation: blink 1s step-end infinite;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .grain-overlay {
+    display: none;
+  }
 }

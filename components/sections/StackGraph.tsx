@@ -106,6 +106,7 @@ export function StackGraph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [nodes, setNodes] = useState<SkillNode[]>([]);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
   const animFrameRef = useRef<number>(0);
@@ -200,7 +201,9 @@ export function StackGraph() {
   }, [isInView]);
 
   const isConnected = useCallback(
-    (nodeId: string) => {
+    (nodeId: string, nodeGroup: string) => {
+      // Category filter takes priority over hover
+      if (activeFilter && nodeGroup !== activeFilter) return false;
       if (!hoveredNode) return true;
       if (nodeId === hoveredNode) return true;
       return skillEdges.some(
@@ -209,7 +212,7 @@ export function StackGraph() {
           (e.target === hoveredNode && e.source === nodeId)
       );
     },
-    [hoveredNode]
+    [hoveredNode, activeFilter]
   );
 
   const isEdgeConnected = useCallback(
@@ -248,6 +251,44 @@ export function StackGraph() {
             Not a checklist. A system.
           </motion.p>
         </motion.div>
+
+        {/* Category filter buttons */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "1rem",
+          }}
+        >
+          {[{ key: null, label: "All" }, ...Object.entries(groupLabels).map(([k, v]) => ({ key: k, label: v }))].map(
+            ({ key, label }) => {
+              const isActive = activeFilter === key;
+              const color = key ? groupColors[key] : "var(--accent)";
+              return (
+                <button
+                  key={String(key)}
+                  onClick={() => setActiveFilter(isActive ? null : key)}
+                  style={{
+                    padding: "0.3rem 0.75rem",
+                    borderRadius: "var(--radius-sm)",
+                    border: `1px solid ${isActive ? color : "var(--accent-border)"}`,
+                    background: isActive ? `${color}18` : "transparent",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "0.7rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    color: isActive ? color : "var(--text-muted)",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            }
+          )}
+        </div>
 
         {/* SVG Graph */}
         <motion.div
@@ -289,7 +330,7 @@ export function StackGraph() {
 
             {/* Nodes */}
             {nodes.map((node) => {
-              const connected = isConnected(node.id);
+              const connected = isConnected(node.id, node.group);
               const color = groupColors[node.group];
               return (
                 <g

@@ -117,7 +117,7 @@ function RadarChart() {
               textAnchor="middle"
               dominantBaseline="middle"
               fill="var(--text-secondary)"
-              fontSize={9.5}
+              fontSize={11}
               fontFamily="'JetBrains Mono', monospace"
             >
               {axis.label}
@@ -263,9 +263,15 @@ export function SignalStrength() {
                     display: "flex",
                     alignItems: "baseline",
                     gap: "1rem",
-                    padding: "0.875rem 0",
+                    padding: "0.875rem 0.5rem",
                     borderTop: "1px solid var(--accent-border)",
+                    borderRadius: "4px",
+                    cursor: "default",
+                    transition: "background 0.15s ease",
                     ...(i === achievements.length - 1 ? { borderBottom: "1px solid var(--accent-border)" } : {}),
+                  }}
+                  whileHover={{
+                    backgroundColor: "rgba(0, 212, 255, 0.04)",
                   }}
                 >
                   {/* Category badge */}
@@ -290,6 +296,7 @@ export function SignalStrength() {
                   {/* Achievement text */}
                   <span
                     style={{
+                      fontFamily: "'Satoshi', 'General Sans', sans-serif",
                       fontSize: "0.875rem",
                       color: "var(--text-secondary)",
                       lineHeight: 1.5,
