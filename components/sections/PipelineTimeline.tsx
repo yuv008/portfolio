@@ -572,7 +572,6 @@ export function PipelineTimeline() {
         {/* Pipeline nodes */}
         <div
           style={{
-            maxWidth: "680px",
             display: "flex",
             flexDirection: "column",
           }}
