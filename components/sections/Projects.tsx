@@ -1,7 +1,13 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { projects } from "@/components/projects/projectData";
+
+const OrpheusWaveform = dynamic(
+  () => import("@/components/three/OrpheusWaveform").then((mod) => mod.OrpheusWaveform),
+  { ssr: false, loading: () => <div className="w-full h-full bg-surface-2/40" /> },
+);
 
 /* ── Media map ─────────────────────────────────────────────── */
 const PROJECT_IMAGES: Record<string, string> = {
@@ -15,6 +21,8 @@ const PROJECT_IMAGES: Record<string, string> = {
 const PROJECT_VIDEOS: Record<string, string> = {
   "shetniyojan": "/shetniyojan.mp4",
 };
+
+const PROJECT_WAVEFORM = new Set(["orpheus-tts"]);
 
 const VIDEO_CLIP_END = 10; // seconds
 
@@ -116,8 +124,9 @@ function VideoCard({
 
       {/* Live demo badge */}
       <span
-        className="absolute bottom-3 left-4 text-[9px] font-label uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5 z-10"
+        className="absolute bottom-3 left-4 text-[9px] uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5 z-10"
         style={{
+          fontFamily: "var(--font-display), monospace",
           background: "rgba(0,0,0,0.5)",
           backdropFilter: "blur(8px)",
           color: accentColor,
@@ -234,17 +243,23 @@ export function Projects() {
       {/* Section header */}
       <div className="px-8 md:px-20 mb-10 flex flex-col md:flex-row md:items-end gap-4">
         <div>
-          <p className="font-label text-[10px] text-primary uppercase tracking-[0.2em] mb-2">
+          <p
+            className="text-[10px] text-neural-cyan uppercase tracking-[0.2em] mb-2"
+            style={{ fontFamily: "var(--font-display), monospace" }}
+          >
             Manifest_v{projects.length}.0
           </p>
-          <h2 className="text-7xl md:text-8xl font-headline font-bold tracking-tighter leading-none">
+          <h2
+            className="text-7xl md:text-8xl font-bold tracking-tighter leading-none"
+            style={{ fontFamily: "var(--font-display), monospace" }}
+          >
             THE{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#a8e8ff] to-[#dcb8ff]">
               FORGE
             </span>
           </h2>
         </div>
-        <p className="md:ml-auto md:text-right max-w-xs text-on-surface-variant text-sm leading-relaxed">
+        <p className="md:ml-auto md:text-right max-w-xs text-text-soft text-sm leading-relaxed">
           Incubating neural architectures and decentralized systems. A gallery of
           synthetic intelligence.
         </p>
@@ -277,6 +292,7 @@ export function Projects() {
           const topMetric = project.metrics?.[0];
           const isActive = activeIdx === idx;
           const videoSrc = PROJECT_VIDEOS[project.id];
+          const isWaveform = PROJECT_WAVEFORM.has(project.id);
 
           return (
             <div
@@ -298,7 +314,11 @@ export function Projects() {
             >
               {/* Media panel */}
               <div className="relative flex-shrink-0 overflow-hidden" style={{ height: "220px" }}>
-                {videoSrc ? (
+                {isWaveform ? (
+                  <div className="w-full h-full" style={{ background: "rgba(8,12,18,0.8)" }}>
+                    <OrpheusWaveform />
+                  </div>
+                ) : videoSrc ? (
                   <VideoCard src={videoSrc} accentColor={color} />
                 ) : (
                   <>
@@ -323,8 +343,9 @@ export function Projects() {
 
                 {project.featured && (
                   <span
-                    className="absolute top-3 right-4 text-[9px] font-label uppercase tracking-widest px-3 py-1 rounded-full"
+                    className="absolute top-3 right-4 text-[9px] uppercase tracking-widest px-3 py-1 rounded-full"
                     style={{
+                      fontFamily: "var(--font-display), monospace",
                       background: `${color}20`,
                       color,
                       border: `1px solid ${color}40`,
@@ -338,21 +359,30 @@ export function Projects() {
               {/* Content */}
               <div className="flex flex-col flex-1 p-7">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-label text-[10px] uppercase tracking-widest" style={{ color }}>
+                  <span
+                    className="text-[10px] uppercase tracking-widest"
+                    style={{ fontFamily: "var(--font-display), monospace", color }}
+                  >
                     {project.stack[0]}
                   </span>
-                  <span className="font-label text-[10px] text-slate-500">
+                  <span
+                    className="text-[10px] text-text-muted"
+                    style={{ fontFamily: "var(--font-display), monospace" }}
+                  >
                     {project.period.slice(0, 4)}
                   </span>
                 </div>
 
                 <h3
-                  className="font-headline text-2xl font-bold mb-2 transition-colors duration-300"
-                  style={{ color: isActive ? color : undefined }}
+                  className="text-2xl font-bold mb-2 transition-colors duration-300"
+                  style={{
+                    fontFamily: "var(--font-display), monospace",
+                    color: isActive ? color : undefined,
+                  }}
                 >
                   {project.name}
                 </h3>
-                <p className="text-sm text-on-surface-variant leading-relaxed mb-4 line-clamp-2">
+                <p className="text-sm text-text-soft leading-relaxed mb-4 line-clamp-2">
                   {project.tagline}
                 </p>
 
@@ -360,8 +390,9 @@ export function Projects() {
                   {project.stack.slice(0, 4).map((t) => (
                     <span
                       key={t}
-                      className="px-3 py-1 rounded-full text-[10px] font-label"
+                      className="px-3 py-1 rounded-full text-[10px]"
                       style={{
+                        fontFamily: "var(--font-display), monospace",
                         background: `${color}0d`,
                         border: `1px solid ${color}20`,
                         color: "rgba(221,227,236,0.7)",
@@ -371,7 +402,10 @@ export function Projects() {
                     </span>
                   ))}
                   {project.stack.length > 4 && (
-                    <span className="px-3 py-1 rounded-full text-[10px] font-label text-slate-600">
+                    <span
+                      className="px-3 py-1 rounded-full text-[10px] text-text-muted"
+                      style={{ fontFamily: "var(--font-display), monospace" }}
+                    >
                       +{project.stack.length - 4}
                     </span>
                   )}
@@ -382,13 +416,19 @@ export function Projects() {
                     className="flex items-center gap-3 p-3 rounded-xl mb-5"
                     style={{ background: `${color}0d`, border: `1px solid ${color}20` }}
                   >
-                    <span className="font-headline text-xl font-bold" style={{ color }}>
+                    <span
+                      className="text-xl font-bold"
+                      style={{ fontFamily: "var(--font-display), monospace", color }}
+                    >
                       {topMetric.value}
                       {topMetric.unit && (
                         <span className="text-xs ml-1 opacity-70">{topMetric.unit}</span>
                       )}
                     </span>
-                    <span className="text-xs text-on-surface-variant font-label leading-snug">
+                    <span
+                      className="text-xs text-text-soft leading-snug"
+                      style={{ fontFamily: "var(--font-display), monospace" }}
+                    >
                       {topMetric.detail}
                     </span>
                   </div>
@@ -401,8 +441,9 @@ export function Projects() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-label font-bold uppercase tracking-widest transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all"
                       style={{
+                        fontFamily: "var(--font-display), monospace",
                         border: `1px solid ${color}40`,
                         color,
                         background: `${color}10`,
@@ -421,8 +462,11 @@ export function Projects() {
                     </a>
                   ) : (
                     <span
-                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-label uppercase tracking-widest opacity-40"
-                      style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[10px] uppercase tracking-widest opacity-40"
+                      style={{
+                        fontFamily: "var(--font-display), monospace",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                      }}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                         lock
@@ -441,7 +485,8 @@ export function Projects() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="font-label text-[10px] uppercase tracking-widest text-slate-500 hover:text-primary transition-colors"
+                          className="text-[10px] uppercase tracking-widest text-text-muted hover:text-neural-cyan transition-colors"
+                          style={{ fontFamily: "var(--font-display), monospace" }}
                         >
                           {key} ↗
                         </a>
@@ -472,6 +517,7 @@ export function Projects() {
                   boxShadow: activeIdx === i ? `0 0 10px ${color}` : "none",
                 }}
                 aria-label={`Go to ${p.name}`}
+                suppressHydrationWarning
               />
             );
           })}
@@ -487,7 +533,10 @@ export function Projects() {
           />
         </div>
 
-        <span className="font-label text-[10px] text-slate-500 whitespace-nowrap">
+        <span
+          className="text-[10px] text-text-muted whitespace-nowrap"
+          style={{ fontFamily: "var(--font-display), monospace" }}
+        >
           {projects.length} projects
         </span>
       </div>
