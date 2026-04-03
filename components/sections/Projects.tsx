@@ -41,6 +41,40 @@ function getPrimaryLink(links?: Record<string, string>): string | null {
   return links.github ?? links.model ?? links.demo ?? Object.values(links)[0] ?? null;
 }
 
+function ProjectImageGallery({
+  images,
+  alt,
+}: {
+  images: string[];
+  alt: string;
+}) {
+  if (images.length === 1) {
+    return (
+      <img
+        src={images[0]}
+        alt={alt}
+        draggable={false}
+        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
+      />
+    );
+  }
+
+  return (
+    <div className="grid w-full h-full grid-cols-2 grid-rows-2 gap-1">
+      {images.slice(0, 4).map((src, index) => (
+        <div key={src} className="relative overflow-hidden">
+          <img
+            src={src}
+            alt={`${alt} screenshot ${index + 1}`}
+            draggable={false}
+            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ── Video Card (isolated so it has its own ref + state) ───── */
 function VideoCard({
   src,
@@ -169,8 +203,23 @@ export function Projects() {
       const available = el.scrollWidth - el.clientWidth;
       const pct = available > 0 ? (el.scrollLeft / available) * 100 : 0;
       setScrollPct(Math.round(pct));
-      const cardW = el.scrollWidth / projects.length;
-      setActiveIdx(Math.min(projects.length - 1, Math.round(el.scrollLeft / cardW)));
+      const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-project-card='true']"));
+      if (!cards.length) return;
+
+      const scrollCenter = el.scrollLeft + el.clientWidth / 2;
+      let nearestIndex = 0;
+      let nearestDistance = Number.POSITIVE_INFINITY;
+
+      cards.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const distance = Math.abs(cardCenter - scrollCenter);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
+      });
+
+      setActiveIdx(nearestIndex);
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
@@ -205,7 +254,10 @@ export function Projects() {
     lastX.current = e.pageX;
     lastTime.current = Date.now();
     velocity.current = 0;
-    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+    const track = e.currentTarget as HTMLDivElement;
+    track.style.userSelect = "none";
+    track.style.cursor = "grabbing";
+    track.setPointerCapture(e.pointerId);
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -221,9 +273,12 @@ export function Projects() {
     lastTime.current = now;
   };
 
-  const onPointerUp = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
     if (!isDragging.current) return;
     isDragging.current = false;
+    const track = e.currentTarget as HTMLDivElement;
+    track.style.userSelect = "";
+    track.style.cursor = "grab";
     // kick off momentum
     if (Math.abs(velocity.current) > 1) {
       rafId.current = requestAnimationFrame(applyMomentum);
@@ -234,12 +289,12 @@ export function Projects() {
     cancelMomentum();
     const el = scrollRef.current;
     if (!el) return;
-    const cardW = el.scrollWidth / projects.length;
-    el.scrollTo({ left: cardW * idx, behavior: "smooth" });
+    const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-project-card='true']"));
+    cards[idx]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
   };
 
   return (
-    <section id="projects" className="relative z-10 pt-28 pb-16 select-none">
+    <section id="projects" className="relative z-10 pt-28 pb-16">
       {/* Section header */}
       <div className="px-8 md:px-20 mb-10 flex flex-col md:flex-row md:items-end gap-4">
         <div>
@@ -293,10 +348,12 @@ export function Projects() {
           const isActive = activeIdx === idx;
           const videoSrc = PROJECT_VIDEOS[project.id];
           const isWaveform = PROJECT_WAVEFORM.has(project.id);
+          const galleryImages = project.images?.length ? project.images : [img];
 
           return (
             <div
               key={project.id}
+              data-project-card="true"
               className="group flex-shrink-0 transition-all duration-300"
               style={{
                 width: "min(80vw, 680px)",
@@ -320,19 +377,17 @@ export function Projects() {
                   </div>
                 ) : videoSrc ? (
                   <VideoCard src={videoSrc} accentColor={color} />
+                ) : project.images?.length ? (
+                  <ProjectImageGallery images={project.images} alt={project.name} />
                 ) : (
-                  <>
-                    <img
-                      src={img}
-                      alt={project.name}
-                      draggable={false}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
-                    />
-                    <div
-                      className="absolute inset-0 pointer-events-none"
-                      style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(14,20,26,0.9))" }}
-                    />
-                  </>
+                  <ProjectImageGallery images={galleryImages} alt={project.name} />
+                )}
+
+                {!(isWaveform || videoSrc) && (
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(14,20,26,0.9))" }}
+                  />
                 )}
 
                 {/* Accent dot */}
