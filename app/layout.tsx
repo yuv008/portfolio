@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { JetBrains_Mono, Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { GrainOverlay } from "@/components/layout/GrainOverlay";
+import { TopNavBar } from "@/components/layout/TopNavBar";
+import { SideNavBar } from "@/components/layout/SideNavBar";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -13,6 +13,12 @@ const jetbrainsMono = JetBrains_Mono({
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-body",
   display: "swap",
 });
 
@@ -41,16 +47,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jetbrainsMono.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${jetbrainsMono.variable} ${spaceGrotesk.variable} ${inter.variable} dark`}>
       <head>
         <link
-          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body>
-        <GrainOverlay />
-        <Navbar />
+      <body className="bg-background text-on-surface font-body selection:bg-primary/30 neural-grid min-h-screen">
+        <TopNavBar />
+        <SideNavBar />
         {children}
       </body>
     </html>
