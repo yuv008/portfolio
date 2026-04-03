@@ -38,6 +38,7 @@ export interface Project {
   stack: string[];
   period: string;
   links?: Record<string, string>;
+  images?: string[];
   architecture: { nodes: ProjectNode[]; edges: ProjectEdge[] };
   decisions: Decision[];
   metrics: ProjectMetric[];
@@ -54,6 +55,7 @@ export const projects: Project[] = [
     stack: ["Llama 3.2 3B", "LoRA", "Unsloth", "SNAC Codec", "llama.cpp", "GGUF", "FastAPI", "Lightning AI"],
     period: "2025",
     links: {
+      github: "https://github.com/yuv008/Orpheus-tts",
       model: "https://huggingface.co/yuv008/orpheus-elise-merged",
       lora: "https://huggingface.co/yuv008/orpheus-elise-lora",
     },
@@ -242,6 +244,9 @@ export const projects: Project[] = [
     featured: false,
     stack: ["LLM", "Flask", "MongoDB"],
     period: "April 2025",
+    links: {
+      github: "https://github.com/yuv008/ShetNiyojan",
+    },
     architecture: {
       nodes: [
         { id: "planning", label: "Planning Module", type: "feature" },
@@ -281,12 +286,76 @@ export const projects: Project[] = [
       "The LLM crop recommendation module needs grounding in local agricultural data (soil reports, regional weather). Currently it relies too heavily on general knowledge. A RAG pipeline with government agricultural databases would make recommendations significantly more reliable.",
   },
   {
+    id: "warcast",
+    name: "WarCast",
+    tagline: "AI-based defense news aggregator with sentiment analysis and summaries",
+    featured: false,
+    stack: ["Flask", "Python", "DistilBERT", "BART", "BeautifulSoup", "Newspaper3k"],
+    period: "2025",
+    links: {
+      github: "https://github.com/GopalDose/WarCast",
+    },
+    images: [
+      "/warcasthome.png",
+      "/warcastdashboard.png",
+      "/warcastsearch.png",
+      "/warcastcode.png",
+    ],
+    architecture: {
+      nodes: [
+        { id: "sources", label: "10+ Defense Sources", type: "data" },
+        { id: "scraper", label: "News Scraper", type: "backend" },
+        { id: "sentiment", label: "DistilBERT", type: "ai" },
+        { id: "summary", label: "BART Summarizer", type: "ai" },
+        { id: "api", label: "Flask REST API", type: "backend" },
+        { id: "feed", label: "Categorized Feed", type: "frontend" },
+        { id: "multi", label: "Multilingual Output", type: "feature" },
+      ],
+      edges: [
+        { from: "sources", to: "scraper" },
+        { from: "scraper", to: "sentiment" },
+        { from: "scraper", to: "summary" },
+        { from: "sentiment", to: "api" },
+        { from: "summary", to: "api" },
+        { from: "api", to: "feed" },
+        { from: "api", to: "multi" },
+      ],
+    },
+    decisions: [
+      {
+        question: "Why combine scraping with NLP instead of a simple feed reader?",
+        answer:
+          "WarCast is designed to reduce noise, not just collect links. Scraping pulls in articles from multiple defense sources, then sentiment analysis and summarization turn them into a faster, more focused briefing experience.",
+      },
+      {
+        question: "Why DistilBERT for sentiment?",
+        answer:
+          "The model is lightweight enough to run in a Flask pipeline while still providing reliable classification for short news articles and headlines. That keeps the backend responsive without sacrificing much accuracy.",
+      },
+      {
+        question: "Why BART for summaries?",
+        answer:
+          "Defense news tends to be dense and repetitive. BART gives concise abstractive summaries that keep the important signal while trimming the article down to something you can scan quickly.",
+      },
+    ],
+    metrics: [
+      { label: "Sources", value: "10+", detail: "Global defense publishers aggregated in real time" },
+      { label: "Summary length", value: "150", unit: "words", detail: "Concise BART-based article summaries" },
+      { label: "Languages", value: "Multi", detail: "Multilingual support for broader access" },
+    ],
+    reflection:
+      "The strongest next step is better source quality controls and stronger deduplication, since defense news often repeats the same story across publishers. A production version would also benefit from source freshness scoring and a clearer personalization layer so the sentiment feed learns what matters most to each reader.",
+  },
+  {
     id: "legify",
     name: "Legify",
     tagline: "AI-powered legal document simplification and Q&A",
     featured: false,
     stack: ["BERTSum", "FAISS", "Django", "TTS/STT"],
     period: "March 2025",
+    links: {
+      github: "https://github.com/yuv008/LegiFy",
+    },
     architecture: {
       nodes: [
         { id: "input", label: "Document Input", type: "frontend" },

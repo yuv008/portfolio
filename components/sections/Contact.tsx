@@ -1,144 +1,253 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { CanvasSkeleton } from "@/components/three/CanvasSkeleton";
+import { accentStyles, sectionIds, socialLinks, socialNodes } from "@/lib/constants";
+
+const ContactGlobe = dynamic(
+  () => import("@/components/three/ContactGlobe").then((mod) => mod.ContactGlobe),
+  {
+    ssr: false,
+    loading: () => <CanvasSkeleton className="h-64 w-full rounded-[2rem] md:h-72" />,
+  },
+);
+
+const initialForm = {
+  name: "",
+  email: "",
+  message: "",
+};
 
 export function Contact() {
+  const [form, setForm] = useState(initialForm);
+  const [errors, setErrors] = useState<Partial<typeof initialForm>>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const onFieldChange = (field: keyof typeof initialForm, value: string) => {
+    setForm((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const validate = () => {
+    const nextErrors: Partial<typeof initialForm> = {};
+
+    if (!form.name.trim()) nextErrors.name = "Name is required.";
+    if (!form.email.trim()) nextErrors.email = "Email is required.";
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+    if (!form.message.trim()) nextErrors.message = "Message is required.";
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!validate()) {
+      toast.error("Transmission failed validation. Check the required fields.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await new Promise((resolve) => window.setTimeout(resolve, 700));
+
+      const subject = encodeURIComponent(`Portfolio inquiry from ${form.name}`);
+      const body = encodeURIComponent(`${form.message}\n\nFrom: ${form.name}\nReply to: ${form.email}`);
+      window.location.href = `mailto:${socialLinks.email}?subject=${subject}&body=${body}`;
+
+      toast.success("Transmission staged in your default mail client.");
+      setForm(initialForm);
+    } catch {
+      toast.error("Transmission could not be prepared. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <section id="contact" className="container mx-auto px-8 relative pt-20 pb-32">
-      <header className="mb-16 md:ml-24">
-        <p className="font-label text-primary text-sm tracking-[0.3em] uppercase mb-4">Channel: Transmission</p>
-        <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tighter leading-none text-on-surface">
-            Establish <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Connection</span>
-        </h1>
-        <p className="mt-6 text-on-surface-variant max-w-xl text-lg font-light leading-relaxed">
-            Initiate a high-fidelity handshake. Send your parameters through the neural gateway or reach out via authenticated social nodes.
-        </p>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start md:ml-24">
-        {/* CLI Terminal Form */}
-        <motion.div 
-            className="lg:col-span-7 bg-surface-container-low/60 backdrop-blur-2xl rounded-xl border border-outline-variant/15 overflow-hidden shadow-2xl"
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+    <section id={sectionIds.contact} className="section-shell">
+      <div className="section-container">
+        <motion.header
+          className="mb-14"
+          initial={{ opacity: 0, y: 22 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
         >
-          <div className="bg-surface-container-highest px-6 py-3 flex items-center justify-between border-b border-outline-variant/15">
-            <div className="flex gap-2">
-              <div className="w-3 h-3 rounded-full bg-error/40"></div>
-              <div className="w-3 h-3 rounded-full bg-secondary/40"></div>
-              <div className="w-3 h-3 rounded-full bg-primary/40"></div>
-            </div>
-            <span className="font-label text-[10px] text-slate-500 tracking-widest uppercase">system_session_3392</span>
-          </div>
+          <p className="section-kicker mb-4">Terminal / Transmission</p>
+          <h2 className="section-title">
+            Establish <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Connection</span>
+          </h2>
+          <p className="section-copy mt-5">
+            Send a message through the neural gateway or route through the authenticated social nodes. The form validates client-side and opens a prefilled message in your default mail client.
+          </p>
+        </motion.header>
 
-          <form className="p-8 font-label text-sm" onSubmit={(e) => e.preventDefault()}>
-            <div className="mb-8 flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-primary opacity-50">$</span>
-                <span className="text-on-surface-variant">SET_SENDER_IDENTITY</span>
-              </div>
-              <div className="flex items-center gap-3 border-b border-outline-variant/30 focus-within:border-primary transition-colors pb-2">
-                <span className="text-secondary">NAME:</span>
-                <input className="bg-transparent border-none focus:ring-0 focus:outline-none text-primary w-full p-0 placeholder:text-slate-700" placeholder="John_Doe" type="text" />
-              </div>
-            </div>
-
-            <div className="mb-8 flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-primary opacity-50">$</span>
-                <span className="text-on-surface-variant">SET_RETURN_PROTOCOL</span>
-              </div>
-              <div className="flex items-center gap-3 border-b border-outline-variant/30 focus-within:border-primary transition-colors pb-2">
-                <span className="text-secondary">EMAIL:</span>
-                <input className="bg-transparent border-none focus:ring-0 focus:outline-none text-primary w-full p-0 placeholder:text-slate-700" placeholder="user@neural.network" type="email" />
-              </div>
-            </div>
-
-            <div className="mb-10 flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-primary opacity-50">$</span>
-                <span className="text-on-surface-variant">WRITE_PAYLOAD</span>
-              </div>
-              <div className="flex gap-3 min-h-[120px]">
-                <span className="text-secondary mt-1">MSG:</span>
-                <textarea className="bg-transparent border-none focus:ring-0 focus:outline-none text-primary w-full p-0 placeholder:text-slate-700 resize-none h-full" placeholder="Type your transmission here..."></textarea>
-              </div>
-              <div className="border-b border-primary/20 w-8 cursor-blink border-2"></div>
-            </div>
-
-            <div className="flex items-center justify-between mt-8">
-              <div className="flex items-center gap-3 text-slate-500 text-[10px]">
-                <span className="material-symbols-outlined text-xs">encrypted</span>
-                <span>AES-256 ENCRYPTED</span>
-              </div>
-              <button className="group flex items-center gap-3 bg-primary/10 border border-primary/20 px-8 py-3 rounded-full text-primary hover:bg-primary hover:text-on-primary transition-all duration-300" type="submit">
-                <span className="uppercase tracking-tighter font-bold">Transmit</span>
-                <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">send</span>
-              </button>
-            </div>
-          </form>
-        </motion.div>
-
-        {/* Social Nodes */}
-        <motion.div 
-            className="lg:col-span-5 space-y-8"
-            initial={{ opacity: 0, x: 30 }}
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <motion.div
+            className="terminal-shell overflow-hidden"
+            initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <div className="p-8 bg-surface-container-low/40 rounded-xl border border-outline-variant/15 glass-panel">
-            <h3 className="font-label text-xs text-slate-500 uppercase tracking-[0.2em] mb-8">Social_Nodes</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <a className="group flex items-center justify-between p-4 rounded-lg bg-surface-container-highest/30 hover:bg-primary/5 border border-transparent hover:border-primary/30 transition-all duration-300" href="https://linkedin.com/in/yuvrajsanghai" target="_blank" rel="noreferrer">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-highest group-hover:shadow-[0_0_15px_rgba(168,232,255,0.3)] transition-all">
-                    <span className="material-symbols-outlined text-primary">hub</span>
-                  </div>
-                  <span className="font-label text-sm tracking-tight group-hover:text-primary transition-colors">LinkedIn</span>
-                </div>
-                <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">arrow_outward</span>
-              </a>
-
-              <a className="group flex items-center justify-between p-4 rounded-lg bg-surface-container-highest/30 hover:bg-secondary/5 border border-transparent hover:border-secondary/30 transition-all duration-300" href="https://github.com/YuvrajSanghai" target="_blank" rel="noreferrer">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-highest group-hover:shadow-[0_0_15px_rgba(220,184,255,0.3)] transition-all">
-                    <span className="material-symbols-outlined text-secondary">code</span>
-                  </div>
-                  <span className="font-label text-sm tracking-tight group-hover:text-secondary transition-colors">GitHub</span>
-                </div>
-                <span className="material-symbols-outlined text-slate-600 group-hover:text-secondary transition-colors">arrow_outward</span>
-              </a>
-
-              <a className="group flex items-center justify-between p-4 rounded-lg bg-surface-container-highest/30 hover:bg-cyan-400/5 border border-transparent hover:border-cyan-400/30 transition-all duration-300" href="https://huggingface.co/yuv008" target="_blank" rel="noreferrer">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-highest group-hover:shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all">
-                    <span className="material-symbols-outlined text-cyan-400">psychology</span>
-                  </div>
-                  <span className="font-label text-sm tracking-tight group-hover:text-cyan-400 transition-colors">Hugging Face</span>
-                </div>
-                <span className="material-symbols-outlined text-slate-600 group-hover:text-cyan-400 transition-colors">arrow_outward</span>
-              </a>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-xl border border-outline-variant/15 p-1">
-            <div className="bg-surface-container-low p-6 rounded-lg relative z-10 glass-panel">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_#3cd7ff] animate-pulse"></div>
-                <span className="font-label text-[10px] text-primary uppercase tracking-[0.2em]">Neural_Status</span>
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.75 }}
+          >
+            <div className="terminal-bar">
+              <div className="flex gap-2">
+                <span className="terminal-dot bg-neural-red/60" />
+                <span className="terminal-dot bg-neural-amber/60" />
+                <span className="terminal-dot bg-neural-green/60" />
               </div>
-              <p className="font-label text-xs text-on-surface-variant leading-loose">
-                  LOC: 18.5204° N, 73.8567° E<br/>
-                  TZ: UTC+05:30<br/>
-                  AVAILABILITY: HIGH_PRIORITY
+              <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
+                system_session_transmit
+              </span>
+            </div>
+            <form className="space-y-6 p-8" onSubmit={handleSubmit} noValidate>
+              <div className="grid gap-5 md:grid-cols-2">
+                <label className="space-y-3">
+                  <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
+                    Sender Identity
+                  </span>
+                  <div className="input-shell">
+                    <input
+                      aria-label="Your name"
+                      value={form.name}
+                      onChange={(event) => onFieldChange("name", event.target.value)}
+                      placeholder="John_Doe"
+                      className="w-full bg-transparent text-sm text-text-strong outline-none placeholder:text-text-muted"
+                      suppressHydrationWarning
+                    />
+                  </div>
+                  {errors.name ? <p className="text-sm text-neural-red">{errors.name}</p> : null}
+                </label>
+
+                <label className="space-y-3">
+                  <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
+                    Return Protocol
+                  </span>
+                  <div className="input-shell">
+                    <input
+                      aria-label="Your email address"
+                      type="email"
+                      value={form.email}
+                      onChange={(event) => onFieldChange("email", event.target.value)}
+                      placeholder="user@neural.network"
+                      className="w-full bg-transparent text-sm text-text-strong outline-none placeholder:text-text-muted"
+                      suppressHydrationWarning
+                    />
+                  </div>
+                  {errors.email ? <p className="text-sm text-neural-red">{errors.email}</p> : null}
+                </label>
+              </div>
+
+              <label className="block space-y-3">
+                <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
+                  Write Payload
+                </span>
+                <div className="input-shell">
+                  <textarea
+                    aria-label="Your message"
+                    value={form.message}
+                    onChange={(event) => onFieldChange("message", event.target.value)}
+                    placeholder="Describe the system, product, or collaboration you want to build."
+                    className="min-h-[120px] w-full resize-none bg-transparent text-sm leading-7 text-text-strong outline-none placeholder:text-text-muted"
+                  />
+                </div>
+                {errors.message ? <p className="text-sm text-neural-red">{errors.message}</p> : null}
+              </label>
+
+              <div className="flex flex-col gap-4 border-t border-surface-border/20 pt-6 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3 text-text-muted">
+                  <span className="material-symbols-outlined text-sm">encrypted</span>
+                  <span className="font-display text-[0.62rem] uppercase tracking-[0.28em]">
+                    Mail Client Relay / AES-256 Styled
+                  </span>
+                </div>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex items-center justify-center gap-3 rounded-full border border-neural-cyan/35 bg-neural-cyan/12 px-6 py-3 font-display text-[0.72rem] uppercase tracking-[0.32em] text-neural-cyan transition-all hover:bg-neural-cyan/18 disabled:cursor-not-allowed disabled:opacity-60"
+                  suppressHydrationWarning
+                >
+                  <span>{submitting ? "Transmitting..." : "Transmit"}</span>
+                  <span className="material-symbols-outlined text-base">send</span>
+                </button>
+              </div>
+            </form>
+          </motion.div>
+
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, x: 24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.75, delay: 0.12 }}
+          >
+            <div className="glass-panel rounded-[2rem] p-5">
+              <div className="mb-3">
+                <h3 className="font-display text-xl text-text-strong">Pune Link Node</h3>
+                <p className="mt-1 font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
+                  18.52°N / 73.86°E
+                </p>
+              </div>
+              <div className="h-52 overflow-hidden rounded-[1.5rem] border border-surface-border/20 bg-surface-2/60">
+                <ContactGlobe />
+              </div>
+            </div>
+
+            <div className="glass-panel rounded-[2rem] p-5">
+              <h3 className="font-display text-xl text-text-strong">Social Nodes</h3>
+              <div className="mt-5 grid gap-3">
+                {socialNodes.map((node) => {
+                  const accent = accentStyles[node.tone];
+                  return (
+                    <Link
+                      key={node.label}
+                      href={node.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group flex items-center justify-between rounded-[1.25rem] border border-surface-border/20 bg-surface-2/55 px-4 py-4 transition-all hover:border-neural-cyan/25 hover:bg-surface-2/75"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`flex h-11 w-11 items-center justify-center rounded-full border ${accent.border} ${accent.bg}`}>
+                          <span className={`material-symbols-outlined ${accent.text}`}>{node.icon}</span>
+                        </div>
+                        <span className="font-display text-sm uppercase tracking-[0.2em] text-text-strong">
+                          {node.label}
+                        </span>
+                      </div>
+                      <span className="material-symbols-outlined text-text-muted transition-colors group-hover:text-neural-cyan">
+                        arrow_outward
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="glass-panel rounded-[2rem] p-5">
+              <div className="mb-3 flex items-center gap-3">
+                <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-neural-green/60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-neural-green" />
+                </span>
+                <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-neural-green">
+                  Neural_Status
+                </span>
+              </div>
+              <p className="font-display text-sm leading-8 text-text-soft">
+                LOC: Pune, Maharashtra<br />
+                TZ: UTC+05:30<br />
+                AVAILABILITY: High_Priority
               </p>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 pointer-events-none"></div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

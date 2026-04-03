@@ -102,67 +102,118 @@ export function Skills() {
           </div>
 
           <div className="flex items-center justify-center">
-            <svg viewBox="0 0 420 400" className="w-full max-w-[420px]">
-              {/* Background rings */}
-              {[150, 100, 50].map((r) => (
-                <circle
+            <svg viewBox="0 0 420 400" className="w-full max-w-[420px]" style={{ overflow: "visible" }}>
+              <defs>
+                <filter id="node-glow-matrix">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+                <filter id="edge-glow-matrix">
+                  <feGaussianBlur stdDeviation="1.5" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+
+              {/* Background rings — animated rotation via framer-motion */}
+              {[150, 100, 50].map((r, ri) => (
+                <motion.circle
                   key={r}
-                  cx="200"
-                  cy="200"
-                  r={r}
+                  cx="200" cy="200" r={r}
                   fill="none"
-                  stroke="rgba(168,232,255,0.06)"
+                  stroke="rgba(168,232,255,0.07)"
                   strokeDasharray="4 6"
+                  animate={{ rotate: ri % 2 === 0 ? 360 : -360 }}
+                  transition={{ duration: 30 + ri * 8, repeat: Infinity, ease: "linear" }}
+                  style={{ originX: "200px", originY: "200px" }}
                 />
               ))}
 
-              {/* Edges */}
-              {EDGES.map(([a, b], i) => (
-                <line
-                  key={i}
-                  x1={NODE_GROUPS[a].x}
-                  y1={NODE_GROUPS[a].y}
-                  x2={NODE_GROUPS[b].x}
-                  y2={NODE_GROUPS[b].y}
-                  stroke="rgba(168,232,255,0.12)"
-                  strokeWidth="1"
-                />
-              ))}
+              {/* Edges — draw in on mount */}
+              {EDGES.map(([a, b], i) => {
+                const ax = NODE_GROUPS[a].x, ay = NODE_GROUPS[a].y;
+                const bx = NODE_GROUPS[b].x, by = NODE_GROUPS[b].y;
+                const len = Math.hypot(bx - ax, by - ay);
+                return (
+                  <motion.line
+                    key={i}
+                    x1={ax} y1={ay} x2={bx} y2={by}
+                    stroke="rgba(168,232,255,0.15)"
+                    strokeWidth="1"
+                    strokeDasharray={len}
+                    initial={{ strokeDashoffset: len, opacity: 0 }}
+                    whileInView={{ strokeDashoffset: 0, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.3 + i * 0.07, ease: "easeOut" }}
+                  />
+                );
+              })}
 
               {/* Nodes */}
               {NODE_GROUPS.map((n, i) => (
-                <g key={i} className="group/node">
-                  <circle
-                    cx={n.x}
-                    cy={n.y}
-                    r={n.r + 6}
+                <motion.g key={i}>
+                  {/* Outer halo */}
+                  <motion.circle
+                    cx={n.x} cy={n.y} r={n.r + 8}
                     fill={n.color}
-                    fillOpacity="0.06"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: [0, 0.12, 0.06, 0.12] }}
+                    viewport={{ once: false }}
+                    transition={{ duration: 2.5, delay: i * 0.08, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  <circle
-                    cx={n.x}
-                    cy={n.y}
-                    r={n.r}
+                  {/* Node circle */}
+                  <motion.circle
+                    cx={n.x} cy={n.y} r={n.r}
                     fill={n.color}
-                    style={{ filter: `drop-shadow(0 0 6px ${n.color})` }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: 0.2 + i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ filter: `drop-shadow(0 0 6px ${n.color})`, originX: `${n.x}px`, originY: `${n.y}px` }}
                   />
-                  <text
+                  {/* Label */}
+                  <motion.text
                     x={n.x + (n.x > 200 ? n.r + 6 : -(n.r + 6))}
                     y={n.y + 4}
                     textAnchor={n.x > 200 ? "start" : n.x === 200 ? "middle" : "end"}
                     fill="rgba(221,227,236,0.8)"
                     fontSize="10"
                     fontFamily="JetBrains Mono, monospace"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.4 + i * 0.07 }}
                   >
                     {n.label}
-                  </text>
-                </g>
+                  </motion.text>
+                </motion.g>
               ))}
 
               {/* Center hub */}
-              <circle cx="200" cy="200" r="18" fill="rgba(0,212,255,0.1)" stroke="#00d4ff" strokeWidth="1.5" strokeDasharray="4 3" />
+              <motion.circle
+                cx="200" cy="200" r="18"
+                fill="rgba(0,212,255,0.1)"
+                stroke="#00d4ff"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                style={{ originX: "200px", originY: "200px" }}
+              />
               <text x="200" y="196" textAnchor="middle" fill="#00d4ff" fontSize="8" fontFamily="JetBrains Mono">CORE</text>
               <text x="200" y="207" textAnchor="middle" fill="#00d4ff" fontSize="8" fontFamily="JetBrains Mono">STACK</text>
+
+              {/* Traveling signal dot along main path: 0→3→4→5→7→8 */}
+              <motion.circle
+                r="3"
+                fill="#00d4ff"
+                style={{ filter: "drop-shadow(0 0 4px #00d4ff)" }}
+                animate={{
+                  cx: [NODE_GROUPS[0].x, NODE_GROUPS[3].x, NODE_GROUPS[4].x, NODE_GROUPS[5].x, NODE_GROUPS[7].x, NODE_GROUPS[8].x, NODE_GROUPS[0].x],
+                  cy: [NODE_GROUPS[0].y, NODE_GROUPS[3].y, NODE_GROUPS[4].y, NODE_GROUPS[5].y, NODE_GROUPS[7].y, NODE_GROUPS[8].y, NODE_GROUPS[0].y],
+                  opacity: [0, 1, 1, 1, 1, 1, 0],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+              />
             </svg>
           </div>
 
