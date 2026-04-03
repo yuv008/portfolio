@@ -8,7 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 
 export default function Home() {
   return (
-    <main id="main-content" className="relative z-10 overflow-hidden">
+    <main id="main-content" className="relative z-10">
       <Hero />
       <About />
       <Projects />

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
-import { SideNavBar } from "@/components/layout/SideNavBar";
+
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -56,7 +56,7 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-on-surface font-body selection:bg-primary/30 neural-grid min-h-screen">
         <TopNavBar />
-        <SideNavBar />
+
         {children}
       </body>
     </html>
