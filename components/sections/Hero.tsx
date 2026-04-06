@@ -1,27 +1,15 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { heroStats, sectionIds } from "@/lib/constants";
 
-const PARTICLES = [
-  { top: "18%", left: "62%", size: 2, delay: 0 },
-  { top: "72%", left: "68%", size: 1.5, delay: 0.4 },
-  { top: "42%", left: "82%", size: 2.5, delay: 0.8 },
-  { top: "25%", left: "48%", size: 1, delay: 1.2 },
-  { top: "60%", left: "38%", size: 2, delay: 0.6 },
-  { top: "85%", left: "55%", size: 1.5, delay: 1.0 },
-  { top: "10%", left: "72%", size: 1, delay: 0.2 },
-];
-
 export function Hero() {
-  const orbRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const springConfig = { stiffness: 60, damping: 18 };
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [12, -12]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-14, 14]), springConfig);
+  const springConfig = { stiffness: 120, damping: 20 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [20, -20]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-25, 25]), springConfig);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -183,231 +171,151 @@ export function Hero() {
         </div>
       </motion.div>
 
-      {/* ── Right: Animated Orb ── */}
+      {/* ── Right: 3D Neural Core ── */}
       <motion.div
-        ref={orbRef}
-        className="w-full md:w-1/2 flex justify-center items-center relative z-10 cursor-none"
-        style={{ height: "600px", perspective: "1200px" }}
+        className="w-full md:w-1/2 flex justify-center items-center relative z-10"
+        style={{ height: "600px", perspective: "1000px" }}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1, delay: 0.2 }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
+        {/* Mouse-tilt wrapper — rotates everything together */}
         <motion.div
-          className="relative w-full h-full flex items-center justify-center"
-          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+          className="relative flex items-center justify-center"
+          style={{ width: 300, height: 300, transformStyle: "preserve-3d", rotateX, rotateY }}
         >
-          {/* Pulsing ambient glow behind orb */}
+          {/* Spinning shell — 3 orbital layers animate as one group */}
           <motion.div
-            className="absolute rounded-full pointer-events-none"
-            style={{ width: 340, height: 340 }}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ transformStyle: "preserve-3d" }}
+            animate={{ rotateX: 360, rotateY: 360, rotateZ: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear", repeatType: "loop" }}
+          >
+            {/* Layer 1 — cyan */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                transform: "rotateX(45deg) rotateY(0deg)",
+                border: "1px solid rgba(168,232,255,0.5)",
+                background: "radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 70%)",
+                boxShadow: "0 0 40px rgba(60,215,255,0.1)",
+              }}
+            />
+            {/* Layer 2 — purple */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                transform: "rotateX(-45deg) rotateY(45deg)",
+                border: "1px solid rgba(220,184,255,0.4)",
+                background: "radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%)",
+              }}
+            />
+            {/* Layer 3 — blue */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                transform: "rotateX(0deg) rotateY(90deg)",
+                border: "1px solid rgba(0,212,255,0.4)",
+                background: "radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%)",
+              }}
+            />
+          </motion.div>
+
+          {/* Nucleus — stays centred, pulses independently */}
+          <motion.div
+            className="absolute rounded-full z-10"
+            style={{
+              width: 80,
+              height: 80,
+              background: "radial-gradient(circle, #a8e8ff 0%, #00d4ff 40%, transparent 80%)",
+            }}
             animate={{
+              scale: [0.9, 1.1, 0.9],
               boxShadow: [
-                "0 0 60px 20px rgba(110,231,255,0.08)",
-                "0 0 100px 40px rgba(110,231,255,0.16)",
-                "0 0 60px 20px rgba(110,231,255,0.08)",
+                "0 0 60px #00d4ff, 0 0 100px #a8e8ff",
+                "0 0 80px #00d4ff, 0 0 120px #a8e8ff",
+                "0 0 60px #00d4ff, 0 0 100px #a8e8ff",
               ],
             }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           />
 
-          {/* Outer rotating dashed ring with orbital dot */}
+          {/* Floating readout — top left */}
           <motion.div
-            className="absolute flex items-center justify-center"
-            style={{ width: 450, height: 450 }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-          >
-            <div className="w-full h-full rounded-full" style={{ border: "1px dashed rgba(110,231,255,0.2)" }} />
-            {/* Orbital dot on outer ring */}
-            <motion.div
-              className="absolute rounded-full"
-              style={{
-                width: 8,
-                height: 8,
-                top: "50%",
-                left: "100%",
-                marginTop: -4,
-                marginLeft: -4,
-                background: "#6ee7ff",
-                boxShadow: "0 0 12px 4px rgba(110,231,255,0.6)",
-              }}
-            />
-          </motion.div>
-
-          {/* Inner counter-rotating ring with orbital dot */}
-          <motion.div
-            className="absolute flex items-center justify-center"
-            style={{ width: 350, height: 350 }}
-            animate={{ rotate: -360 }}
-            transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
-          >
-            <div className="w-full h-full rounded-full" style={{ border: "1px solid rgba(171,138,255,0.18)" }} />
-            {/* Orbital dot on inner ring */}
-            <motion.div
-              className="absolute rounded-full"
-              style={{
-                width: 6,
-                height: 6,
-                top: 0,
-                left: "50%",
-                marginLeft: -3,
-                marginTop: -3,
-                background: "#ab8aff",
-                boxShadow: "0 0 10px 3px rgba(171,138,255,0.6)",
-              }}
-            />
-          </motion.div>
-
-          {/* Innermost slow-rotating ring */}
-          <motion.div
-            className="absolute"
-            style={{ width: 260, height: 260 }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          >
-            <div
-              className="w-full h-full rounded-full"
-              style={{ border: "1px solid rgba(110,231,255,0.07)", borderTopColor: "rgba(110,231,255,0.25)" }}
-            />
-          </motion.div>
-
-          {/* Core orb */}
-          <div
-            className="relative z-20 rounded-full p-1 group"
+            className="absolute rounded-xl px-3 py-2"
             style={{
-              width: 300,
-              height: 300,
-              background: "radial-gradient(circle at 35% 35%, rgba(110,231,255,0.12), rgba(14,20,26,0.95))",
-              boxShadow: "0 0 0 1px rgba(110,231,255,0.15), 0 0 80px rgba(110,231,255,0.1), inset 0 0 40px rgba(110,231,255,0.05)",
-            }}
-          >
-            <div className="w-full h-full rounded-full overflow-hidden relative">
-              <img
-                alt="Neural Core Architecture"
-                className="w-full h-full object-cover opacity-85 mix-blend-screen scale-110 group-hover:scale-100 transition-transform duration-1000"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0L8mmq3R7aKmFCmIvdbi-PC_821kPTZrBmWOoS9bN0r-0JAirjvfQ8BkEaw0k_mPTe0PLkPQU3DLIJfW6zfoRgp_yxnBZuW1M1tky7V4Y0SxWQ6hAZiVvCqNWtP9QfAst0OtfxGcyhfHLzE9yFEV1WJCENBAR0S5GHXnoPEN7S7ueRsWVp0_OQcoPCwOUrq5nUzqE5XisEXKy5EQbKWDM4j19Qe_p43-DkgndoO_sHabX4lr0dgD86dsChvlwYSlLaJ3gvskqUZ0"
-              />
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ background: "radial-gradient(circle at 30% 30%, rgba(110,231,255,0.18) 0%, transparent 60%)" }}
-              />
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ background: "radial-gradient(circle at 70% 75%, rgba(171,138,255,0.15) 0%, transparent 50%)" }}
-              />
-            </div>
-          </div>
-
-          {/* Floating particles */}
-          {PARTICLES.map((p, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                top: p.top,
-                left: p.left,
-                width: p.size,
-                height: p.size,
-                background: i % 2 === 0 ? "#6ee7ff" : "#ab8aff",
-                boxShadow: `0 0 ${p.size * 3}px ${i % 2 === 0 ? "rgba(110,231,255,0.8)" : "rgba(171,138,255,0.8)"}`,
-              }}
-              animate={{ y: [-6, 6, -6], opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 2.5 + i * 0.4, repeat: Infinity, ease: "easeInOut", delay: p.delay }}
-            />
-          ))}
-
-          {/* LATENCY chip */}
-          <motion.div
-            className="absolute flex items-center gap-3 px-4 py-2 rounded-lg"
-            style={{
-              top: "18%",
-              right: "8%",
-              background: "rgba(8,12,18,0.82)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(110,231,255,0.25)",
-              boxShadow: "0 4px 24px rgba(110,231,255,0.08)",
+              top: -20,
+              left: -40,
+              background: "rgba(47,53,60,0.4)",
+              border: "1px solid rgba(60,73,78,0.3)",
+              backdropFilter: "blur(10px)",
+              color: "#dde3ec",
+              minWidth: 110,
             }}
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            <span className="material-symbols-outlined text-sm" style={{ color: "#6ee7ff", fontVariationSettings: "'FILL' 1" }}>
-              bolt
-            </span>
-            <div style={{ fontFamily: "var(--font-display), monospace" }}>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest">LATENCY</div>
-              <div className="font-bold text-sm" style={{ color: "#6ee7ff" }}>14ms</div>
+            <div className="flex items-center gap-2 mb-1" style={{ color: "#a8e8ff" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>memory</span>
+              <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: "var(--font-display), monospace" }}>Node Alpha</span>
             </div>
+            <div className="text-xl font-bold" style={{ fontFamily: "var(--font-display), monospace" }}>99.98%</div>
+            <div className="text-[10px] mt-1" style={{ fontFamily: "var(--font-display), monospace", color: "#bbc9cf" }}>EFFICIENCY</div>
           </motion.div>
 
-          {/* DATA_SET chip */}
+          {/* Floating readout — bottom right */}
           <motion.div
-            className="absolute flex items-center gap-3 px-4 py-2 rounded-lg"
+            className="absolute rounded-xl px-3 py-2"
             style={{
-              bottom: "18%",
-              left: "8%",
-              background: "rgba(8,12,18,0.82)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(171,138,255,0.25)",
-              boxShadow: "0 4px 24px rgba(171,138,255,0.08)",
+              bottom: 20,
+              right: -60,
+              background: "rgba(47,53,60,0.4)",
+              border: "1px solid rgba(60,73,78,0.3)",
+              backdropFilter: "blur(10px)",
+              color: "#dde3ec",
+              minWidth: 110,
             }}
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           >
-            <span className="material-symbols-outlined text-sm" style={{ color: "#ab8aff", fontVariationSettings: "'FILL' 1" }}>
-              database
-            </span>
-            <div style={{ fontFamily: "var(--font-display), monospace" }}>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest">DATA_SET</div>
-              <div className="font-bold text-sm" style={{ color: "#ab8aff" }}>TERA_B8</div>
+            <div className="flex items-center gap-2 mb-1" style={{ color: "#dcb8ff" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>stream</span>
+              <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: "var(--font-display), monospace" }}>Flux Rate</span>
             </div>
+            <div className="text-xl font-bold" style={{ fontFamily: "var(--font-display), monospace" }}>1.4 TB/s</div>
+            <div className="text-[10px] mt-1" style={{ fontFamily: "var(--font-display), monospace", color: "#bbc9cf" }}>STABLE</div>
           </motion.div>
 
-          {/* PARAMS chip */}
+          {/* Floating readout — bottom left (mini bar chart) */}
           <motion.div
-            className="absolute flex items-center gap-3 px-4 py-2 rounded-lg"
+            className="absolute rounded-xl px-3 py-2"
             style={{
-              bottom: "32%",
-              right: "5%",
-              background: "rgba(8,12,18,0.82)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(97,255,171,0.2)",
-              boxShadow: "0 4px 24px rgba(97,255,171,0.06)",
+              bottom: 40,
+              left: -20,
+              background: "rgba(47,53,60,0.4)",
+              border: "1px solid rgba(168,232,255,0.2)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 0 20px rgba(168,232,255,0.1)",
             }}
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.8 }}
           >
-            <span className="material-symbols-outlined text-sm" style={{ color: "#61ffab", fontVariationSettings: "'FILL' 1" }}>
-              memory
-            </span>
-            <div style={{ fontFamily: "var(--font-display), monospace" }}>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest">PARAMS</div>
-              <div className="font-bold text-sm" style={{ color: "#61ffab" }}>12.4M</div>
+            <div className="flex items-end gap-1" style={{ width: 80, height: 40, opacity: 0.8 }}>
+              {[20, 50, 90, 40, 100].map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-sm"
+                  style={{
+                    height: `${h}%`,
+                    background: i === 4 ? "#a8e8ff" : `rgba(168,232,255,${0.3 + i * 0.15})`,
+                    boxShadow: i === 4 ? "0 0 10px #a8e8ff" : "none",
+                  }}
+                />
+              ))}
             </div>
           </motion.div>
-
-          {/* Corner bracket decorations */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 600 600">
-            <path d="M40 80 L40 40 L80 40" stroke="rgba(110,231,255,0.25)" strokeWidth="1.5" fill="none" />
-            <path d="M560 80 L560 40 L520 40" stroke="rgba(110,231,255,0.25)" strokeWidth="1.5" fill="none" />
-            <path d="M40 520 L40 560 L80 560" stroke="rgba(171,138,255,0.25)" strokeWidth="1.5" fill="none" />
-            <path d="M560 520 L560 560 L520 560" stroke="rgba(171,138,255,0.25)" strokeWidth="1.5" fill="none" />
-            {/* Scan line */}
-            <motion.line
-              x1="40" y1="300" x2="560" y2="300"
-              stroke="rgba(110,231,255,0.06)"
-              strokeWidth="1"
-            />
-          </svg>
-
-          {/* Animated scan line */}
-          <motion.div
-            className="absolute left-0 right-0 h-px pointer-events-none"
-            style={{ background: "linear-gradient(to right, transparent, rgba(110,231,255,0.3), transparent)" }}
-            animate={{ top: ["15%", "85%", "15%"] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          />
         </motion.div>
       </motion.div>
     </section>
