@@ -26,20 +26,21 @@ export function Hero() {
     <section
       id={sectionIds.hero}
       className="relative z-10 mx-auto px-8 py-20 min-h-[calc(100vh-5rem)] flex flex-col md:flex-row items-center justify-between gap-16 overflow-hidden"
-      style={{ maxWidth: "1400px" }}
+      style={{ maxWidth: "1400px", contain: "layout" }}
     >
-      {/* Background glows */}
-      <div className="absolute top-1/4 -right-1/4 w-[600px] h-[600px] rounded-full pointer-events-none blur-[120px]"
-        style={{ background: "rgba(110,231,255,0.06)" }} />
-      <div className="absolute bottom-1/4 -left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none blur-[120px]"
-        style={{ background: "rgba(171,138,255,0.06)" }} />
+      {/* Background glows — use box-shadow instead of blur() to avoid costly raster */}
+      <div className="absolute top-1/4 -right-1/4 w-[300px] h-[300px] rounded-full pointer-events-none"
+        style={{ boxShadow: "0 0 200px 100px rgba(110,231,255,0.07)", willChange: "transform" }} />
+      <div className="absolute bottom-1/4 -left-1/4 w-[300px] h-[300px] rounded-full pointer-events-none"
+        style={{ boxShadow: "0 0 200px 100px rgba(171,138,255,0.07)", willChange: "transform" }} />
 
       {/* ── Left: Text content ── */}
       <motion.div
         className="w-full md:w-1/2 z-10"
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        style={{ willChange: "opacity, transform" }}
       >
         <div
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-8"
@@ -175,21 +176,21 @@ export function Hero() {
       <motion.div
         className="w-full md:w-1/2 flex justify-center items-center relative z-10"
         style={{ height: "600px", perspective: "1000px" }}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.2 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
         {/* Mouse-tilt wrapper — rotates everything together */}
         <motion.div
           className="relative flex items-center justify-center"
-          style={{ width: 300, height: 300, transformStyle: "preserve-3d", rotateX, rotateY }}
+          style={{ width: 300, height: 300, transformStyle: "preserve-3d", rotateX, rotateY, willChange: "transform" }}
         >
           {/* Spinning shell — 3 orbital layers animate as one group */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center"
-            style={{ transformStyle: "preserve-3d" }}
+            style={{ transformStyle: "preserve-3d", willChange: "transform" }}
             animate={{ rotateX: 360, rotateY: 360, rotateZ: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear", repeatType: "loop" }}
           >
@@ -230,6 +231,7 @@ export function Hero() {
               width: 80,
               height: 80,
               background: "radial-gradient(circle, #a8e8ff 0%, #00d4ff 40%, transparent 80%)",
+              willChange: "transform, box-shadow",
             }}
             animate={{
               scale: [0.9, 1.1, 0.9],
@@ -248,11 +250,11 @@ export function Hero() {
             style={{
               top: -20,
               left: -40,
-              background: "rgba(47,53,60,0.4)",
-              border: "1px solid rgba(60,73,78,0.3)",
-              backdropFilter: "blur(10px)",
+              background: "rgb(30,37,44)",
+              border: "1px solid rgba(60,73,78,0.5)",
               color: "#dde3ec",
               minWidth: 110,
+              willChange: "transform",
             }}
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -271,11 +273,11 @@ export function Hero() {
             style={{
               bottom: 20,
               right: -60,
-              background: "rgba(47,53,60,0.4)",
-              border: "1px solid rgba(60,73,78,0.3)",
-              backdropFilter: "blur(10px)",
+              background: "rgb(30,37,44)",
+              border: "1px solid rgba(60,73,78,0.5)",
               color: "#dde3ec",
               minWidth: 110,
+              willChange: "transform",
             }}
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
@@ -294,10 +296,9 @@ export function Hero() {
             style={{
               bottom: 40,
               left: -20,
-              background: "rgba(47,53,60,0.4)",
+              background: "rgb(30,37,44)",
               border: "1px solid rgba(168,232,255,0.2)",
-              backdropFilter: "blur(10px)",
-              boxShadow: "0 0 20px rgba(168,232,255,0.1)",
+              willChange: "transform",
             }}
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.8 }}
