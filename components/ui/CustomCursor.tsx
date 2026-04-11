@@ -15,9 +15,11 @@ export function CustomCursor() {
 
     document.body.dataset.cursor = "custom";
 
+    let isMouseMoving = false;
     const updateTarget = (event: MouseEvent) => {
       targetRef.current = { x: event.clientX, y: event.clientY };
       if (!visible) setVisible(true);
+      isMouseMoving = true;
     };
 
     const updateInteractive = (event: Event) => {
@@ -26,19 +28,21 @@ export function CustomCursor() {
     };
 
     const loop = () => {
-      const current = currentRef.current;
-      const target = targetRef.current;
+      if (isMouseMoving) {
+        const current = currentRef.current;
+        const target = targetRef.current;
 
-      current.x += (target.x - current.x) * 0.18;
-      current.y += (target.y - current.y) * 0.18;
-      currentRef.current = current;
+        current.x += (target.x - current.x) * 0.18;
+        current.y += (target.y - current.y) * 0.18;
+        currentRef.current = current;
 
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`;
-      }
+        if (dotRef.current) {
+          dotRef.current.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`;
+        }
 
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${current.x}px, ${current.y}px, 0)`;
+        if (ringRef.current) {
+          ringRef.current.style.transform = `translate3d(${current.x}px, ${current.y}px, 0)`;
+        }
       }
 
       frame = window.requestAnimationFrame(loop);

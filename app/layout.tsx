@@ -4,18 +4,24 @@ import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { Toaster } from "react-hot-toast";
 import { CustomCursor } from "@/components/ui/CustomCursor";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
+import { AnimatedBlobBackground } from "@/components/ui/AnimatedBlobBackground";
 
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
+  preload: true,
+  fallback: ["Courier New", "monospace"],
 });
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
@@ -48,40 +54,41 @@ export default function RootLayout({
       className={`${jetbrainsMono.variable} ${inter.variable} dark`}
       style={{
         backgroundColor: "rgb(8 12 18)",
-        backgroundImage: [
-          "radial-gradient(circle at top, rgba(110,231,255,0.11), transparent 28%)",
-          "radial-gradient(circle at bottom right, rgba(171,138,255,0.12), transparent 24%)",
-          "linear-gradient(to right, rgba(110,231,255,0.07) 1px, transparent 1px)",
-          "linear-gradient(to bottom, rgba(110,231,255,0.06) 1px, transparent 1px)",
-        ].join(", "),
-        backgroundSize: "auto, auto, 48px 48px, 48px 48px",
-        backgroundAttachment: "fixed",
       }}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=optional"
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          as="style"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="font-body text-text-strong">
+      <body className="font-body text-text-strong relative">
+        <AnimatedBlobBackground />
+        <ParticleBackground />
         <CustomCursor />
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              border: "1px solid rgba(var(--neural-cyan), 0.22)",
-              background: "rgba(var(--neural-surface), 0.94)",
-              color: "rgb(var(--neural-text))",
-              fontFamily: "var(--font-display)",
-            },
-          }}
-        />
-        <TopNavBar />
+        <div className="relative z-10">
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                border: "1px solid rgba(var(--neural-cyan), 0.22)",
+                background: "rgba(var(--neural-surface), 0.94)",
+                color: "rgb(var(--neural-text))",
+                fontFamily: "var(--font-display)",
+              },
+            }}
+          />
+          <TopNavBar />
 
-        {children}
+          {children}
+        </div>
       </body>
     </html>
   );
