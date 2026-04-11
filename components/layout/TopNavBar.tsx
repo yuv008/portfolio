@@ -42,6 +42,7 @@ export function TopNavBar() {
       <motion.div
         className="fixed inset-x-0 top-0 z-[70] h-[2px] origin-left bg-gradient-to-r from-neural-cyan via-neural-violet to-neural-amber"
         style={{ scaleX: progress }}
+        suppressHydrationWarning
       />
       <nav className="fixed inset-x-0 top-0 z-[60]">
         <div className="section-container pt-4">
@@ -51,6 +52,7 @@ export function TopNavBar() {
                 ? "border-surface-border/35 bg-background/60 shadow-glass backdrop-blur-2xl"
                 : "border-transparent bg-transparent"
             }`}
+            suppressHydrationWarning
           >
             <Link
               href="#hero"
@@ -100,6 +102,7 @@ export function TopNavBar() {
                     ? "animate-pulse-subtle border-neural-cyan/45 bg-neural-cyan/14 text-neural-cyan shadow-glow-cyan"
                     : "border-surface-border/35 bg-surface/65 text-text-strong hover:border-neural-cyan/40 hover:text-neural-cyan"
                 }`}
+                suppressHydrationWarning
               >
                 Connect
               </Link>
