@@ -118,58 +118,42 @@ export function Hero() {
           </a>
         </div>
 
-        {/* Terminal panel */}
-        <div
-          className="mt-16 rounded-xl p-6 max-w-md"
-          style={{
-            background: "rgba(14,20,26,0.7)",
-            backdropFilter: "blur(16px)",
-            border: "1px solid rgba(110,231,255,0.12)",
-          }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,112,120,0.5)" }} />
-              <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,172,94,0.5)" }} />
-              <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(97,255,171,0.5)" }} />
-            </div>
-            <span className="text-[10px] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
-              core_process.sh
-            </span>
-          </div>
-          <div className="text-xs space-y-1.5" style={{ fontFamily: "var(--font-display), monospace" }}>
-            <div style={{ color: "#6ee7ff99" }}>&gt; Loading environment neural_net_v4.2...</div>
-            <div className="text-text-soft">&gt; Hyperparameter tuning initiated [SUCCESS]</div>
-            <div style={{ color: "#ab8aff99" }}>&gt; 12.4M Parameters synced across 8 nodes</div>
-            <div className="flex items-center gap-2 text-text-muted">
-              <span>&gt; Architecture scan</span>
-              <span className="h-1 flex-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
-                <span className="block h-full" style={{ width: "72%", background: "#6ee7ff" }} />
-              </span>
-              <span>72%</span>
-            </div>
-          </div>
-
-          {heroStats && heroStats.length > 0 && (
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {heroStats.map((item) => (
+        {/* Stats grid — pulled out as standalone cards below CTAs */}
+        {heroStats && heroStats.length > 0 && (
+          <div className="mt-6 grid grid-cols-3 gap-3 max-w-md">
+            {heroStats.map((item) => {
+              const statColors: Record<string, string> = {
+                cyan: "#6ee7ff",
+                violet: "#ab8aff",
+                amber: "#ffac5e",
+              };
+              const col = statColors[item.tone] ?? "#6ee7ff";
+              return (
                 <div
                   key={item.label}
-                  className="rounded-2xl p-4"
-                  style={{ border: "1px solid rgba(110,231,255,0.1)", background: "rgba(14,20,26,0.6)" }}
+                  className="rounded-2xl p-3"
+                  style={{
+                    border: "1px solid rgba(110,231,255,0.1)",
+                    background: "rgba(14,20,26,0.6)",
+                  }}
                 >
-                  <p className="text-[0.6rem] uppercase tracking-[0.28em] text-text-muted"
-                    style={{ fontFamily: "var(--font-display), monospace" }}>
+                  <p
+                    className="text-[0.6rem] uppercase tracking-[0.28em]"
+                    style={{ fontFamily: "var(--font-display), monospace", color: "rgb(126,142,156)" }}
+                  >
                     {item.label}
                   </p>
-                  <p className="mt-2 text-lg text-text-strong" style={{ fontFamily: "var(--font-display), monospace" }}>
+                  <p
+                    className="mt-2 text-xl font-bold"
+                    style={{ fontFamily: "var(--font-display), monospace", color: col }}
+                  >
                     {item.value}
                   </p>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </motion.div>
 
       {/* ── Right: 3D Neural Core ── */}
