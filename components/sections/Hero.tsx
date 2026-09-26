@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { heroStats, sectionIds } from "@/lib/constants";
+import HeroField from "@/components/three/HeroField";
 
 export function Hero() {
   const mouseX = useMotionValue(0);
@@ -28,6 +29,9 @@ export function Hero() {
       className="relative z-10 mx-auto px-8 py-20 min-h-[calc(100vh-5rem)] flex flex-col md:flex-row items-center justify-between gap-16 overflow-hidden"
       style={{ maxWidth: "1400px", contain: "layout" }}
     >
+      {/* Particle field — accent tokens: --neural-cyan, --neural-violet, --neural-mist */}
+      <HeroField className="absolute inset-0 z-0" colors={["#6ee7ff", "#ab8aff", "#d1dce9"]} />
+
       {/* Background glows — use box-shadow instead of blur() to avoid costly raster */}
       <div className="absolute top-1/4 -right-1/4 w-[300px] h-[300px] rounded-full pointer-events-none"
         style={{ boxShadow: "0 0 200px 100px rgba(110,231,255,0.07)", willChange: "transform" }} />
@@ -36,7 +40,7 @@ export function Hero() {
 
       {/* ── Left: Text content ── */}
       <motion.div
-        className="w-full md:w-1/2 z-10"
+        className="relative w-full md:w-1/2 z-10"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
