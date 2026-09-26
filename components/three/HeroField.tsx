@@ -125,7 +125,8 @@ export default function HeroField({
     } catch {
       return; // No WebGL: the hero simply shows its normal background.
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    // Soft background: 1.5x is visually indistinguishable from 2x and far cheaper
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
@@ -168,6 +169,11 @@ export default function HeroField({
     const points = new THREE.Points(geo, mat);
     scene.add(points);
 
+    // Adaptive quality: seeds are random, so drawing a prefix of the buffer
+    // is an even thinning of the whole field. Only ever steps down.
+    const minCount = Math.round(count * 0.3);
+    let drawCount = count;
+
     // Size to the container, not the window
     const resize = () => {
       const w = mount.clientWidth || 1;
@@ -202,15 +208,21 @@ export default function HeroField({
     };
     if (!reduceMotion) window.addEventListener("pointermove", onMove, { passive: true });
 
-    // Scroll link: targets are eased toward in the frame loop
+    // Scroll link: targets are eased toward in the frame loop.
+    // Page height is cached so scroll events never force a layout.
     let targetOpacity = baseOpacity;
     let targetShape = shape;
+    let pageHeight = document.documentElement.scrollHeight;
+    const pageRo = new ResizeObserver(() => {
+      pageHeight = document.documentElement.scrollHeight;
+    });
+    if (scrollLinked) pageRo.observe(document.body);
     const onScroll = () => {
       const vh = window.innerHeight || 1;
       const y = window.scrollY;
       const fade = Math.min(y / vh, 1);
       targetOpacity = baseOpacity * (1 - fade * (1 - scrollDim));
-      const rest = Math.max(document.documentElement.scrollHeight - vh * 2, 1);
+      const rest = Math.max(pageHeight - vh * 2, 1);
       const t = Math.min(Math.max((y - vh) / rest, 0), 1);
       targetShape = shape + (1 - shape) * t * t * (3 - 2 * t);
       if (reduceMotion) {
@@ -235,11 +247,59 @@ export default function HeroField({
     const onVisibility = () => { if (!document.hidden) start(); };
     document.addEventListener("visibilitychange", onVisibility);
 
+    // If the GPU drops the context, stop drawing instead of freezing; three.js
+    // rebuilds its resources on restore and the loop picks back up.
+    let contextLost = false;
+    const onContextLost = (e: Event) => {
+      e.preventDefault();
+      contextLost = true;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const onContextRestored = () => {
+      contextLost = false;
+      if (reduceMotion) renderer.render(scene, camera);
+      else start();
+    };
+    renderer.domElement.addEventListener("webglcontextlost", onContextLost);
+    renderer.domElement.addEventListener("webglcontextrestored", onContextRestored);
+
+    // Frame-time budget: below ~45fps, thin the field, then drop resolution
+    let sampleStart = 0;
+    let sampleFrames = 0;
+    let warmedUp = false; // first window includes shader compile
+    const adapt = (now: number) => {
+      if (!sampleStart) {
+        sampleStart = now;
+        sampleFrames = 0;
+        return;
+      }
+      sampleFrames++;
+      const elapsed = now - sampleStart;
+      if (elapsed < 1000) return;
+      const avg = elapsed / sampleFrames;
+      sampleStart = now;
+      sampleFrames = 0;
+      if (!warmedUp) {
+        warmedUp = true;
+        return;
+      }
+      if (avg <= 22) return;
+      if (drawCount > minCount) {
+        drawCount = Math.max(minCount, Math.round(drawCount * 0.7));
+        geo.setDrawRange(0, drawCount);
+      } else if (renderer.getPixelRatio() > 1) {
+        renderer.setPixelRatio(1);
+        resize();
+      }
+    };
+
     const clock = new THREE.Clock();
     let raf = 0;
-    const frame = () => {
+    const frame = (now: number) => {
       raf = 0;
-      if (!onScreen || document.hidden) return;
+      if (!onScreen || document.hidden || contextLost) return;
+      adapt(now);
       const dt = Math.min(clock.getDelta(), 0.05);
       uniforms.uTime.value += dt;
       uniforms.uPush.value *= Math.exp(-dt * 1.5);
@@ -252,8 +312,9 @@ export default function HeroField({
       raf = requestAnimationFrame(frame);
     };
     function start() {
-      if (reduceMotion || raf) return;
+      if (reduceMotion || raf || contextLost) return;
       clock.getDelta();
+      sampleStart = 0; // don't count a pause as a slow frame
       raf = requestAnimationFrame(frame);
     }
 
@@ -263,7 +324,10 @@ export default function HeroField({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      pageRo.disconnect();
       io.disconnect();
+      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+      renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
