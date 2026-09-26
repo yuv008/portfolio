@@ -4,8 +4,6 @@ import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { Toaster } from "react-hot-toast";
 import { CustomCursor } from "@/components/ui/CustomCursor";
-import { ParticleBackground } from "@/components/ui/ParticleBackground";
-import { AnimatedBlobBackground } from "@/components/ui/AnimatedBlobBackground";
 
 
 const jetbrainsMono = JetBrains_Mono({
@@ -70,8 +68,6 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body text-text-strong relative">
-        <AnimatedBlobBackground />
-        <ParticleBackground />
         <CustomCursor />
         <div className="relative z-10">
           <Toaster
