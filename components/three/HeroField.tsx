@@ -12,6 +12,14 @@ type HeroFieldProps = {
   opacity?: number;
   /** 0 = sphere, 1 = torus. */
   shape?: number;
+  /**
+   * Link to page scroll (for a fixed, full-page background): fades to
+   * `scrollDim` of full opacity over the first viewport of scrolling, and
+   * morphs from `shape` toward a torus across the rest of the page.
+   */
+  scrollLinked?: boolean;
+  /** Opacity multiplier once scrolled past the first viewport. */
+  scrollDim?: number;
   className?: string;
 };
 
@@ -92,9 +100,11 @@ void main(){
 
 export default function HeroField({
   colors = ["#1E88E5", "#5CE1E6", "#E6F7FF"],
-  particles = 70000,
-  opacity = 0.35,
+  particles = 120000,
+  opacity = 0.45,
   shape = 0,
+  scrollLinked = false,
+  scrollDim = 0.25,
   className,
 }: HeroFieldProps) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -105,7 +115,9 @@ export default function HeroField({
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isSmall = Math.min(window.innerWidth, window.innerHeight) < 700;
-    const count = Math.round(isSmall ? particles * 0.45 : particles);
+    const count = Math.round(isSmall ? particles * 0.4 : particles);
+    // Phones put the densest part of the field right behind body text
+    const baseOpacity = isSmall ? opacity * 0.7 : opacity;
 
     let renderer: THREE.WebGLRenderer;
     try {
@@ -137,9 +149,9 @@ export default function HeroField({
       uOffset: { value: new THREE.Vector3(Math.random() * 50, Math.random() * 50, Math.random() * 50) },
       uPointer: { value: new THREE.Vector3(99, 99, 99) },
       uPush: { value: 0 },
-      uSize: { value: isSmall ? 24 : 20 },
+      uSize: { value: isSmall ? 26 : 22 },
       uPixelRatio: { value: renderer.getPixelRatio() },
-      uOpacity: { value: opacity },
+      uOpacity: { value: baseOpacity },
       uC1: { value: new THREE.Color(colors[0]) },
       uC2: { value: new THREE.Color(colors[1]) },
       uC3: { value: new THREE.Color(colors[2]) },
@@ -190,6 +202,29 @@ export default function HeroField({
     };
     if (!reduceMotion) window.addEventListener("pointermove", onMove, { passive: true });
 
+    // Scroll link: targets are eased toward in the frame loop
+    let targetOpacity = baseOpacity;
+    let targetShape = shape;
+    const onScroll = () => {
+      const vh = window.innerHeight || 1;
+      const y = window.scrollY;
+      const fade = Math.min(y / vh, 1);
+      targetOpacity = baseOpacity * (1 - fade * (1 - scrollDim));
+      const rest = Math.max(document.documentElement.scrollHeight - vh * 2, 1);
+      const t = Math.min(Math.max((y - vh) / rest, 0), 1);
+      targetShape = shape + (1 - shape) * t * t * (3 - 2 * t);
+      if (reduceMotion) {
+        // No animation: jump straight to the new state and draw once
+        uniforms.uOpacity.value = targetOpacity;
+        uniforms.uShape.value = targetShape;
+        renderer.render(scene, camera);
+      }
+    };
+    if (scrollLinked) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    }
+
     // Only animate when the hero is on screen and the tab is visible
     let onScreen = true;
     const io = new IntersectionObserver(([entry]) => {
@@ -210,6 +245,9 @@ export default function HeroField({
       uniforms.uPush.value *= Math.exp(-dt * 1.5);
       points.rotation.y += dt * 0.05;
       points.rotation.x += (pointer.y * 0.15 - points.rotation.x) * 0.03;
+      const ease = 1 - Math.exp(-dt * 4);
+      uniforms.uOpacity.value += (targetOpacity - uniforms.uOpacity.value) * ease;
+      uniforms.uShape.value += (targetShape - uniforms.uShape.value) * ease;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(frame);
     };
@@ -227,6 +265,7 @@ export default function HeroField({
       ro.disconnect();
       io.disconnect();
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
       geo.dispose();
       mat.dispose();
@@ -235,7 +274,7 @@ export default function HeroField({
     };
     // Re-init only if these change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [particles, shape, colors.join(",")]);
+  }, [particles, shape, opacity, scrollLinked, scrollDim, colors.join(",")]);
 
   return (
     <div
