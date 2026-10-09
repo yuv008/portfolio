@@ -30,7 +30,7 @@ const CHAPTERS = [
     title: "Stream_Transcription",
     blurb:
       "Rolling ASR window; partial transcripts flush to the orchestrator before the speaker finishes the sentence.",
-    metric: { label: "First token", value: "180ms" },
+    metric: { label: "Mode", value: "Streaming" },
   },
   {
     id: "embed",
@@ -40,7 +40,7 @@ const CHAPTERS = [
     title: "Dense_Sparse_Embed",
     blurb:
       "Each partial is embedded twice — dense for semantics, sparse for lexical recall. Hybrid rank, not reranked.",
-    metric: { label: "Dim", value: "768 + BM25" },
+    metric: { label: "Search", value: "Hybrid" },
   },
   {
     id: "retrieve",
@@ -59,7 +59,7 @@ const CHAPTERS = [
     label: "Generate",
     title: "LLM_Orchestration",
     blurb:
-      "Function-calling LLM fuses context, tools, and user intent. Cached prompts and speculative decoding shave another 60% off round-trip.",
+      "Streaming inference, connection pooling, and smart caching reduced response time from 3 seconds to 1.2 seconds and cut redundant API calls by 60%.",
     metric: { label: "API calls", value: "−60%" },
   },
   {
@@ -69,8 +69,8 @@ const CHAPTERS = [
     label: "Respond",
     title: "Voice_Synthesis",
     blurb:
-      "SNAC-codec TTS streams audio back within the same LiveKit session. End-to-end, input-to-speech: under 14ms ceiling.",
-    metric: { label: "E2E", value: "14ms" },
+      "LiveKit voice pipelines stream model responses back to callers. Connection pooling and smart caching helped bring response time down to 1.2 seconds.",
+    metric: { label: "Response time", value: "1.2s" },
   },
 ];
 

@@ -36,7 +36,7 @@ export function Hero() {
             className="text-[10px] uppercase tracking-[0.2em]"
             style={{ fontFamily: "var(--font-display), monospace", color: "#6ee7ff" }}
           >
-            Status: Systems_Optimal
+            AI R&D Engineer
           </span>
         </div>
 
@@ -55,8 +55,7 @@ export function Hero() {
         </h1>
 
         <p className="text-xl text-text-soft max-w-lg mb-12 leading-relaxed">
-          Exploring the frontier of AI, Infrastructure, and Systems Engineering.
-          Architecting the bridges between neural logic and computational scale.
+          I build production voice-agent systems, evaluation platforms, and AI infrastructure—from real-time pipelines to fine-tuned models.
         </p>
 
         <div className="flex flex-wrap gap-4">

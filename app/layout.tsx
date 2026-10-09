@@ -24,12 +24,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Yuvraj Sanghai — Systems Engineer & AI Infrastructure",
+  title: "Yuvraj Sanghai — AI R&D Engineer",
   description:
-    "I build the systems behind the intelligence. Voice pipelines, RAG architectures, TTS fine-tuning, semantic caching, and AI infrastructure.",
+    "AI R&D Engineer building voice-agent systems, evaluation platforms, and production AI infrastructure.",
   openGraph: {
     title: "Yuvraj Sanghai",
-    description: "I build the systems behind the intelligence.",
+    description: "AI R&D Engineer building voice-agent systems and production AI infrastructure.",
     url: "https://yuvrajms.tech",
     siteName: "Yuvraj Sanghai",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],

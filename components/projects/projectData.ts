@@ -53,7 +53,7 @@ export const projects: Project[] = [
     tagline: "A language model where the 'language' is sound",
     featured: true,
     stack: ["Llama 3.2 3B", "LoRA", "Unsloth", "SNAC Codec", "llama.cpp", "GGUF", "FastAPI", "Lightning AI"],
-    period: "2025",
+    period: "March 2026",
     links: {
       github: "https://github.com/yuv008/Orpheus-tts",
       model: "https://huggingface.co/yuv008/orpheus-elise-merged",
@@ -190,9 +190,9 @@ export const projects: Project[] = [
     id: "smart-pathshala",
     name: "Smart Pathshala",
     tagline: "Offline-first AI school ecosystem for Tier-2 and Tier-3 India",
-    featured: false,
+    featured: true,
     stack: ["FastAPI", "React", "PostgreSQL", "Qdrant", "CrewAI"],
-    period: "July 2025 – Present",
+    period: "July 2025 – June 2026",
     architecture: {
       nodes: [
         { id: "client", label: "React Frontend", type: "frontend" },

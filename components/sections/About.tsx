@@ -5,21 +5,21 @@ import { motion } from "framer-motion";
 const CARDS = [
   {
     color: "#6ee7ff",
-    kicker: "Core_Engineering",
-    title: "High-Performance ML",
-    body: "Optimizing inference pipelines for sub-millisecond real-time applications. Bridging the gap between theory and production.",
+    kicker: "Voice_Systems",
+    title: "Real-Time Voice Infrastructure",
+    body: "Built LiveKit voice pipelines with streaming inference, connection pooling, and smart caching, reducing response time from 3 seconds to 1.2 seconds.",
   },
   {
     color: "#ab8aff",
-    kicker: "Systems_Design",
-    title: "Vector + RAG Infrastructure",
-    body: "Migrated ChromaDB → Qdrant with hybrid dense-sparse search. Added semantic caching and connection pooling across the orchestration layer.",
+    kicker: "Retrieval_Infrastructure",
+    title: "Hybrid Vector Search",
+    body: "Migrated Chroma to Qdrant with hybrid dense-sparse search, reducing query latency by 90% for voice-agent workloads.",
   },
   {
     color: "#ffac5e",
-    kicker: "Research_Frontier",
-    title: "Domain Fine-tuning",
-    body: "LoRA / PEFT adaptations on Llama 3.x for narrow, consumer-grade AI verticals. 10k+ term datasets, shipped weights.",
+    kicker: "Model_Engineering",
+    title: "Fine-Tuning & Evaluation",
+    body: "Fine-tuned Llama-3.1-8B with PEFT on a 10,000+ term dream-interpretation dataset and trained Orpheus TTS to generate SNAC audio tokens.",
   },
 ];
 

@@ -97,7 +97,9 @@ function ForceGraphScene() {
 
   const groupColors: Record<string, string> = {
     "AI / ML": palette.cyan,
-    Infra: palette.amber,
+    "Voice & Inference": palette.violet,
+    "Data & Infrastructure": palette.amber,
+    Languages: palette.mist,
     Frontend: palette.violet,
   };
 

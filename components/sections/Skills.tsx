@@ -1,64 +1,41 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { skillClusters, type AccentTone } from "@/lib/constants";
 
-// ── Real skill data derived from projectData.ts + experience ──────────────────
+const CATEGORY_STYLE: Record<AccentTone, { color: string; icon: string }> = {
+  cyan: { color: "#6ee7ff", icon: "psychology" },
+  violet: { color: "#ab8aff", icon: "bolt" },
+  amber: { color: "#ffac5e", icon: "database" },
+  mist: { color: "#d1dce9", icon: "code_blocks" },
+  green: { color: "#61ffab", icon: "terminal" },
+};
 
-const SKILL_CATEGORIES = [
-  {
-    label: "AI / ML",
-    color: "#6ee7ff", // neural-cyan
-    icon: "psychology",
-    skills: ["Python", "PyTorch", "Llama 3.x", "LoRA / PEFT", "Unsloth", "SNAC Codec", "BERTSum", "CrewAI"],
-  },
-  {
-    label: "Inference & Serving",
-    color: "#ab8aff", // neural-violet
-    icon: "bolt",
-    skills: ["llama.cpp", "GGUF / Q4_K_M", "FastAPI", "Flask", "LiveKit", "LLM Streaming"],
-  },
-  {
-    label: "Data & Vector",
-    color: "#6ee7ff", // neural-cyan
-    icon: "database",
-    skills: ["Qdrant", "FAISS", "ChromaDB", "PostgreSQL", "MongoDB", "RAG Pipelines"],
-  },
-  {
-    label: "Frontend & Infra",
-    color: "#d1dce9", // neural-mist
-    icon: "code_blocks",
-    skills: ["React", "Next.js", "Svelte", "Django", "Docker", "Lightning AI / GPU"],
-  },
-];
-
-// SVG node positions mapped to skills — diamond layout per category
+// Skill map nodes use equal radii; size does not imply proficiency.
 const NODE_GROUPS = [
-  // AI/ML — top quadrant
-  { x: 200, y: 55,  label: "Python",   color: "#a8e8ff", r: 7 },
-  { x: 310, y: 90,  label: "PyTorch",  color: "#a8e8ff", r: 5 },
-  { x: 100, y: 90,  label: "LoRA",     color: "#a8e8ff", r: 5 },
-  { x: 200, y: 125, label: "Llama 3",  color: "#a8e8ff", r: 6 },
-  // Inference — right quadrant
-  { x: 340, y: 195, label: "llama.cpp",color: "#dcb8ff", r: 6 },
-  { x: 310, y: 300, label: "FastAPI",  color: "#dcb8ff", r: 5 },
-  { x: 355, y: 250, label: "LiveKit",  color: "#dcb8ff", r: 4 },
-  // Data — bottom quadrant
-  { x: 200, y: 345, label: "Qdrant",   color: "#00d4ff", r: 7 },
-  { x: 110, y: 310, label: "FAISS",    color: "#00d4ff", r: 5 },
-  { x: 290, y: 340, label: "MongoDB",  color: "#00d4ff", r: 5 },
-  // Infra — left quadrant
-  { x: 60,  y: 195, label: "React",    color: "#d9dfe9", r: 5 },
-  { x: 50,  y: 250, label: "Next.js",  color: "#d9dfe9", r: 4 },
-  { x: 90,  y: 300, label: "Docker",   color: "#d9dfe9", r: 4 },
+  { x: 200, y: 55, label: "Python", color: "#d1dce9", r: 5 },
+  { x: 310, y: 90, label: "C++", color: "#d1dce9", r: 5 },
+  { x: 100, y: 90, label: "Go", color: "#d1dce9", r: 5 },
+  { x: 200, y: 125, label: "PyTorch", color: "#6ee7ff", r: 5 },
+  { x: 340, y: 195, label: "LangChain", color: "#6ee7ff", r: 5 },
+  { x: 310, y: 300, label: "LoRA / PEFT", color: "#6ee7ff", r: 5 },
+  { x: 355, y: 250, label: "LiveKit", color: "#ab8aff", r: 5 },
+  { x: 200, y: 345, label: "Pipecat", color: "#ab8aff", r: 5 },
+  { x: 110, y: 310, label: "FastAPI", color: "#ab8aff", r: 5 },
+  { x: 290, y: 340, label: "Qdrant", color: "#ffac5e", r: 5 },
+  { x: 60, y: 195, label: "PostgreSQL", color: "#ffac5e", r: 5 },
+  { x: 50, y: 250, label: "Docker", color: "#ffac5e", r: 5 },
+  { x: 90, y: 300, label: "Kubernetes", color: "#ffac5e", r: 5 },
+  { x: 200, y: 260, label: "OpenTelemetry", color: "#ffac5e", r: 5 },
 ];
 
 // Connector lines between related nodes (index pairs)
 const EDGES = [
-  [0, 3], [1, 3], [2, 3], // AI/ML -> Llama 3
-  [3, 4], [4, 5], [4, 6], // Llama -> llama.cpp -> FastAPI / LiveKit
-  [5, 7], [7, 8], [7, 9], // FastAPI -> Qdrant -> FAISS / MongoDB
-  [7, 10],[10,11],[10,12],  // Qdrant -> React -> Next / Docker
-  [3, 7], // Llama 3 -> Qdrant (RAG link)
+  [0, 3], [1, 3], [2, 3],
+  [3, 4], [4, 5], [4, 6],
+  [6, 7], [7, 8], [8, 9],
+  [9, 10], [10, 11], [11, 12], [12, 13],
+  [3, 9],
 ];
 
 export function Skills() {
@@ -240,112 +217,102 @@ export function Skills() {
 
         {/* ── Right: Skill Category Chips ── */}
         <div className="lg:col-span-5 flex flex-col gap-5">
-          {SKILL_CATEGORIES.map((cat, i) => (
-            <motion.div
-              key={cat.label}
-              className="group relative rounded-3xl overflow-hidden bg-surface-2/60 border border-surface-border/20 transition-all duration-300 hover:border-opacity-100"
-              style={{
-                borderColor: `${cat.color}40`,
-              }}
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 20px ${cat.color}18`;
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "";
-              }}
-            >
-              {/* Left colored accent bar */}
-              <div
-                className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-3xl pointer-events-none"
-                style={{
-                  background: `linear-gradient(to bottom, ${cat.color}, transparent)`,
+          {skillClusters.map((cat, i) => {
+            const style = CATEGORY_STYLE[cat.tone];
+            return (
+              <motion.div
+                key={cat.label}
+                className="group relative rounded-3xl overflow-hidden bg-surface-2/60 border border-surface-border/20 transition-all duration-300 hover:border-opacity-100"
+                style={{ borderColor: `${style.color}40` }}
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 20px ${style.color}18`;
                 }}
-              />
-
-              <div className="p-6 relative z-10">
-                {/* Header: Icon + Label + Count Badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <motion.div
-                      className="flex items-center justify-center w-10 h-10 rounded-full border"
-                      style={{
-                        borderColor: `${cat.color}40`,
-                        background: `${cat.color}12`,
-                      }}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <span className="material-symbols-outlined text-base" style={{ color: cat.color }}>
-                        {cat.icon}
-                      </span>
-                    </motion.div>
-                    <span
-                      className="text-[10px] uppercase tracking-[0.2em] font-semibold"
-                      style={{ fontFamily: "var(--font-display), monospace", color: cat.color }}
-                    >
-                      {cat.label}
-                    </span>
-                  </div>
-                  <div
-                    className="rounded-full px-2 py-1 text-[9px] font-semibold text-text-muted"
-                    style={{
-                      fontFamily: "var(--font-display), monospace",
-                      backgroundColor: `${cat.color}10`,
-                      borderColor: `${cat.color}25`,
-                      border: "1px solid",
-                    }}
-                  >
-                    {cat.skills.length} modules
-                  </div>
-                </div>
-
-                {/* Colored separator line */}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "";
+                }}
+              >
                 <div
-                  className="h-px mb-4 relative overflow-hidden"
-                  style={{
-                    background: `linear-gradient(to right, ${cat.color}, transparent)`,
-                  }}
+                  className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-3xl pointer-events-none"
+                  style={{ background: `linear-gradient(to bottom, ${style.color}, transparent)` }}
                 />
 
-                {/* Skills chips */}
-                <div className="flex flex-wrap gap-2">
-                  {cat.skills.map((skill, idx) => (
-                    <motion.span
-                      key={skill}
-                      className="px-3 py-1.5 rounded-full text-[11px] border transition-all duration-300 hover:scale-110 cursor-default relative"
+                <div className="p-6 relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <motion.div
+                        className="flex items-center justify-center w-10 h-10 rounded-full border"
+                        style={{ borderColor: `${style.color}40`, background: `${style.color}12` }}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                      >
+                        <span className="material-symbols-outlined text-base" style={{ color: style.color }}>
+                          {style.icon}
+                        </span>
+                      </motion.div>
+                      <span
+                        className="text-[10px] uppercase tracking-[0.2em] font-semibold"
+                        style={{ fontFamily: "var(--font-display), monospace", color: style.color }}
+                      >
+                        {cat.label}
+                      </span>
+                    </div>
+                    <div
+                      className="rounded-full px-2 py-1 text-[9px] font-semibold text-text-muted"
                       style={{
-                        background: `${cat.color}0d`,
-                        borderColor: `${cat.color}25`,
-                        color: "rgb(221,227,236)",
                         fontFamily: "var(--font-display), monospace",
-                      }}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: 0.2 + idx * 0.03 }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLSpanElement).style.background = `${cat.color}25`;
-                        (e.currentTarget as HTMLSpanElement).style.borderColor = `${cat.color}60`;
-                        (e.currentTarget as HTMLSpanElement).style.color = cat.color;
-                        (e.currentTarget as HTMLSpanElement).style.boxShadow = `0 0 10px ${cat.color}35`;
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLSpanElement).style.background = `${cat.color}0d`;
-                        (e.currentTarget as HTMLSpanElement).style.borderColor = `${cat.color}25`;
-                        (e.currentTarget as HTMLSpanElement).style.color = "";
-                        (e.currentTarget as HTMLSpanElement).style.boxShadow = "";
+                        backgroundColor: `${style.color}10`,
+                        borderColor: `${style.color}25`,
+                        border: "1px solid",
                       }}
                     >
-                      {skill}
-                    </motion.span>
-                  ))}
+                      {cat.skills.length} modules
+                    </div>
+                  </div>
+
+                  <div
+                    className="h-px mb-4 relative overflow-hidden"
+                    style={{ background: `linear-gradient(to right, ${style.color}, transparent)` }}
+                  />
+
+                  <div className="flex flex-wrap gap-2">
+                    {cat.skills.map((skill, idx) => (
+                      <motion.span
+                        key={skill}
+                        className="px-3 py-1.5 rounded-full text-[11px] border transition-all duration-300 hover:scale-110 cursor-default relative"
+                        style={{
+                          background: `${style.color}0d`,
+                          borderColor: `${style.color}25`,
+                          color: "rgb(221,227,236)",
+                          fontFamily: "var(--font-display), monospace",
+                        }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.3, delay: 0.2 + idx * 0.03 }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLSpanElement).style.background = `${style.color}25`;
+                          (e.currentTarget as HTMLSpanElement).style.borderColor = `${style.color}60`;
+                          (e.currentTarget as HTMLSpanElement).style.color = style.color;
+                          (e.currentTarget as HTMLSpanElement).style.boxShadow = `0 0 10px ${style.color}35`;
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLSpanElement).style.background = `${style.color}0d`;
+                          (e.currentTarget as HTMLSpanElement).style.borderColor = `${style.color}25`;
+                          (e.currentTarget as HTMLSpanElement).style.color = "";
+                          (e.currentTarget as HTMLSpanElement).style.boxShadow = "";
+                        }}
+                      >
+                        {skill}
+                      </motion.span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
