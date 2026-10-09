@@ -1,13 +1,9 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import dynamic from "next/dynamic";
 import { projects } from "@/components/projects/projectData";
-
-const OrpheusWaveform = dynamic(
-  () => import("@/components/three/OrpheusWaveform").then((mod) => mod.OrpheusWaveform),
-  { ssr: false, loading: () => <div className="w-full h-full bg-surface-2/40" /> },
-);
+import { useInView } from "@/lib/hooks/useInView";
+import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
 
 /* ── Media map ─────────────────────────────────────────────── */
 const PROJECT_IMAGES: Record<string, string> = {
@@ -53,6 +49,8 @@ function ProjectImageGallery({
       <img
         src={images[0]}
         alt={alt}
+        loading="lazy"
+        decoding="async"
         draggable={false}
         className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
       />
@@ -66,6 +64,8 @@ function ProjectImageGallery({
           <img
             src={src}
             alt={`${alt} screenshot ${index + 1}`}
+            loading="lazy"
+            decoding="async"
             draggable={false}
             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
           />
@@ -84,8 +84,19 @@ function VideoCard({
   accentColor: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(true);
+  const { ref: viewRef, inView } = useInView<HTMLDivElement>();
+  const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (inView && playing) {
+      void video.play().catch(() => setPlaying(false));
+    } else {
+      video.pause();
+    }
+  }, [inView, playing]);
 
   // Loop within 0–10 s
   const handleTimeUpdate = useCallback(() => {
@@ -112,11 +123,11 @@ function VideoCard({
   };
 
   return (
-    <div className="relative w-full h-full">
+    <div ref={viewRef} className="relative w-full h-full">
       <video
         ref={videoRef}
         src={src}
-        autoPlay
+        preload="none"
         muted
         playsInline
         className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700"
@@ -134,8 +145,7 @@ function VideoCard({
         onClick={togglePlay}
         className="absolute bottom-3 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 z-10"
         style={{
-          background: "rgba(0,0,0,0.55)",
-          backdropFilter: "blur(8px)",
+          background: "rgba(0,0,0,0.82)",
           border: `1px solid ${accentColor}50`,
         }}
         aria-label={playing ? "Pause" : "Play"}
@@ -161,8 +171,7 @@ function VideoCard({
         className="absolute bottom-3 left-4 text-[9px] uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5 z-10"
         style={{
           fontFamily: "var(--font-display), monospace",
-          background: "rgba(0,0,0,0.5)",
-          backdropFilter: "blur(8px)",
+          background: "rgba(0,0,0,0.78)",
           color: accentColor,
           border: `1px solid ${accentColor}40`,
         }}
@@ -183,8 +192,10 @@ function VideoCard({
 /* ── Main Projects section ─────────────────────────────────── */
 export function Projects() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [scrollPct, setScrollPct] = useState(0);
-  const [activeIdx, setActiveIdx] = useState(0);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const dotsRef = useRef<HTMLDivElement>(null);
+  const scrollUpdateFrame = useRef(0);
+  const activeIdx = useRef(0);
 
   // Momentum scroll state
   const isDragging = useRef(false);
@@ -200,29 +211,59 @@ export function Projects() {
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
-      const available = el.scrollWidth - el.clientWidth;
-      const pct = available > 0 ? (el.scrollLeft / available) * 100 : 0;
-      setScrollPct(Math.round(pct));
-      const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-project-card='true']"));
-      if (!cards.length) return;
+      if (scrollUpdateFrame.current) return;
+      scrollUpdateFrame.current = requestAnimationFrame(() => {
+        scrollUpdateFrame.current = 0;
+        const available = el.scrollWidth - el.clientWidth;
+        const pct = available > 0 ? (el.scrollLeft / available) * 100 : 0;
+        if (progressBarRef.current) progressBarRef.current.style.width = `${pct}%`;
 
-      const scrollCenter = el.scrollLeft + el.clientWidth / 2;
-      let nearestIndex = 0;
-      let nearestDistance = Number.POSITIVE_INFINITY;
+        const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-project-card='true']"));
+        if (!cards.length) return;
 
-      cards.forEach((card, index) => {
-        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-        const distance = Math.abs(cardCenter - scrollCenter);
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
-          nearestIndex = index;
+        const scrollCenter = el.scrollLeft + el.clientWidth / 2;
+        let nearestIndex = 0;
+        let nearestDistance = Number.POSITIVE_INFINITY;
+
+        cards.forEach((card, index) => {
+          const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+          const distance = Math.abs(cardCenter - scrollCenter);
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestIndex = index;
+          }
+        });
+
+        if (activeIdx.current === nearestIndex) return;
+
+        const previousCard = cards[activeIdx.current];
+        const activeCard = cards[nearestIndex];
+        if (previousCard) {
+          previousCard.style.borderColor = "rgba(255,255,255,0.06)";
+          previousCard.style.boxShadow = "none";
+          previousCard.style.transform = "translateY(0)";
         }
+        if (activeCard) {
+          const accent = activeCard.dataset.accent ?? "#a8e8ff";
+          activeCard.style.borderColor = `${accent}45`;
+          activeCard.style.boxShadow = `0 0 24px ${accent}14`;
+          activeCard.style.transform = "translateY(-4px)";
+        }
+        dotsRef.current?.querySelectorAll<HTMLButtonElement>("[data-project-index]").forEach((dot, index) => {
+          const color = dot.dataset.color ?? "#a8e8ff";
+          const selected = index === nearestIndex;
+          dot.style.width = selected ? "28px" : "8px";
+          dot.style.background = selected ? color : "rgba(255,255,255,0.15)";
+          dot.style.boxShadow = selected ? `0 0 10px ${color}` : "none";
+        });
+        activeIdx.current = nearestIndex;
       });
-
-      setActiveIdx(nearestIndex);
     };
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (scrollUpdateFrame.current) cancelAnimationFrame(scrollUpdateFrame.current);
+    };
   }, []);
 
   /* Cancel any running momentum animation */
@@ -345,7 +386,7 @@ export function Projects() {
           const color = ACCENT_HEX[project.id] ?? FALLBACK_HEX[idx % FALLBACK_HEX.length];
           const primaryLink = getPrimaryLink(project.links);
           const topMetric = project.metrics?.[0];
-          const isActive = activeIdx === idx;
+          const isActive = activeIdx.current === idx;
           const videoSrc = PROJECT_VIDEOS[project.id];
           const isWaveform = PROJECT_WAVEFORM.has(project.id);
           const galleryImages = project.images?.length ? project.images : [img];
@@ -354,14 +395,14 @@ export function Projects() {
             <div
               key={project.id}
               data-project-card="true"
+              data-accent={color}
               className="group flex-shrink-0 transition-all duration-300"
               style={{
                 width: "min(80vw, 680px)",
                 borderRadius: "2.5rem",
-                background: "rgba(20, 27, 35, 0.85)",
-                backdropFilter: "blur(32px)",
+                background: "rgba(20, 27, 35, 0.94)",
                 border: `1px solid ${isActive ? color + "45" : "rgba(255,255,255,0.06)"}`,
-                boxShadow: isActive ? `0 0 48px ${color}18` : "none",
+                boxShadow: isActive ? `0 0 24px ${color}14` : "none",
                 overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
@@ -557,19 +598,21 @@ export function Projects() {
 
       {/* Controls */}
       <div className="px-8 md:px-20 mt-5 flex items-center gap-5">
-        <div className="flex gap-2">
+        <div ref={dotsRef} className="flex gap-2">
           {projects.map((p, i) => {
             const color = ACCENT_HEX[p.id] ?? FALLBACK_HEX[i % FALLBACK_HEX.length];
             return (
               <button
                 key={p.id}
+                data-project-index={i}
+                data-color={color}
                 onClick={() => scrollToCard(i)}
                 className="rounded-full transition-all duration-300"
                 style={{
-                  width: activeIdx === i ? "28px" : "8px",
+                  width: activeIdx.current === i ? "28px" : "8px",
                   height: "8px",
-                  background: activeIdx === i ? color : "rgba(255,255,255,0.15)",
-                  boxShadow: activeIdx === i ? `0 0 10px ${color}` : "none",
+                  background: activeIdx.current === i ? color : "rgba(255,255,255,0.15)",
+                  boxShadow: activeIdx.current === i ? `0 0 10px ${color}` : "none",
                 }}
                 aria-label={`Go to ${p.name}`}
                 suppressHydrationWarning
@@ -580,9 +623,10 @@ export function Projects() {
 
         <div className="flex-1 h-[2px] bg-white/5 rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full transition-all duration-150"
+            ref={progressBarRef}
+            className="h-full rounded-full"
             style={{
-              width: `${scrollPct}%`,
+              width: "0%",
               background: "linear-gradient(to right, #a8e8ff, #dcb8ff)",
             }}
           />

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { heroStats, sectionIds } from "@/lib/constants";
 
 export function Hero() {
@@ -12,18 +11,12 @@ export function Hero() {
     >
       {/* Background glows — use box-shadow instead of blur() to avoid costly raster */}
       <div className="absolute top-1/4 -right-1/4 w-[300px] h-[300px] rounded-full pointer-events-none"
-        style={{ boxShadow: "0 0 200px 100px rgba(110,231,255,0.07)", willChange: "transform" }} />
+        style={{ boxShadow: "0 0 200px 100px rgba(110,231,255,0.07)" }} />
       <div className="absolute bottom-1/4 -left-1/4 w-[300px] h-[300px] rounded-full pointer-events-none"
-        style={{ boxShadow: "0 0 200px 100px rgba(171,138,255,0.07)", willChange: "transform" }} />
+        style={{ boxShadow: "0 0 200px 100px rgba(171,138,255,0.07)" }} />
 
       {/* ── Left: Text content ── */}
-      <motion.div
-        className="relative w-full md:w-1/2 z-10"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        style={{ willChange: "opacity, transform" }}
-      >
+      <div className="relative w-full md:w-1/2 z-10">
         <div
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-8"
           style={{
@@ -31,7 +24,7 @@ export function Hero() {
             border: "1px solid rgba(110,231,255,0.2)",
           }}
         >
-          <span className="flex h-2 w-2 rounded-full animate-pulse" style={{ background: "#6ee7ff" }} />
+          <span className="flex h-2 w-2 rounded-full" style={{ background: "#6ee7ff" }} />
           <span
             className="text-[10px] uppercase tracking-[0.2em]"
             style={{ fontFamily: "var(--font-display), monospace", color: "#6ee7ff" }}
@@ -79,7 +72,7 @@ export function Hero() {
           </a>
           <a
             href={`#${sectionIds.contact}`}
-            className="px-8 py-4 rounded-full tracking-widest backdrop-blur-sm transition-all active:scale-95"
+            className="px-8 py-4 rounded-full tracking-widest transition-all active:scale-95"
             style={{
               fontFamily: "var(--font-display), monospace",
               border: "1px solid rgba(255,255,255,0.12)",
@@ -135,7 +128,7 @@ export function Hero() {
             })}
           </div>
         )}
-      </motion.div>
+      </div>
     </section>
   );
 }

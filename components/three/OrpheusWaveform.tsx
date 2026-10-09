@@ -1,57 +1,23 @@
-"use client";
-
-import { Suspense, useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import { Mesh, PlaneGeometry } from "three";
-import { useThemePalette } from "@/lib/hooks/useThemePalette";
-
-function WavePlane() {
-  const palette = useThemePalette();
-  const meshRef = useRef<Mesh<PlaneGeometry>>(null);
-  const geometry = useMemo(() => new PlaneGeometry(5.6, 1.8, 92, 18), []);
-
-  useFrame((state) => {
-    if (!meshRef.current) return;
-
-    const positions = geometry.attributes.position;
-    for (let index = 0; index < positions.count; index += 1) {
-      const x = positions.getX(index);
-      const y = Math.sin(x * 2.2 + state.clock.elapsedTime * 2.4) * 0.18;
-      const ripple = Math.cos(x * 1.3 - state.clock.elapsedTime * 1.9) * 0.08;
-      positions.setZ(index, y + ripple);
-    }
-
-    positions.needsUpdate = true;
-    geometry.computeVertexNormals();
-    meshRef.current.rotation.x = -0.78;
-  });
-
-  return (
-    <>
-      <ambientLight intensity={0.8} />
-      <pointLight position={[0, 2, 3]} intensity={28} color={palette.cyan} />
-      <mesh ref={meshRef} geometry={geometry} position={[0, -0.25, 0]}>
-        <meshStandardMaterial
-          color={palette.violet}
-          emissive={palette.cyan}
-          emissiveIntensity={0.24}
-          wireframe
-        />
-      </mesh>
-      <EffectComposer>
-        <Bloom intensity={0.9} luminanceThreshold={0.1} luminanceSmoothing={0.6} />
-      </EffectComposer>
-    </>
-  );
-}
+const BARS = Array.from({ length: 36 }, (_, index) => {
+  const envelope = 0.24 + 0.76 * Math.abs(Math.sin((index / 35) * Math.PI));
+  const detail = 0.35 + 0.65 * Math.abs(Math.sin(index * 2.17) * Math.cos(index * 0.63));
+  return Math.round(10 + envelope * detail * 72);
+});
 
 export function OrpheusWaveform() {
   return (
-    <Canvas camera={{ position: [0, 1.1, 4.8], fov: 42 }} dpr={[1, 1.5]}>
-      <Suspense fallback={null}>
-        <WavePlane />
-      </Suspense>
-    </Canvas>
+    <div
+      role="img"
+      aria-label="Stylized audio waveform"
+      className="relative flex h-full w-full items-center justify-center gap-[3px] overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(110,231,255,0.12),transparent_65%)] px-6"
+    >
+      {BARS.map((height, index) => (
+        <span
+          key={index}
+          className="w-1 max-w-[2.5%] rounded-full bg-gradient-to-t from-neural-violet/70 to-neural-cyan"
+          style={{ height: `${height}%`, opacity: 0.55 + (height / 100) * 0.45 }}
+        />
+      ))}
+    </div>
   );
 }

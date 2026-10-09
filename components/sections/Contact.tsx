@@ -1,20 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { CanvasSkeleton } from "@/components/three/CanvasSkeleton";
+import { ContactGlobe } from "@/components/three/ContactGlobe";
 import { accentStyles, sectionIds, socialLinks, socialNodes } from "@/lib/constants";
-
-const ContactGlobe = dynamic(
-  () => import("@/components/three/ContactGlobe").then((mod) => mod.ContactGlobe),
-  {
-    ssr: false,
-    loading: () => <CanvasSkeleton className="h-64 w-full rounded-[2rem] md:h-72" />,
-  },
-);
 
 const initialForm = {
   name: "",
@@ -73,12 +63,8 @@ export function Contact() {
   return (
     <section id={sectionIds.contact} className="section-shell">
       <div className="section-container">
-        <motion.header
+        <header
           className="mb-14"
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
         >
           <p className="section-kicker mb-4">Terminal / Transmission</p>
           <h2 className="section-title">
@@ -87,15 +73,11 @@ export function Contact() {
           <p className="section-copy mt-5">
             Send a message through the neural gateway or route through the authenticated social nodes. The form validates client-side and opens a prefilled message in your default mail client.
           </p>
-        </motion.header>
+        </header>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <motion.div
+          <div
             className="terminal-shell overflow-hidden"
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.75 }}
           >
             <div className="terminal-bar">
               <div className="flex gap-2">
@@ -179,14 +161,10 @@ export function Contact() {
                 </button>
               </div>
             </form>
-          </motion.div>
+          </div>
 
-          <motion.div
+          <div
             className="space-y-6"
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.75, delay: 0.12 }}
           >
             <div className="glass-panel rounded-[2rem] p-5">
               <div className="mb-3">
@@ -233,7 +211,6 @@ export function Contact() {
             <div className="glass-panel rounded-[2rem] p-5">
               <div className="mb-3 flex items-center gap-3">
                 <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-neural-green/60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-neural-green" />
                 </span>
                 <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-neural-green">
@@ -246,7 +223,7 @@ export function Contact() {
                 AVAILABILITY: High_Priority
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

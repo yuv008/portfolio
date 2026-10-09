@@ -7,6 +7,7 @@ export function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef({ x: 0, y: 0 });
   const currentRef = useRef({ x: 0, y: 0 });
+  const visibleRef = useRef(false);
   const [interactive, setInteractive] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -15,50 +16,61 @@ export function CustomCursor() {
 
     document.body.dataset.cursor = "custom";
 
-    let isMouseMoving = false;
-    const updateTarget = (event: MouseEvent) => {
+    let frame = 0;
+
+    const animate = () => {
+      const current = currentRef.current;
+      const target = targetRef.current;
+      const dx = target.x - current.x;
+      const dy = target.y - current.y;
+
+      if (Math.abs(dx) < 0.15 && Math.abs(dy) < 0.15) {
+        current.x = target.x;
+        current.y = target.y;
+      } else {
+        current.x += dx * 0.35;
+        current.y += dy * 0.35;
+      }
+
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${target.x}px, ${target.y}px, 0) translate(-50%, -50%)`;
+      }
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate3d(${current.x}px, ${current.y}px, 0) translate(-50%, -50%)`;
+      }
+
+      if (current.x !== target.x || current.y !== target.y) {
+        frame = window.requestAnimationFrame(animate);
+      } else {
+        frame = 0;
+      }
+    };
+
+    const updateTarget = (event: PointerEvent) => {
       targetRef.current = { x: event.clientX, y: event.clientY };
-      if (!visible) setVisible(true);
-      isMouseMoving = true;
+      if (!visibleRef.current) {
+        visibleRef.current = true;
+        currentRef.current = { ...targetRef.current };
+        setVisible(true);
+      }
+      if (!frame) frame = window.requestAnimationFrame(animate);
     };
 
     const updateInteractive = (event: Event) => {
       const target = event.target as HTMLElement | null;
-      setInteractive(Boolean(target?.closest("a, button, input, textarea, [data-cursor='interactive']")));
+      const nextInteractive = Boolean(target?.closest("a, button, input, textarea, [data-cursor='interactive']"));
+      setInteractive((current) => current === nextInteractive ? current : nextInteractive);
     };
 
-    const loop = () => {
-      if (isMouseMoving) {
-        const current = currentRef.current;
-        const target = targetRef.current;
-
-        current.x += (target.x - current.x) * 0.18;
-        current.y += (target.y - current.y) * 0.18;
-        currentRef.current = current;
-
-        if (dotRef.current) {
-          dotRef.current.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`;
-        }
-
-        if (ringRef.current) {
-          ringRef.current.style.transform = `translate3d(${current.x}px, ${current.y}px, 0)`;
-        }
-      }
-
-      frame = window.requestAnimationFrame(loop);
-    };
-
-    let frame = window.requestAnimationFrame(loop);
-
-    window.addEventListener("mousemove", updateTarget, { passive: true });
-    window.addEventListener("mouseover", updateInteractive, { passive: true });
-    window.addEventListener("mouseout", updateInteractive, { passive: true });
+    window.addEventListener("pointermove", updateTarget, { passive: true });
+    window.addEventListener("pointerover", updateInteractive, { passive: true });
+    window.addEventListener("pointerout", updateInteractive, { passive: true });
 
     return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener("mousemove", updateTarget);
-      window.removeEventListener("mouseover", updateInteractive);
-      window.removeEventListener("mouseout", updateInteractive);
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("pointermove", updateTarget);
+      window.removeEventListener("pointerover", updateInteractive);
+      window.removeEventListener("pointerout", updateInteractive);
       delete document.body.dataset.cursor;
     };
   }, []);

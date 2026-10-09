@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { sectionIds } from "@/lib/constants";
 
 const achievements = [
@@ -31,28 +30,20 @@ export function Achievements() {
   return (
     <section id={sectionIds.achievements} className="section-shell">
       <div className="section-container">
-        <motion.div
+        <div
           className="mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
         >
           <p className="section-kicker mb-4">// Selected_Recognition</p>
           <h2 className="section-title">
             Achievements<span className="text-neural-violet">_</span>
           </h2>
-        </motion.div>
+        </div>
 
         <div className="grid gap-5 md:grid-cols-3">
-          {achievements.map((item, index) => (
-            <motion.article
+          {achievements.map((item) => (
+            <article
               key={item.event}
               className="glass-panel relative overflow-hidden rounded-[1.75rem] p-6"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.55, delay: index * 0.08 }}
             >
               <div
                 className="absolute inset-x-0 top-0 h-px"
@@ -74,7 +65,7 @@ export function Achievements() {
               <p className="mt-5 border-t border-surface-border/20 pt-4 font-display text-[0.65rem] uppercase tracking-[0.15em] text-text-muted">
                 Built {item.project}
               </p>
-            </motion.article>
+            </article>
           ))}
         </div>
       </div>

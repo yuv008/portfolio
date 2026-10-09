@@ -73,8 +73,8 @@ void main(){
 
   vec3 q = p;
   float t = uTime * 0.12;
-  for (int i = 0; i < 4; i++) {
-    q += flow(q * uFreq + uOffset + vec3(0.0, 0.0, t)) * uAmp * 0.25;
+  for (int i = 0; i < 2; i++) {
+    q += flow(q * uFreq + uOffset + vec3(0.0, 0.0, t)) * uAmp * 0.5;
   }
   vec3 d = q - uPointer;
   q += normalize(d + 1e-4) * uPush * exp(-dot(d, d) * 1.6) * 0.6;
@@ -100,7 +100,7 @@ void main(){
 
 export default function HeroField({
   colors = ["#1E88E5", "#5CE1E6", "#E6F7FF"],
-  particles = 120000,
+  particles = 40000,
   opacity = 0.45,
   shape = 0,
   scrollLinked = false,
@@ -126,7 +126,7 @@ export default function HeroField({
       return; // No WebGL: the hero simply shows its normal background.
     }
     // Soft background: 1.5x is visually indistinguishable from 2x and far cheaper
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
@@ -150,7 +150,7 @@ export default function HeroField({
       uOffset: { value: new THREE.Vector3(Math.random() * 50, Math.random() * 50, Math.random() * 50) },
       uPointer: { value: new THREE.Vector3(99, 99, 99) },
       uPush: { value: 0 },
-      uSize: { value: isSmall ? 26 : 22 },
+      uSize: { value: isSmall ? 16 : 14 },
       uPixelRatio: { value: renderer.getPixelRatio() },
       uOpacity: { value: baseOpacity },
       uC1: { value: new THREE.Color(colors[0]) },
@@ -191,15 +191,32 @@ export default function HeroField({
     resize();
 
     // Cursor: gentle parallax plus a soft push where the pointer is.
-    // Listens on window so the canvas never blocks clicks on hero content.
+    // Defer layout reads and raycasting to the next animation frame.
     const pointer = new THREE.Vector2(0, 0);
+    const pointerClient = new THREE.Vector2();
+    let pointerDirty = false;
     const ray = new THREE.Raycaster();
     const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
     const hit = new THREE.Vector3();
     const onMove = (e: PointerEvent) => {
+      pointerClient.set(e.clientX, e.clientY);
+      pointerDirty = true;
+    };
+    const updatePointer = () => {
+      if (!pointerDirty) return;
+      pointerDirty = false;
       const rect = mount.getBoundingClientRect();
-      if (e.clientY < rect.top || e.clientY > rect.bottom) return;
-      pointer.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+      if (
+        pointerClient.x < rect.left || pointerClient.x > rect.right ||
+        pointerClient.y < rect.top || pointerClient.y > rect.bottom
+      ) {
+        uniforms.uPointer.value.set(99, 99, 99);
+        return;
+      }
+      pointer.set(
+        ((pointerClient.x - rect.left) / rect.width) * 2 - 1,
+        -((pointerClient.y - rect.top) / rect.height) * 2 + 1,
+      );
       ray.setFromCamera(pointer, camera);
       if (ray.ray.intersectPlane(plane, hit)) {
         uniforms.uPointer.value.lerp(hit, 0.25);
@@ -296,11 +313,18 @@ export default function HeroField({
 
     const clock = new THREE.Clock();
     let raf = 0;
+    let lastRenderAt = 0;
     const frame = (now: number) => {
       raf = 0;
       if (!onScreen || document.hidden || contextLost) return;
+      if (lastRenderAt && now - lastRenderAt < 1000 / 40) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+      lastRenderAt = now;
       adapt(now);
       const dt = Math.min(clock.getDelta(), 0.05);
+      updatePointer();
       uniforms.uTime.value += dt;
       uniforms.uPush.value *= Math.exp(-dt * 1.5);
       points.rotation.y += dt * 0.05;
@@ -314,6 +338,7 @@ export default function HeroField({
     function start() {
       if (reduceMotion || raf || contextLost) return;
       clock.getDelta();
+      lastRenderAt = 0;
       sampleStart = 0; // don't count a pause as a slow frame
       raf = requestAnimationFrame(frame);
     }

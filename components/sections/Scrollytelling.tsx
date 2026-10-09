@@ -1,14 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  AnimatePresence,
-  type MotionValue,
-} from "framer-motion";
 
 // ─── Data ──────────────────────────────────────────────────────────
 const CHAPTERS = [
@@ -101,10 +93,8 @@ const PIPELINE_PATH =
 // ─── Pipeline Diagram ─────────────────────────────────────────────
 function PipelineDiagram({
   active,
-  fillProgress,
 }: {
   active: number;
-  fillProgress: MotionValue<number>;
 }) {
   return (
     <svg
@@ -144,33 +134,32 @@ function PipelineDiagram({
       />
 
       {/* Glow copy of progress path */}
-      <motion.path
+      <path
         d={PIPELINE_PATH}
         fill="none"
         stroke="url(#sc-pathGrad)"
         strokeWidth="7"
         strokeLinecap="round"
         strokeOpacity="0.18"
-        style={{ pathLength: fillProgress }}
+        pathLength="1"
       />
 
       {/* Main progress path */}
-      <motion.path
+      <path
         d={PIPELINE_PATH}
         fill="none"
         stroke="url(#sc-pathGrad)"
         strokeWidth="2"
         strokeLinecap="round"
-        style={{ pathLength: fillProgress }}
+        pathLength="1"
       />
 
-      {/* Spring-animated signal dot at active node */}
-      <motion.circle
+      {/* Signal marker for the active stage */}
+      <circle
+        cx={NODES[active].x}
+        cy={NODES[active].y}
         r={4}
         fill="#a8e8ff"
-        style={{ filter: "drop-shadow(0 0 6px #6ee7ff)" }}
-        animate={{ cx: NODES[active].x, cy: NODES[active].y }}
-        transition={{ type: "spring", stiffness: 60, damping: 18 }}
       />
 
       {/* Nodes */}
@@ -183,16 +172,14 @@ function PipelineDiagram({
 
         return (
           <g key={c.id}>
-            {/* Pulsing halo on active node */}
+            {/* Static halo on active node */}
             {isActive && (
-              <motion.circle
+              <circle
                 cx={n.x}
                 cy={n.y}
                 r={22}
                 fill={`url(#sc-halo-${c.tone})`}
-                animate={{ scale: [1, 1.35, 1], opacity: [0.6, 0.25, 0.6] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                style={{ originX: `${n.x}px`, originY: `${n.y}px` }}
+                opacity={0.55}
               />
             )}
 
@@ -208,20 +195,12 @@ function PipelineDiagram({
             )}
 
             {/* Diamond node */}
-            <motion.polygon
+            <polygon
               points={`${n.x},${n.y - r} ${n.x + r},${n.y} ${n.x},${n.y + r} ${n.x - r},${n.y}`}
               fill={lit ? col : "rgb(19,26,36)"}
               stroke={col}
               strokeWidth={isActive ? 1.5 : 1}
               strokeOpacity={lit ? 1 : 0.35}
-              animate={{ scale: isActive ? 1.25 : 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              style={{
-                originX: `${n.x}px`,
-                originY: `${n.y}px`,
-                filter: lit ? `drop-shadow(0 0 ${isActive ? 10 : 5}px ${col})` : "none",
-                transition: "fill 0.45s cubic-bezier(0.22,1,0.36,1), filter 0.45s",
-              }}
             />
 
             {/* Node label */}
@@ -256,8 +235,7 @@ function ChapterRail({
       className="relative flex flex-col gap-1"
       style={{
         padding: "18px 10px",
-        background: "rgba(14,20,26,0.75)",
-        backdropFilter: "blur(20px)",
+        background: "rgba(14,20,26,0.96)",
         border: "1px solid rgba(72,88,104,0.2)",
         borderRadius: 28,
         width: 148,
@@ -302,16 +280,17 @@ function ChapterRail({
             }}
           >
             {/* Dot */}
-            <motion.span
+            <span
               className="rounded-sm"
-              style={{ width: 10, height: 10, display: "inline-block", rotate: 45 }}
-              animate={{
+              style={{
+                width: 10,
+                height: 10,
+                display: "inline-block",
+                rotate: 45,
                 background: isActive || isPast ? col : "transparent",
-                borderColor: isActive || isPast ? col : "rgba(110,231,255,0.25)",
-                boxShadow: isActive ? `0 0 10px ${col}` : "none",
+                border: `1px solid ${isActive || isPast ? col : "rgba(110,231,255,0.25)"}`,
+                boxShadow: isActive ? `0 0 6px ${col}` : "none",
               }}
-              transition={{ duration: 0.3 }}
-              initial={false}
             />
             {/* Num */}
             <span
@@ -348,18 +327,7 @@ function ChapterRail({
 // ─── Main Export ───────────────────────────────────────────────────
 export function Scrollytelling() {
   const [active, setActive] = useState(0);
-  const stageRef    = useRef<HTMLDivElement>(null);
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // ── Scroll-linked smooth fill for the SVG path ──────────────────
-  const { scrollYProgress } = useScroll({
-    target: stageRef,
-    offset: ["start start", "end end"],
-  });
-  const smoothFill = useSpring(
-    useTransform(scrollYProgress, [0.02, 0.98], [0, 1]),
-    { stiffness: 50, damping: 22, restDelta: 0.001 }
-  );
 
   // ── Discrete chapter via IntersectionObserver ───────────────────
   useEffect(() => {
@@ -391,13 +359,7 @@ export function Scrollytelling() {
       <div className="section-container">
 
         {/* ── Header ── */}
-        <motion.div
-          className="text-center mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-        >
+        <div className="text-center mb-14">
           <p className="section-kicker mb-4">// Interactive_Scroll · 06 Chapters</p>
           <h2 className="section-title">
             The_{" "}
@@ -408,11 +370,10 @@ export function Scrollytelling() {
           <p className="mt-5 max-w-xl mx-auto text-base leading-7 text-text-soft">
             Scroll through six beats of the voice-agent pipeline. Each chapter pins a node. The graph lights up as you move.
           </p>
-        </motion.div>
+        </div>
 
         {/* ── Stage: sticky left + scrolling right ── */}
         <div
-          ref={stageRef}
           className="grid gap-12"
           style={{ gridTemplateColumns: "1fr 1fr", alignItems: "stretch" }}
         >
@@ -434,25 +395,21 @@ export function Scrollytelling() {
                 className="relative flex-1 flex flex-col gap-3 overflow-hidden"
                 style={{
                   padding: "22px 20px",
-                  background: "rgba(16,23,32,0.9)",
-                  backdropFilter: "blur(32px)",
+                  background: "rgba(16,23,32,0.97)",
                   border: `1px solid ${curCol}30`,
                   borderRadius: 28,
                   clipPath: "polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%)",
-                  boxShadow: `0 0 0 1px ${curCol}18, 0 24px 80px rgba(0,0,0,0.4)`,
+                  boxShadow: `0 0 0 1px ${curCol}18, 0 12px 32px rgba(0,0,0,0.28)`,
                   transition: "border-color 0.5s, box-shadow 0.5s",
                 }}
               >
                 {/* Scan line */}
-                <motion.div
-                  className="absolute inset-x-0 pointer-events-none"
+                <div
+                  className="absolute inset-x-0 top-1/2 h-px pointer-events-none"
                   style={{
-                    height: 1,
                     background: `linear-gradient(to right, transparent, ${curCol}55, transparent)`,
                     zIndex: 10,
                   }}
-                  animate={{ top: ["0%", "100%"] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
                 />
 
                 {/* Background grid texture */}
@@ -465,15 +422,9 @@ export function Scrollytelling() {
                   }}
                 />
 
-                {/* Chapter tag + title — AnimatePresence cross-fade */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={`head-${active}`}
+                {/* Active chapter title */}
+                <div
                     className="relative z-10 flex items-baseline justify-between gap-3 flex-wrap"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.22, ease: "easeOut" }}
                   >
                     <span
                       className="rounded-full px-3 py-1"
@@ -499,12 +450,11 @@ export function Scrollytelling() {
                     >
                       {cur.title}
                     </span>
-                  </motion.div>
-                </AnimatePresence>
+                  </div>
 
                 {/* SVG diagram */}
                 <div className="relative z-10 flex-1 min-h-0">
-                  <PipelineDiagram active={active} fillProgress={smoothFill} />
+                  <PipelineDiagram active={active} />
                 </div>
 
                 {/* Terminal stream */}
@@ -521,11 +471,8 @@ export function Scrollytelling() {
                   }}
                 >
                   {CHAPTERS.slice(0, active + 1).map((c, i) => (
-                    <motion.div
+                    <div
                       key={c.id}
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.25 }}
                       style={{ color: i === active ? TC[c.tone] : "rgba(126,142,156,0.65)" }}
                     >
                       <span style={{ color: `${TC[c.tone]}88` }}>&gt;</span>{" "}
@@ -533,24 +480,18 @@ export function Scrollytelling() {
                       <span style={{ color: "#61ffab", opacity: i < active ? 1 : 0.45 }}>
                         {i < active ? "[OK]" : "[...]"}
                       </span>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
 
-                {/* Metric pill — AnimatePresence */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={`metric-${active}`}
+                {/* Active chapter metric */}
+                <div
                     className="relative z-10 flex justify-between items-center rounded-2xl"
                     style={{
                       padding: "10px 14px",
                       background: "rgba(8,12,18,0.65)",
                       border: `1px solid ${curCol}35`,
                     }}
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ duration: 0.2 }}
                   >
                     <span
                       style={{
@@ -573,8 +514,7 @@ export function Scrollytelling() {
                     >
                       {cur.metric.value}
                     </span>
-                  </motion.div>
-                </AnimatePresence>
+                  </div>
               </div>
             </div>
           </div>
@@ -593,21 +533,18 @@ export function Scrollytelling() {
                   style={{ minHeight: "75vh", padding: "40px 8px 40px 28px" }}
                 >
                   {/* Backdrop glow when active */}
-                  <motion.div
+                  <div
                     className="absolute inset-0 pointer-events-none rounded-3xl"
-                    animate={{
+                    style={{
                       opacity: isActive ? 1 : 0,
                       background: `radial-gradient(ellipse at 20% 50%, ${col}0d 0%, transparent 70%)`,
                     }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
                   />
 
-                  {/* Animated left accent bar */}
-                  <motion.div
+                  {/* Active chapter accent bar */}
+                  <div
                     className="absolute left-0 top-8 bottom-8 w-[2px] rounded-full"
-                    style={{ background: col, originY: 0.5 }}
-                    animate={{ scaleY: isActive ? 1 : 0, opacity: isActive ? 1 : 0 }}
-                    transition={{ type: "spring", stiffness: 120, damping: 22 }}
+                    style={{ background: col, transform: `scaleY(${isActive ? 1 : 0})`, opacity: isActive ? 1 : 0 }}
                   />
 
                   {/* Mobile chapter tag */}

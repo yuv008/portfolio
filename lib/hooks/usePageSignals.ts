@@ -2,29 +2,40 @@
 
 import { useEffect, useState } from "react";
 
-function getSignals() {
+type PageFlags = {
+  isScrolled: boolean;
+  nearBottom: boolean;
+};
+
+function getFlags(): PageFlags {
   if (typeof window === "undefined") {
-    return { scrollY: 0, progress: 0, nearBottom: false };
+    return { isScrolled: false, nearBottom: false };
   }
 
   const scrollY = window.scrollY;
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = maxScroll > 0 ? Math.min(scrollY / maxScroll, 1) : 0;
-  const nearBottom = maxScroll > 0 && maxScroll - scrollY < 520;
-
-  return { scrollY, progress, nearBottom };
+  return {
+    isScrolled: scrollY > 60,
+    nearBottom: maxScroll > 0 && maxScroll - scrollY < 520,
+  };
 }
 
 export function usePageSignals() {
-  const [signals, setSignals] = useState(getSignals);
+  const [flags, setFlags] = useState(getFlags);
 
   useEffect(() => {
     let frame = 0;
 
     const update = () => {
-      cancelAnimationFrame(frame);
+      if (frame) return;
       frame = requestAnimationFrame(() => {
-        setSignals(getSignals());
+        frame = 0;
+        const nextFlags = getFlags();
+        setFlags((current) =>
+          current.isScrolled === nextFlags.isScrolled && current.nearBottom === nextFlags.nearBottom
+            ? current
+            : nextFlags,
+        );
       });
     };
 
@@ -33,11 +44,11 @@ export function usePageSignals() {
     window.addEventListener("resize", update);
 
     return () => {
-      cancelAnimationFrame(frame);
+      if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
   }, []);
 
-  return signals;
+  return flags;
 }

@@ -81,11 +81,13 @@
   }
 
   .glass-panel {
-    @apply border border-surface-border/25 bg-surface/70 shadow-glass backdrop-blur-2xl;
+    @apply border border-surface-border/25 bg-surface/90;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   }
 
   .terminal-shell {
-    @apply rounded-[1.75rem] border border-surface-border/30 bg-surface/80 shadow-glass backdrop-blur-2xl;
+    @apply rounded-[1.75rem] border border-surface-border/30 bg-surface/90;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   }
 
   .terminal-bar {
@@ -139,17 +141,6 @@
 
   .text-balance {
     text-wrap: balance;
-  }
-}
-
-@media (pointer: fine) {
-  body[data-cursor="custom"],
-  body[data-cursor="custom"] a,
-  body[data-cursor="custom"] button,
-  body[data-cursor="custom"] input,
-  body[data-cursor="custom"] textarea,
-  body[data-cursor="custom"] [role="button"] {
-    cursor: none;
   }
 }
 

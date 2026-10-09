@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 
 const CARDS = [
   {
@@ -27,12 +26,8 @@ export function About() {
   return (
     <section id="about" className="section-shell">
       <div className="section-container">
-        <motion.header
+        <header
           className="mb-14 text-center"
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
         >
           <p className="section-kicker mb-4">// Manifest_v5.0</p>
           <h2 className="section-title">
@@ -41,34 +36,29 @@ export function About() {
               Architecture
             </span>
           </h2>
-        </motion.header>
+        </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {CARDS.map((card, i) => (
-            <motion.div
+          {CARDS.map((card) => (
+            <div
               key={card.kicker}
               className="relative rounded-[32px] overflow-hidden group"
               style={{
                 padding: 28,
-                background: "rgba(20,27,35,0.85)",
-                backdropFilter: "blur(32px)",
+                background: "rgba(20,27,35,0.94)",
                 border: "1px solid rgba(255,255,255,0.06)",
-                boxShadow: "0 24px 80px rgba(0,0,0,0.28)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
                 transition: "all 0.5s cubic-bezier(0.22,1,0.36,1)",
               }}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
                 (e.currentTarget as HTMLDivElement).style.borderColor = `${card.color}40`;
-                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 48px ${card.color}12, 0 24px 80px rgba(0,0,0,0.28)`;
+                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 24px ${card.color}12, 0 8px 24px rgba(0,0,0,0.18)`;
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
                 (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.06)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 24px 80px rgba(0,0,0,0.28)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.18)";
               }}
             >
               {/* Left accent bar */}
@@ -121,7 +111,7 @@ export function About() {
               >
                 {card.body}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

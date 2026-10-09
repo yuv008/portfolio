@@ -7,7 +7,7 @@ type ScrollSpyItem = {
   spyIds?: string[];
 };
 
-const THRESHOLDS = Array.from({ length: 11 }, (_, index) => index / 10);
+const THRESHOLDS = [0, 0.25, 0.5];
 
 export function useScrollSpy(items: ScrollSpyItem[]) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? "");
@@ -78,12 +78,10 @@ export function useScrollSpy(items: ScrollSpyItem[]) {
     );
 
     observedSections.forEach((section) => observer.observe(section));
-    window.addEventListener("scroll", updateActive, { passive: true });
     updateActive();
 
     return () => {
       observer.disconnect();
-      window.removeEventListener("scroll", updateActive);
     };
   }, [items, sectionToItem]);
 

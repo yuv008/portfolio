@@ -25,7 +25,7 @@ const itemVariants = {
 
 export function TopNavBar() {
   const activeId = useScrollSpy(navLinks);
-  const { scrollY, progress, nearBottom } = usePageSignals();
+  const { isScrolled, nearBottom } = usePageSignals();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -35,21 +35,14 @@ export function TopNavBar() {
     };
   }, [mobileOpen]);
 
-  const isScrolled = scrollY > 60;
-
   return (
     <>
-      <motion.div
-        className="fixed inset-x-0 top-0 z-[70] h-[2px] origin-left bg-gradient-to-r from-neural-cyan via-neural-violet to-neural-amber"
-        style={{ scaleX: progress }}
-        suppressHydrationWarning
-      />
       <nav className="fixed inset-x-0 top-0 z-[60]">
         <div className="section-container pt-4">
           <div
             className={`flex items-center justify-between rounded-full border px-4 py-3 transition-all duration-300 md:px-6 ${
               isScrolled
-                ? "border-surface-border/35 bg-background/60 shadow-glass backdrop-blur-2xl"
+                ? "border-surface-border/35 bg-background/90 shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
                 : "border-transparent bg-transparent"
             }`}
             suppressHydrationWarning
@@ -89,7 +82,6 @@ export function TopNavBar() {
               <div className="rounded-full border border-neural-green/20 bg-neural-green/8 px-3 py-2">
                 <span className="flex items-center gap-2 font-display text-[0.62rem] uppercase tracking-[0.28em] text-neural-green">
                   <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-neural-green/60" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-neural-green" />
                   </span>
                   Systems_Optimal
@@ -99,7 +91,7 @@ export function TopNavBar() {
                 href="#contact"
                 className={`rounded-full border px-5 py-2 font-display text-[0.72rem] uppercase tracking-[0.32em] transition-all ${
                   nearBottom
-                    ? "animate-pulse-subtle border-neural-cyan/45 bg-neural-cyan/14 text-neural-cyan shadow-glow-cyan"
+                    ? "border-neural-cyan/45 bg-neural-cyan/14 text-neural-cyan shadow-glow-cyan"
                     : "border-surface-border/35 bg-surface/65 text-text-strong hover:border-neural-cyan/40 hover:text-neural-cyan"
                 }`}
                 suppressHydrationWarning
@@ -123,7 +115,7 @@ export function TopNavBar() {
       <AnimatePresence>
         {mobileOpen ? (
           <motion.div
-            className="fixed inset-0 z-[80] bg-background/96 backdrop-blur-2xl md:hidden"
+            className="fixed inset-0 z-[80] bg-background/96 md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

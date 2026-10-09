@@ -3,8 +3,6 @@ import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { Toaster } from "react-hot-toast";
-import { CustomCursor } from "@/components/ui/CustomCursor";
-import HeroField from "@/components/three/HeroField";
 
 
 const jetbrainsMono = JetBrains_Mono({
@@ -69,13 +67,14 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body text-text-strong relative">
-        {/* Site-wide particle field — accent tokens: --neural-cyan, --neural-violet, --neural-mist */}
-        <HeroField
-          className="fixed inset-0 z-0"
-          colors={["#6ee7ff", "#ab8aff", "#d1dce9"]}
-          scrollLinked
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at 18% 12%, rgba(110,231,255,0.08), transparent 34%), radial-gradient(ellipse at 82% 36%, rgba(171,138,255,0.07), transparent 38%), rgb(8 12 18)",
+          }}
         />
-        <CustomCursor />
         <div className="relative z-10">
           <Toaster
             position="bottom-right"

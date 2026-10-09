@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { skillClusters, type AccentTone } from "@/lib/constants";
 
 const CATEGORY_STYLE: Record<AccentTone, { color: string; icon: string }> = {
@@ -51,12 +50,7 @@ export function Skills() {
       />
       {/* Section header */}
       <div className="container mx-auto px-8 md:px-24 pt-20 mb-12 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-        >
+        <div>
           <div className="flex items-center gap-4 mb-3">
             <span className="text-neural-cyan text-xs uppercase tracking-[0.2em]" style={{ fontFamily: "var(--font-display), monospace" }}>
               System_Status: Operational
@@ -70,17 +64,13 @@ export function Skills() {
             A live map of the technical stack — from model training to production
             inference, data pipelines, and frontend delivery.
           </p>
-        </motion.div>
+        </div>
       </div>
 
       <div className="container mx-auto px-8 md:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* ── Left: SVG Node Graph ── */}
-        <motion.div
+        <div
           className="lg:col-span-7 bg-surface-2/60 rounded-[48px] p-8 md:p-12 border border-surface-border/20 relative overflow-hidden"
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
         >
           <div className="mb-6">
             <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: "var(--font-display), monospace" }}>Neural_Nodes</h3>
@@ -91,28 +81,14 @@ export function Skills() {
 
           <div className="flex items-center justify-center">
             <svg viewBox="0 0 420 400" className="w-full max-w-[420px]" style={{ overflow: "visible" }}>
-              <defs>
-                <filter id="node-glow-matrix">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                </filter>
-                <filter id="edge-glow-matrix">
-                  <feGaussianBlur stdDeviation="1.5" result="blur" />
-                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                </filter>
-              </defs>
-
-              {/* Background rings — animated rotation via framer-motion */}
-              {[150, 100, 50].map((r, ri) => (
-                <motion.circle
+              {/* Static rings keep the skill map lightweight while preserving its structure. */}
+              {[150, 100, 50].map((r) => (
+                <circle
                   key={r}
                   cx="200" cy="200" r={r}
                   fill="none"
                   stroke="rgba(168,232,255,0.07)"
                   strokeDasharray="4 6"
-                  animate={{ rotate: ri % 2 === 0 ? 360 : -360 }}
-                  transition={{ duration: 30 + ri * 8, repeat: Infinity, ease: "linear" }}
-                  style={{ originX: "200px", originY: "200px" }}
                 />
               ))}
 
@@ -120,114 +96,65 @@ export function Skills() {
               {EDGES.map(([a, b], i) => {
                 const ax = NODE_GROUPS[a].x, ay = NODE_GROUPS[a].y;
                 const bx = NODE_GROUPS[b].x, by = NODE_GROUPS[b].y;
-                const len = Math.hypot(bx - ax, by - ay);
                 return (
-                  <motion.line
+                  <line
                     key={i}
                     x1={ax} y1={ay} x2={bx} y2={by}
                     stroke="rgba(168,232,255,0.15)"
                     strokeWidth="1"
-                    strokeDasharray={len}
-                    initial={{ strokeDashoffset: len, opacity: 0 }}
-                    whileInView={{ strokeDashoffset: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.3 + i * 0.07, ease: "easeOut" }}
                   />
                 );
               })}
 
               {/* Nodes */}
               {NODE_GROUPS.map((n, i) => (
-                <motion.g key={i}>
-                  {/* Outer halo */}
-                  <motion.circle
+                <g key={i}>
+                  <circle
                     cx={n.x} cy={n.y} r={n.r + 8}
                     fill={n.color}
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: [0, 0.12, 0.06, 0.12] }}
-                    viewport={{ once: false }}
-                    transition={{ duration: 2.5, delay: i * 0.08, repeat: Infinity, ease: "easeInOut" }}
+                    opacity="0.08"
                   />
-                  {/* Node circle */}
-                  <motion.circle
+                  <circle
                     cx={n.x} cy={n.y} r={n.r}
                     fill={n.color}
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.35, delay: 0.2 + i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-                    style={{ filter: `drop-shadow(0 0 6px ${n.color})`, originX: `${n.x}px`, originY: `${n.y}px` }}
                   />
-                  {/* Label */}
-                  <motion.text
+                  <text
                     x={n.x + (n.x > 200 ? n.r + 6 : -(n.r + 6))}
                     y={n.y + 4}
                     textAnchor={n.x > 200 ? "start" : n.x === 200 ? "middle" : "end"}
                     fill="rgba(221,227,236,0.8)"
                     fontSize="10"
                     fontFamily="JetBrains Mono, monospace"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.4 + i * 0.07 }}
                   >
                     {n.label}
-                  </motion.text>
-                </motion.g>
+                  </text>
+                </g>
               ))}
 
-              {/* Center hub */}
-              <motion.circle
+              <circle
                 cx="200" cy="200" r="18"
                 fill="rgba(0,212,255,0.1)"
                 stroke="#00d4ff"
                 strokeWidth="1.5"
                 strokeDasharray="4 3"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                style={{ originX: "200px", originY: "200px" }}
               />
               <text x="200" y="196" textAnchor="middle" fill="#00d4ff" fontSize="8" fontFamily="JetBrains Mono">CORE</text>
               <text x="200" y="207" textAnchor="middle" fill="#00d4ff" fontSize="8" fontFamily="JetBrains Mono">STACK</text>
 
-              {/* Traveling signal dot along main path: 0→3→4→5→7→8 */}
-              <motion.circle
-                r="3"
-                fill="#00d4ff"
-                style={{ filter: "drop-shadow(0 0 4px #00d4ff)" }}
-                animate={{
-                  cx: [NODE_GROUPS[0].x, NODE_GROUPS[3].x, NODE_GROUPS[4].x, NODE_GROUPS[5].x, NODE_GROUPS[7].x, NODE_GROUPS[8].x, NODE_GROUPS[0].x],
-                  cy: [NODE_GROUPS[0].y, NODE_GROUPS[3].y, NODE_GROUPS[4].y, NODE_GROUPS[5].y, NODE_GROUPS[7].y, NODE_GROUPS[8].y, NODE_GROUPS[0].y],
-                  opacity: [0, 1, 1, 1, 1, 1, 0],
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
-              />
             </svg>
           </div>
 
-          {/* Background texture */}
-          <div className="absolute inset-0 pointer-events-none opacity-5">
-            <img
-              className="w-full h-full object-cover"
-              alt=""
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmquO-TmvSCNWbbe3E2ce4ZvzVkXzXPDXSxrgBOAc512e84U_4uGrk4iOi7sgll_Xm1aAcYVAygiuL0dBsZssU2NbzmG9iXOBN3kRNgFMLzd1cxpWYQnwmhc1kpQ5hseRWnHKwEqlYGIZo3vebhj9HsJedMzw09zEiUB5qboZqbbklWVnak8qeXa98BTSV9RfPrlDF_2SJncZG9wULo9Jpf07t5X40DocuWeo8EZNk2fVXzmNnY58mSuHysPTpA1gn4F2qFRDDG8A"
-            />
-          </div>
-        </motion.div>
+        </div>
 
         {/* ── Right: Skill Category Chips ── */}
         <div className="lg:col-span-5 flex flex-col gap-5">
-          {skillClusters.map((cat, i) => {
+          {skillClusters.map((cat) => {
             const style = CATEGORY_STYLE[cat.tone];
             return (
-              <motion.div
+              <div
                 key={cat.label}
                 className="group relative rounded-3xl overflow-hidden bg-surface-2/60 border border-surface-border/20 transition-all duration-300 hover:border-opacity-100"
                 style={{ borderColor: `${style.color}40` }}
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 20px ${style.color}18`;
                 }}
@@ -243,15 +170,14 @@ export function Skills() {
                 <div className="p-6 relative z-10">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <motion.div
-                        className="flex items-center justify-center w-10 h-10 rounded-full border"
+                      <div
+                        className="flex items-center justify-center w-10 h-10 rounded-full border transition-transform hover:scale-110 hover:rotate-[5deg]"
                         style={{ borderColor: `${style.color}40`, background: `${style.color}12` }}
-                        whileHover={{ scale: 1.1, rotate: 5 }}
                       >
                         <span className="material-symbols-outlined text-base" style={{ color: style.color }}>
                           {style.icon}
                         </span>
-                      </motion.div>
+                      </div>
                       <span
                         className="text-[10px] uppercase tracking-[0.2em] font-semibold"
                         style={{ fontFamily: "var(--font-display), monospace", color: style.color }}
@@ -278,8 +204,8 @@ export function Skills() {
                   />
 
                   <div className="flex flex-wrap gap-2">
-                    {cat.skills.map((skill, idx) => (
-                      <motion.span
+                    {cat.skills.map((skill) => (
+                      <span
                         key={skill}
                         className="px-3 py-1.5 rounded-full text-[11px] border transition-all duration-300 hover:scale-110 cursor-default relative"
                         style={{
@@ -288,10 +214,6 @@ export function Skills() {
                           color: "rgb(221,227,236)",
                           fontFamily: "var(--font-display), monospace",
                         }}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.3, delay: 0.2 + idx * 0.03 }}
                         onMouseEnter={(e) => {
                           (e.currentTarget as HTMLSpanElement).style.background = `${style.color}25`;
                           (e.currentTarget as HTMLSpanElement).style.borderColor = `${style.color}60`;
@@ -306,11 +228,11 @@ export function Skills() {
                         }}
                       >
                         {skill}
-                      </motion.span>
+                      </span>
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

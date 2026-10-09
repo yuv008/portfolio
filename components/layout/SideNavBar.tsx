@@ -1,6 +1,6 @@
 export function SideNavBar() {
   return (
-    <aside className="fixed left-6 top-1/2 -translate-y-1/2 h-[716px] rounded-full w-20 bg-[#0e141a]/80 backdrop-blur-3xl shadow-[0_0_50px_rgba(0,212,255,0.05)] border border-outline-variant/15 flex flex-col items-center justify-around py-8 z-40 hidden xl:flex">
+    <aside className="fixed left-6 top-1/2 -translate-y-1/2 h-[716px] rounded-full w-20 bg-[#0e141a]/95 shadow-[0_0_50px_rgba(0,212,255,0.05)] border border-outline-variant/15 flex flex-col items-center justify-around py-8 z-40 hidden xl:flex">
       <div className="flex flex-col items-center gap-1 group w-full px-4 text-center cursor-default">
         <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-primary/20">
             <img alt="Neural Core Status" className="w-6 h-6" src="/ContactHub_image.png" style={{ objectFit: 'contain' }} />

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 
 interface ExperienceItem {
   id: string;
@@ -92,12 +91,8 @@ export function Experience() {
     <section id="experience" className="relative z-10 pb-24">
       <div className="container mx-auto px-8 md:px-24">
         {/* Header */}
-        <motion.div
+        <div
           className="mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
         >
           <div className="flex items-center gap-4 mb-3">
             <span className="font-label text-secondary text-xs uppercase tracking-[0.2em]">
@@ -108,17 +103,16 @@ export function Experience() {
           <h2 className="text-5xl md:text-7xl font-headline font-bold tracking-tight">
             The_Pipeline
           </h2>
-        </motion.div>
+        </div>
 
         {/* Cards */}
         <div className="flex flex-col gap-6">
-          {experiences.map((exp, idx) => (
-            <motion.div
+          {experiences.map((exp) => (
+            <div
               key={exp.id}
               className="group relative rounded-3xl border border-outline-variant/10 overflow-hidden transition-all duration-500 hover:border-opacity-30"
               style={{
-                background: "rgba(22, 28, 34, 0.6)",
-                backdropFilter: "blur(32px)",
+                background: "rgba(22, 28, 34, 0.94)",
                 borderColor: `${exp.color}15`,
               }}
               onMouseEnter={(e) => {
@@ -129,10 +123,6 @@ export function Experience() {
                 (e.currentTarget as HTMLDivElement).style.borderColor = `${exp.color}15`;
                 (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
               }}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: idx * 0.12 }}
             >
               {/* Colored left accent bar */}
               <div
@@ -227,7 +217,7 @@ export function Experience() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
