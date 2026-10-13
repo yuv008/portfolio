@@ -51,8 +51,8 @@ float snoise(vec3 v){
 }`;
 
 const VERT = /* glsl */ `
-uniform float uTime, uFreq, uAmp, uShape, uTwist, uPush, uSize, uPixelRatio;
-uniform vec3 uOffset, uPointer;
+uniform float uTime, uFreq, uAmp, uShape, uTwist, uSize, uPixelRatio;
+uniform vec3 uOffset;
 attribute vec3 aSeed;
 varying float vMix; varying float vR;
 ${NOISE}
@@ -73,11 +73,9 @@ void main(){
 
   vec3 q = p;
   float t = uTime * 0.12;
-  for (int i = 0; i < 2; i++) {
-    q += flow(q * uFreq + uOffset + vec3(0.0, 0.0, t)) * uAmp * 0.5;
+  for (int i = 0; i < 1; i++) {
+    q += flow(q * uFreq + uOffset + vec3(0.0, 0.0, t)) * uAmp * 0.8;
   }
-  vec3 d = q - uPointer;
-  q += normalize(d + 1e-4) * uPush * exp(-dot(d, d) * 1.6) * 0.6;
 
   vec4 mv = modelViewMatrix * vec4(q, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -100,7 +98,7 @@ void main(){
 
 export default function HeroField({
   colors = ["#1E88E5", "#5CE1E6", "#E6F7FF"],
-  particles = 40000,
+  particles = 12000,
   opacity = 0.45,
   shape = 0,
   scrollLinked = false,
@@ -125,8 +123,8 @@ export default function HeroField({
     } catch {
       return; // No WebGL: the hero simply shows its normal background.
     }
-    // Soft background: 1.5x is visually indistinguishable from 2x and far cheaper
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    // The background is decorative, so render at device-independent resolution.
+    renderer.setPixelRatio(1);
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
@@ -148,9 +146,7 @@ export default function HeroField({
       uShape: { value: shape },
       uTwist: { value: 0.8 },
       uOffset: { value: new THREE.Vector3(Math.random() * 50, Math.random() * 50, Math.random() * 50) },
-      uPointer: { value: new THREE.Vector3(99, 99, 99) },
-      uPush: { value: 0 },
-      uSize: { value: isSmall ? 16 : 14 },
+      uSize: { value: isSmall ? 10 : 9 },
       uPixelRatio: { value: renderer.getPixelRatio() },
       uOpacity: { value: baseOpacity },
       uC1: { value: new THREE.Color(colors[0]) },
@@ -189,41 +185,6 @@ export default function HeroField({
     const ro = new ResizeObserver(resize);
     ro.observe(mount);
     resize();
-
-    // Cursor: gentle parallax plus a soft push where the pointer is.
-    // Defer layout reads and raycasting to the next animation frame.
-    const pointer = new THREE.Vector2(0, 0);
-    const pointerClient = new THREE.Vector2();
-    let pointerDirty = false;
-    const ray = new THREE.Raycaster();
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-    const hit = new THREE.Vector3();
-    const onMove = (e: PointerEvent) => {
-      pointerClient.set(e.clientX, e.clientY);
-      pointerDirty = true;
-    };
-    const updatePointer = () => {
-      if (!pointerDirty) return;
-      pointerDirty = false;
-      const rect = mount.getBoundingClientRect();
-      if (
-        pointerClient.x < rect.left || pointerClient.x > rect.right ||
-        pointerClient.y < rect.top || pointerClient.y > rect.bottom
-      ) {
-        uniforms.uPointer.value.set(99, 99, 99);
-        return;
-      }
-      pointer.set(
-        ((pointerClient.x - rect.left) / rect.width) * 2 - 1,
-        -((pointerClient.y - rect.top) / rect.height) * 2 + 1,
-      );
-      ray.setFromCamera(pointer, camera);
-      if (ray.ray.intersectPlane(plane, hit)) {
-        uniforms.uPointer.value.lerp(hit, 0.25);
-        uniforms.uPush.value = Math.min(uniforms.uPush.value + 0.08, 1);
-      }
-    };
-    if (!reduceMotion) window.addEventListener("pointermove", onMove, { passive: true });
 
     // Scroll link: targets are eased toward in the frame loop.
     // Page height is cached so scroll events never force a layout.
@@ -301,7 +262,7 @@ export default function HeroField({
         warmedUp = true;
         return;
       }
-      if (avg <= 22) return;
+      if (avg <= 38) return;
       if (drawCount > minCount) {
         drawCount = Math.max(minCount, Math.round(drawCount * 0.7));
         geo.setDrawRange(0, drawCount);
@@ -317,18 +278,15 @@ export default function HeroField({
     const frame = (now: number) => {
       raf = 0;
       if (!onScreen || document.hidden || contextLost) return;
-      if (lastRenderAt && now - lastRenderAt < 1000 / 40) {
+      if (lastRenderAt && now - lastRenderAt < 1000 / 30) {
         raf = requestAnimationFrame(frame);
         return;
       }
       lastRenderAt = now;
       adapt(now);
       const dt = Math.min(clock.getDelta(), 0.05);
-      updatePointer();
       uniforms.uTime.value += dt;
-      uniforms.uPush.value *= Math.exp(-dt * 1.5);
       points.rotation.y += dt * 0.05;
-      points.rotation.x += (pointer.y * 0.15 - points.rotation.x) * 0.03;
       const ease = 1 - Math.exp(-dt * 4);
       uniforms.uOpacity.value += (targetOpacity - uniforms.uOpacity.value) * ease;
       uniforms.uShape.value += (targetShape - uniforms.uShape.value) * ease;
@@ -353,7 +311,6 @@ export default function HeroField({
       io.disconnect();
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
-      window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
       geo.dispose();
