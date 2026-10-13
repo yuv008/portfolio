@@ -72,8 +72,9 @@ export default function RootLayout({
         <HeroField
           className="pointer-events-none fixed inset-0 z-0"
           colors={["#6ee7ff", "#ab8aff", "#d1dce9"]}
-          particles={12000}
-          opacity={0.36}
+          particles={32000}
+          opacity={0.5}
+          scrollDim={0.7}
           scrollLinked
         />
         <div className="relative z-10">

@@ -98,7 +98,7 @@ void main(){
 
 export default function HeroField({
   colors = ["#1E88E5", "#5CE1E6", "#E6F7FF"],
-  particles = 12000,
+  particles = 32000,
   opacity = 0.45,
   shape = 0,
   scrollLinked = false,
@@ -146,7 +146,7 @@ export default function HeroField({
       uShape: { value: shape },
       uTwist: { value: 0.8 },
       uOffset: { value: new THREE.Vector3(Math.random() * 50, Math.random() * 50, Math.random() * 50) },
-      uSize: { value: isSmall ? 10 : 9 },
+      uSize: { value: isSmall ? 18 : 16 },
       uPixelRatio: { value: renderer.getPixelRatio() },
       uOpacity: { value: baseOpacity },
       uC1: { value: new THREE.Color(colors[0]) },
@@ -242,7 +242,7 @@ export default function HeroField({
     renderer.domElement.addEventListener("webglcontextlost", onContextLost);
     renderer.domElement.addEventListener("webglcontextrestored", onContextRestored);
 
-    // Frame-time budget: below ~45fps, thin the field, then drop resolution
+    // If rendered frames fall below ~26fps, progressively thin the field.
     let sampleStart = 0;
     let sampleFrames = 0;
     let warmedUp = false; // first window includes shader compile
