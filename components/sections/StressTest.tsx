@@ -299,37 +299,6 @@ function StepImage({ step, playing = true }: { step: Step; playing?: boolean }) 
   );
 }
 
-/* ── Muted loop that plays while visible ─────────────────── */
-
-function LoopClip() {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) void v.play().catch(() => undefined);
-      else v.pause();
-    }, { threshold: 0.3 });
-    obs.observe(v);
-    return () => obs.disconnect();
-  }, []);
-  return (
-    <video
-      ref={ref}
-      src="/legion/legion-loop.mp4"
-      poster="/legion/legion-poster.webp"
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      aria-hidden
-      className="w-full rounded-2xl"
-      style={{ border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 18px 40px rgba(0,0,0,0.4)" }}
-    />
-  );
-}
-
 /* ── Section ───────────────────────────────────────────────── */
 
 export function StressTest() {
@@ -356,7 +325,7 @@ export function StressTest() {
   return (
     <section id="stress-test" className="section-shell">
       <div className="section-container">
-        <div className="mb-14 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
+        <div className="mb-14">
           <div>
             <p className="section-kicker mb-4">// Work · VoiceraCX</p>
             <h2 className="section-title">
@@ -385,9 +354,6 @@ export function StressTest() {
                 legion.voiceracx.ai ↗
               </a>
             </div>
-          </div>
-          <div className="hidden lg:block">
-            <LoopClip />
           </div>
         </div>
 
