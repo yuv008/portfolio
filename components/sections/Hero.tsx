@@ -18,8 +18,9 @@ export function Hero() {
 
       {/* ── Left: Text content ── */}
       <div className="relative w-full md:w-1/2 z-10">
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-8"
+        <div className="mb-8 flex flex-wrap items-center gap-3">
+          <div
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full"
           style={{
             background: "rgba(110,231,255,0.08)",
             border: "1px solid rgba(110,231,255,0.2)",
@@ -32,6 +33,19 @@ export function Hero() {
           >
             AI R&D Engineer
           </span>
+        </div>
+        <a
+          href="#experience"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full transition-colors hover:brightness-125"
+          style={{ background: "rgba(171,138,255,0.08)", border: "1px solid rgba(171,138,255,0.25)" }}
+        >
+          <span
+            className="text-[10px] uppercase tracking-[0.2em]"
+            style={{ fontFamily: "var(--font-display), monospace", color: "#ab8aff" }}
+          >
+            Now building · VEE Legion ↗
+          </span>
+        </a>
         </div>
 
         <h1
