@@ -23,6 +23,7 @@ const PROJECT_WAVEFORM = new Set(["orpheus-tts"]);
 const VIDEO_CLIP_END = 10; // seconds
 
 const ACCENT_HEX: Record<string, string> = {
+  "weave": "#b9a8ff",
   "orpheus-tts": "#a8e8ff",
   "smart-pathshala": "#dcb8ff",
   "shetniyojan": "#00d4ff",
