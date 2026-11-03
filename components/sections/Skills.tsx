@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { StackGraph } from "@/components/skills/StackGraph";
-import { StackTiles } from "@/components/skills/StackTiles";
 import { StackWall } from "@/components/skills/StackWall";
 import { STACK_HUBS } from "@/lib/stack";
 
@@ -25,14 +24,14 @@ export function Skills() {
           <p className="section-kicker mb-4">// System_Status: Operational</p>
           <h2 className="section-title w-fit bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">THE MATRIX</h2>
           <p className="section-copy mt-4 !text-base">
-            The tools I build with, and how they connect. Hover a logo, a category or a node, or drag the graph.
+            The tools I build with, and how they connect. Hover a logo or a node to see what connects to it, or drag the graph.
           </p>
         </div>
 
         <StackWall focus={focus} onFocus={setFocus} />
 
         <figure className="tile mt-14 overflow-hidden p-2 md:p-4">
-          <StackGraph focus={focus} onFocus={setFocus} height={narrow ? 700 : 560} />
+          <StackGraph focus={focus} onFocus={setFocus} height={narrow ? 700 : 640} />
           <figcaption className="sr-only">
             <ul>
               {STACK_HUBS.map((h) => (
@@ -43,10 +42,6 @@ export function Skills() {
             </ul>
           </figcaption>
         </figure>
-
-        <div className="mt-6">
-          <StackTiles focus={focus} onFocus={setFocus} />
-        </div>
       </div>
     </section>
   );

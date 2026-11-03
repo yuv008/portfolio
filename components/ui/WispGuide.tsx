@@ -16,7 +16,7 @@ const BASE_STOPS: Stop[] = [
   { id: "experience", label: "Experience", tip: "Four roles. Right now he is AI R&D Engineer at VoiceraCX, building VEE Legion, a QA platform that tests voice and chat AI agents. Before that: AI intern at VoiceraCX, then DAOStreet and Alesa AI Ltd, UK.", fact: "Watch the Legion launch video from the card." },
   { id: "education", label: "Education", tip: "B.E. in Computer Engineering with Honors in Data Science at Pune Institute of Computer Technology." },
   { id: "projects", label: "Projects", tip: "Weave, Orpheus TTS, Smart Pathshala, ShetNiyojan, WarCast and Legify. Hover the Weave card to see the demo.", fact: "Scroll sideways to browse them all." },
-  { id: "skills", label: "Skills", tip: "The stack as a logo wall and a draggable graph. Hover a logo, a category tile or a node and everything linked to it lights up.", fact: "Evaluation & Testing links to Voice & Inference through Twilio and LiveKit." },
+  { id: "skills", label: "Skills", tip: "The stack as a logo wall and a draggable graph. Hover a logo or a node and everything linked to it lights up.", fact: "Evaluation & Testing links to Voice & Inference through Twilio and LiveKit." },
   { id: "achievements", label: "Achievements", tip: "Three first prizes at hackathons: Devclash 2025, Synapse 2.0 and L&T NeuroHack." },
   { id: "contact", label: "Contact", tip: "Last stop. Send a message from the terminal, or use one of the social links." },
 ];
