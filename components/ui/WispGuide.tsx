@@ -32,7 +32,7 @@ const STOPS: Stop[] = BASE_STOPS.flatMap((stop) =>
 );
 
 const MEET = {
-  tip: "Hi, I'm Wisp! I'm the desktop companion from Weave. On a real desktop I follow your caret and fill in @bubble blanks from company memory. Here, I can walk you through the site.",
+  tip: "Hi, I'm Wisp, the desktop companion from Weave. On Windows I follow your caret and fill @bubble blanks from company memory. Here, I can walk you through the site.",
   fact: "Windows desktop app. This is a live copy of its front-end.",
 };
 
@@ -78,7 +78,8 @@ export function WispGuide() {
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState<Mode>("greeting");
   const [bubble, setBubble] = useState<Bubble>(null);
-  const [placement, setPlacement] = useState({ above: true, right: true });
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const [bubblePos, setBubblePos] = useState<{ left: number; top: number; maxH?: number } | null>(null);
 
   const win = () => frame.current?.contentWindow as WispWin | null | undefined;
   const later = (fn: () => void, ms: number) => {
@@ -102,8 +103,49 @@ export function WispGuide() {
     return { x: right ? vw - w - 16 : leftEdge, y: vh - h - 20, right };
   }, []);
 
-  const fixPlacement = (x: number, y: number) =>
-    setPlacement({ above: y > 260, right: x + size.current.w / 2 > window.innerWidth / 2 });
+  /* Put the bubble where it fits on screen: above, below or beside the pet. */
+  const placeBubble = useCallback(() => {
+    const el = bubbleRef.current;
+    if (!el || pos.current.x === -9999) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const { w, h } = size.current;
+    const px = pos.current.x;
+    const py = pos.current.y;
+    const bw = el.offsetWidth;
+    el.style.maxHeight = "none"; // measure the natural height
+    const bh = el.scrollHeight;
+    el.style.maxHeight = "";
+    const gap = 6;
+    const edge = 8;
+    const top = vw >= 768 ? 88 : 72; // clear of the nav bar
+    const rightAligned = px + w / 2 > vw / 2;
+    const clampX = (x: number) => Math.max(edge, Math.min(x, vw - bw - edge));
+    const clampY = (y: number) => Math.max(top, Math.min(y, vh - bh - edge));
+    const fits = (x: number, y: number) => x >= edge && y >= top && x + bw <= vw - edge && y + bh <= vh - edge;
+    const alignedX = clampX(rightAligned ? px + w - bw : px);
+    const options = [
+      { x: alignedX, y: py - bh - gap }, // above
+      { x: alignedX, y: py + h + gap }, // below
+      { x: px + w + gap, y: clampY(py + h / 2 - bh / 2) }, // right of the pet
+      { x: px - bw - gap, y: clampY(py + h / 2 - bh / 2) }, // left of the pet
+    ];
+    let chosen = options.find((o) => fits(o.x, o.y));
+    let maxH: number | undefined;
+    if (!chosen) {
+      // Nothing fits: use the roomier of above/below and let the bubble scroll.
+      const spaceAbove = py - top - gap;
+      const spaceBelow = vh - (py + h) - gap - edge;
+      if (spaceAbove >= spaceBelow) {
+        maxH = Math.max(120, spaceAbove);
+        chosen = { x: alignedX, y: top };
+      } else {
+        maxH = Math.max(120, spaceBelow);
+        chosen = { x: alignedX, y: py + h + gap };
+      }
+    }
+    setBubblePos({ left: chosen.x - px, top: chosen.y - py, maxH });
+  }, []);
 
   /* Fly in an arc to (x, y) and settle with a little wiggle. */
   const flyTo = useCallback((x: number, y: number, poke = true) => {
@@ -111,7 +153,6 @@ export function WispGuide() {
     if (!el) return;
     const from = { ...pos.current };
     pos.current = { x, y };
-    fixPlacement(x, y);
     flight.current?.cancel();
 
     const finish = () => {
@@ -176,7 +217,6 @@ export function WispGuide() {
       const r = restPos(stopIdx);
       pos.current = { x: r.x, y: r.y };
       wrap.current.style.transform = `translate(${r.x}px, ${r.y}px)`;
-      fixPlacement(r.x, r.y);
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -200,6 +240,19 @@ export function WispGuide() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId]);
+
+  /* Place the bubble once it has rendered, and again when the window changes. */
+  useEffect(() => {
+    setBubblePos(null);
+    if (!bubble) return;
+    const id = requestAnimationFrame(placeBubble);
+    const onResize = () => placeBubble();
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(id);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [bubble, stopIdx, placeBubble]);
 
   /* Outline the tile Wisp is currently explaining. */
   useEffect(() => {
@@ -408,13 +461,17 @@ export function WispGuide() {
 
       {bubble && (
         <div
+          ref={bubbleRef}
           role="dialog"
           aria-label="Wisp tour"
           className="absolute w-[min(300px,calc(100vw-32px))] rounded-2xl p-4"
           style={{
             pointerEvents: "auto",
-            [placement.above ? "bottom" : "top"]: "calc(100% + 6px)",
-            [placement.right ? "right" : "left"]: 0,
+            left: bubblePos?.left ?? 0,
+            top: bubblePos?.top ?? 0,
+            visibility: bubblePos ? "visible" : "hidden",
+            maxHeight: bubblePos?.maxH,
+            overflowY: bubblePos?.maxH ? "auto" : undefined,
             background: "rgba(20,27,35,0.97)",
             border: "1px solid rgba(171,138,255,0.35)",
             boxShadow: "0 12px 32px rgba(0,0,0,0.45), 0 0 24px rgba(171,138,255,0.12)",
