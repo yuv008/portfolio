@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LoopVideo } from "@/components/ui/LoopVideo";
+import { ConcurrencyRamp } from "@/components/ui/TileVisuals";
 
 type Item = {
   id: string;
@@ -101,10 +101,8 @@ function CurrentRole({ item }: { item: Item }) {
   return (
     <article className="tile p-2.5">
       <div className="grid gap-2.5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="tile-media relative aspect-video w-full lg:self-center">
-          <div className="absolute inset-2 overflow-hidden rounded-[0.85rem]">
-            <LoopVideo src="/legion/legion-loop.mp4" poster="/legion/legion-poster.webp" />
-          </div>
+        <div className="relative">
+          <ConcurrencyRamp />
           <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 font-display text-[10px] uppercase tracking-[0.16em] text-neural-green backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-neural-green shadow-[0_0_8px_rgba(97,255,171,0.9)]" />
             Current role

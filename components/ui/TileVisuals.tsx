@@ -89,3 +89,28 @@ export function LossCurve() {
     </div>
   );
 }
+
+/** Illustrative concurrency ramp: 200 call slots light up in waves, then reset. */
+export function ConcurrencyRamp() {
+  const cols = 20;
+  const rows = 10;
+  return (
+    <div className="tile-media flex h-full min-h-[200px] w-full flex-col items-center justify-center gap-4 p-5" aria-hidden="true">
+      <div className="grid gap-[5px]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, width: "100%", maxWidth: 420 }}>
+        {Array.from({ length: cols * rows }, (_, i) => {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const delay = (col * 0.11 + row * 0.04).toFixed(2);
+          return (
+            <span
+              key={i}
+              className="tile-anim aspect-square rounded-[3px]"
+              style={{ background: "#6ee7ff", opacity: 0.12, animation: `slot-on 5.2s ease-in-out ${delay}s infinite` }}
+            />
+          );
+        })}
+      </div>
+      <p className="font-display text-[10px] uppercase tracking-[0.18em] text-text-muted">Concurrency ramp · illustrative</p>
+    </div>
+  );
+}
