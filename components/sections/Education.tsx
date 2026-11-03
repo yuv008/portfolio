@@ -16,9 +16,8 @@ export function Education() {
         </div>
 
         <article
-          className="glass-panel relative overflow-hidden rounded-[2rem] p-7 md:p-10"
+          className="tile overflow-hidden p-7 md:p-10"
         >
-          <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-neural-cyan via-neural-violet to-transparent" />
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="font-display text-xs uppercase tracking-[0.22em] text-neural-cyan">
