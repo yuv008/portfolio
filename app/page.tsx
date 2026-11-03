@@ -14,8 +14,8 @@ export default function Home() {
   return (
     <main id="main-content" className="relative z-10">
       <Hero />
-      <About />
       <StressTest />
+      <About />
       <Experience />
       <Education />
       <Projects />

@@ -254,6 +254,17 @@ function AgentTestDemo() {
         )}
       </div>
       {done && scenario.why && <p className="mt-3 border-l-2 border-neural-red/60 pl-3 text-xs leading-5 text-text-soft">{scenario.why}</p>}
+      {done && (
+        <a
+          href="https://legion.voiceracx.ai"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 font-display text-[0.6rem] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
+          style={{ background: "rgba(110,231,200,0.14)", border: "1px solid rgba(110,231,200,0.4)" }}
+        >
+          Want this for your agents? Join the private beta ↗
+        </a>
+      )}
       <p className="mt-3 text-[10px] leading-4 text-text-muted">Illustrative conversations written for this demo, not real call data.</p>
     </div>
   );
@@ -270,6 +281,37 @@ function StepImage({ step }: { step: Step }) {
         Still from the VEE Legion launch video
       </figcaption>
     </figure>
+  );
+}
+
+/* ── Muted loop that plays while visible ─────────────────── */
+
+function LoopClip() {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) void v.play().catch(() => undefined);
+      else v.pause();
+    }, { threshold: 0.3 });
+    obs.observe(v);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <video
+      ref={ref}
+      src="/legion/legion-loop.mp4"
+      poster="/legion/legion-poster.webp"
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-hidden
+      className="w-full rounded-2xl"
+      style={{ border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 18px 40px rgba(0,0,0,0.4)" }}
+    />
   );
 }
 
@@ -299,32 +341,38 @@ export function StressTest() {
   return (
     <section id="stress-test" className="section-shell">
       <div className="section-container">
-        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="mb-14 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
           <div>
-            <p className="section-kicker mb-4">// VoiceraCX · VEE Legion</p>
+            <p className="section-kicker mb-4">// Work · VoiceraCX</p>
             <h2 className="section-title">
-              Break_{" "}
-              <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">The_Agent</span>
+              The_{" "}
+              <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Legion</span>
             </h2>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-text-soft">
-              VEE Legion is the QA platform I built at VoiceraCX. It tests voice and chat AI agents the way customers do, then shows exactly where they break.
+            <p className="mt-4 font-display text-sm uppercase tracking-[0.12em] text-neural-green">
+              Independent QA for voice and chat AI agents
             </p>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-text-soft">
+              I defined the product and built the backend of VEE Legion. It tests AI agents the way customers do, with simulated callers and red-team attackers, then shows exactly where they break. Break the agent before your customers do.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-4 font-display text-[0.6rem] uppercase tracking-[0.15em]">
+              <button
+                type="button"
+                onClick={() => setVideo(true)}
+                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-text-strong transition-colors hover:brightness-125"
+                style={{ background: "rgba(110,231,255,0.14)", border: "1px solid rgba(110,231,255,0.35)" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+                  play_arrow
+                </span>
+                Watch launch video
+              </button>
+              <a href="https://legion.voiceracx.ai" target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-neural-cyan">
+                legion.voiceracx.ai ↗
+              </a>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-4 font-display text-[0.6rem] uppercase tracking-[0.15em]">
-            <button
-              type="button"
-              onClick={() => setVideo(true)}
-              className="flex items-center gap-1.5 rounded-full px-4 py-2 text-text-strong transition-colors hover:brightness-125"
-              style={{ background: "rgba(110,231,255,0.14)", border: "1px solid rgba(110,231,255,0.35)" }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                play_arrow
-              </span>
-              Watch launch video
-            </button>
-            <a href="https://legion.voiceracx.ai" target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-neural-cyan">
-              legion.voiceracx.ai ↗
-            </a>
+          <div className="hidden lg:block">
+            <LoopClip />
           </div>
         </div>
 

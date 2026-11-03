@@ -22,14 +22,14 @@ const experiences: ExperienceItem[] = [
   {
     id: "voiceracx",
     company: "VoiceraCX",
-    role: "AI R&D Engineer",
+    role: "AI R&D Engineer · VEE Legion",
     period: "June 2026 — Present",
     description:
-      "Building VEE Legion, an independent QA platform that tests voice and chat AI agents with simulated callers, automated scoring and red-team attacks.",
+      "Building VEE Legion, an independent QA platform that tests voice and chat AI agents with simulated callers, automated scoring and red-team attacks. Details in the section above.",
     bullets: [
-      "Ideated and built the Legion backend end to end: scenario-driven callers that test unmodified voice and chat agents across VEE, Twilio, Retell, Vapi and Synthflow, with per-turn telemetry.",
-      "Built concurrency ramping and slot-based orchestration in Go; verified 200 concurrent calls with 0 transport errors.",
-      "Implemented WER/CER, latency, tool-call, PII, and keyword checks alongside LLM-as-a-judge; excluded failed judge runs from pass-rate calculations.",
+      "Defined the product scope and engineered VEE Legion, a production platform that tests unmodified voice and chat agents with scenario-driven callers across VEE, Twilio, Retell, Vapi and Synthflow.",
+      "Built Go-based concurrency ramping and slot-based orchestration over Twilio and LiveKit; validated 200 concurrent calls with zero transport errors through controlled load testing.",
+      "Developed automated evaluation across WER/CER, latency, tool calls, PII, scenario checks and LLM-as-a-judge, with safeguards against failed judge executions skewing pass rates.",
       "Added red-team callers (prompt injection, jailbreaks), turn-level failure analysis, and real-call import so production calls are scored with the same checks.",
     ],
     metrics: [
