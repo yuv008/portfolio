@@ -10,8 +10,13 @@ import { meetWisp } from "@/lib/wisp";
  * Floating control cluster, centred at the top: an icon pill for the sections (a soft
  * circle slides to the active one), a round Wisp button, and a call to action.
  */
+const SPY_ITEMS = [...navLinks, { id: "contact", spyIds: ["contact"] }];
+
 export function TopNavBar() {
-  const activeId = useScrollSpy(navLinks);
+  // Contact has no icon (the Connect button is its entry), but it is tracked so the last
+  // icon does not stay highlighted while you are in it.
+  const activeAny = useScrollSpy(SPY_ITEMS);
+  const activeId = navLinks.some((l) => l.id === activeAny) ? activeAny : null;
   
   // Frosted glass, as in the reference: a low-opacity fill with heavy blur and saturation so the
   // page shows through, a bright hairline border, and inner top/bottom highlights.

@@ -13,12 +13,11 @@ const BASE_STOPS: Stop[] = [
   { id: "hero", label: "Home", tip: "This is Yuvraj, an AI R&D engineer who builds voice-agent systems, evaluation platforms and AI infrastructure." },
   { id: "stress-test", label: "VEE Legion", tip: "This is VEE Legion, the QA platform he built at VoiceraCX. Scroll to see how simulated callers test an AI agent, then try the demo at the end.", fact: "Verified at 200 concurrent calls with 0 transport errors." },
   { id: "about", label: "About", tip: "Three things he has built: real-time voice pipelines, hybrid vector search, and fine-tuned models.", fact: "Response time cut from 3 seconds to 1.2 seconds." },
-  { id: "experience", label: "Experience", tip: "Four roles. Right now he is AI R&D Engineer at VoiceraCX, building VEE Legion, a QA platform that tests voice and chat AI agents. Before that: AI intern at VoiceraCX, then DAOStreet and Alesa AI Ltd, UK.", fact: "Watch the Legion launch video from the card." },
-  { id: "education", label: "Education", tip: "B.E. in Computer Engineering with Honors in Data Science at Pune Institute of Computer Technology." },
+  { id: "experience", label: "Journey", tip: "The timeline of his work and degree. Right now he is AI R&D Engineer at VoiceraCX, building VEE Legion. Open the older roles for details; education is the last stop.", fact: "B.E. in Computer Engineering, Honors in Data Science, at PICT, Pune."},
   { id: "projects", label: "Projects", tip: "Weave, Orpheus TTS, Smart Pathshala, ShetNiyojan, WarCast and Legify. Hover the Weave card to see the demo.", fact: "Scroll sideways to browse them all." },
   { id: "skills", label: "Skills", tip: "The stack as a logo wall and a draggable graph. Hover a logo or a node and everything linked to it lights up.", fact: "Evaluation & Testing links to Voice & Inference through Twilio and LiveKit." },
-  { id: "achievements", label: "Achievements", tip: "Three first prizes at hackathons: Devclash 2025, Synapse 2.0 and L&T NeuroHack." },
-  { id: "contact", label: "Contact", tip: "Last stop. Send a message from the terminal, or use one of the social links." },
+  { id: "achievements", label: "Achievements", tip: "Three first prizes at hackathons plus a 99.35 percentile in MHT-CET. Each prize links to the project that won it."},
+  { id: "contact", label: "Contact", tip: "Last stop. Email is fastest, and the form opens your mail app. Resume, LinkedIn and GitHub are one click away."},
 ];
 
 /** Section stops, with one stop per project tile right after the Projects intro. */
