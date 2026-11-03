@@ -48,6 +48,132 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: "weave",
+    name: "Weave",
+    tagline: "A company brain that knows who's allowed to know what",
+    featured: true,
+    stack: ["FalkorDB", "Cypher", "Python", "FastAPI", "Postgres + pgvector", "MCP", "Groq", "Docker", "AWS ECS"],
+    period: "October 2026",
+    links: {
+      github: "https://github.com/yuv008/Weave",
+      demo: "https://we-9a1fc0e727ab4797bb20ad28efef5a43.ecs.ap-southeast-2.on.aws/",
+      video: "https://www.youtube.com/watch?v=psdbCkjoa38",
+      article:
+        "https://medium.com/@atharvkulkarni005/weave-building-a-company-brain-on-falkordb-that-knows-whos-allowed-to-know-what-056559fd923b",
+    },
+    images: [
+      "/weave-live-home.png",
+      "/weave-architecture.png",
+      "/weave-permission-matrix.png",
+      "/weave-graph-model.png",
+    ],
+    architecture: {
+      nodes: [
+        { id: "sources", label: "Slack · Notion\nDrive · GitHub", type: "data", tooltip: "Plus Gmail, Calendar and HubSpot pollers" },
+        { id: "ingest", label: "Ingestion\nPipeline", type: "process", tooltip: "Raw store, normalize, chunk, rules, classifier, LLM extraction, entity resolution, supersede check, idempotent MERGE. The only writer of the company graph." },
+        { id: "falkor", label: "FalkorDB\nco:{tenant}", type: "database", tooltip: "One company graph per tenant, plus a private graph per user" },
+        { id: "pg", label: "Postgres +\npgvector", type: "vector-db", tooltip: "Raw items, chunks, ACL snapshots, agent memory, audit log, with row-level security" },
+        { id: "gate", label: "Permission\nGate", type: "feature", tooltip: "Turns a principal into Cypher and SQL predicates applied inside every query" },
+        { id: "answer", label: "Answer Agent", type: "ai", tooltip: "Routes intent, calls vetted read-only tools (max 6), drops any claim without evidence" },
+        { id: "watcher", label: "Impact Watcher", type: "ai", tooltip: "Reacts to change events, walks dependencies, notifies affected owners" },
+        { id: "mcp", label: "MCP Server", type: "backend" },
+        { id: "surfaces", label: "Cursor · Slack\nGmail · Wisp", type: "frontend", tooltip: "Wisp is a Windows desktop companion that fills @bubble blanks from company memory" },
+        { id: "edge", label: "AWS ECS\n+ nginx edge", type: "infra" },
+      ],
+      edges: [
+        { from: "sources", to: "ingest" },
+        { from: "ingest", to: "falkor", label: "MERGE" },
+        { from: "ingest", to: "pg" },
+        { from: "falkor", to: "gate" },
+        { from: "pg", to: "gate" },
+        { from: "gate", to: "answer" },
+        { from: "gate", to: "watcher" },
+        { from: "answer", to: "mcp" },
+        { from: "mcp", to: "surfaces" },
+        { from: "watcher", to: "surfaces", label: "alerts" },
+        { from: "edge", to: "mcp" },
+      ],
+    },
+    decisions: [
+      {
+        question: "Why a graph instead of vector search over documents?",
+        answer:
+          "'Chat with your docs' fixes searching but not three harder problems: facts change (Provider A on Oct 3, Provider B on Oct 12), facts depend on other teams' work, and not everyone may see everything. Those are relationship problems. So a fact is a node with evidence: a Decision linked to the message that states it, the person who made it, the topic it's about, and the decision it replaces.",
+      },
+      {
+        question: "Why enforce permissions inside the Cypher query?",
+        answer:
+          "The LLM never decides who sees what. One shared function turns the caller into a visibility predicate on each item's acl_groups, min_level, deleted flag and source freshness, and it runs before ranking and LIMIT. Hidden data is never returned, counted or scored. The query that hides the fact is the query that cites it.",
+      },
+      {
+        question: "How do you keep a claim only if it has visible evidence when FalkorDB lacks EXISTS subqueries?",
+        answer:
+          "FalkorDB has no EXISTS { } subqueries and rejects pattern comprehensions inside WHERE. The rule became a WITH step: collect the visible evidence into a list, then WHERE size(evidence) > 0. A side effect is that the same query filters the fact and supplies its citations.",
+      },
+      {
+        question: "Why supersede facts instead of overwriting them?",
+        answer:
+          "A reversal adds a SUPERSEDES edge and closes the old claim's valid_to. Nothing is deleted. 'Current' is status = 'active', and 'what did we decide as of Oct 5?' is a valid_from/valid_to window filter. A lower-authority source (chat) cannot supersede a higher one (tracker, document).",
+      },
+      {
+        question: "How does impact analysis avoid leaking private threads?",
+        answer:
+          "impact_of is a breadth-first walk over NEEDS, DEPENDS_ON and BLOCKED_BY, expanding one hop per query up to 3 hops. An edge survives only if one of its evidence_ids is visible to the caller. A count-only twin of each query reports how many edges were hidden without naming them, so a salesperson learns her commitment is at risk without seeing the engineering thread that caused it.",
+      },
+      {
+        question: "Why do agents call fixed tools instead of writing Cypher?",
+        answer:
+          "Each tool has the permission filter built in, and agents open the graph read-only (ro_query). A test enumerates every registered tool and fails if any can write. A conversation can never turn a private fact into shared knowledge, and only the ingestion pipeline writes the company graph.",
+      },
+      {
+        question: "Who is the audience in a shared Slack channel?",
+        answer:
+          "Private surfaces answer as the asker. A shared channel answers as a channel principal: the lowest member level plus the channel's own groups. If that's too little to be useful, the bot offers the full answer by DM.",
+      },
+    ],
+    metrics: [
+      { label: "Connectors", value: "7", detail: "Slack, Notion, Drive, GitHub, Gmail, Calendar, HubSpot" },
+      { label: "Graph node types", value: "13", detail: "Org, work, claims and evidence families on a fixed ontology" },
+      { label: "Agent tools", value: "12", detail: "Vetted, read-only, each with the permission gate built in" },
+      { label: "Tool calls per answer", value: "6", unit: "max", detail: "Bounded plan-and-act loop; claims without evidence ids are dropped" },
+      { label: "Impact walk depth", value: "3", unit: "hops", detail: "One gated hop per query; hidden edges counted, never named" },
+      { label: "Expertise half-life", value: "30", unit: "days", detail: "find_owner score = Σ 0.5^(age/30) over visible items only" },
+      { label: "Test suite", value: "375", unit: "tests", detail: "Visibility matrix, tenant isolation, read-only tools, Wisp and @bubble" },
+    ],
+    reflection:
+      "The most useful constraint was FalkorDB itself: with no EXISTS subqueries, 'keep a claim only if it has visible evidence' had to become a WITH step, and that rewrite turned out better than the original because one query now both filters the fact and returns its citations. Putting permissions in the query rather than the prompt made the system easy to reason about and test. The next steps are broader connector permission fidelity (group and sharing sync beyond public channels and shared folders) and taking the Wisp desktop companion beyond Windows.",
+    journey: [
+      {
+        phase: "Facts as nodes",
+        icon: "gear",
+        color: "var(--accent)",
+        content:
+          "Fixed a core ontology (Person, Team, Project, Decision, Commitment, Figure, Item, Source and more) so every claim is a node with EVIDENCED_BY edges carrying quote, span and confidence. No evidence, no fact.",
+      },
+      {
+        phase: "Permissions in the query",
+        icon: "settings",
+        color: "var(--signal-amber)",
+        content:
+          "Built one gate that compiles a caller's level, groups and source freshness into Cypher and SQL predicates, backed by Postgres row-level security for tenant isolation. A stalled ACL sync hides data instead of leaking it.",
+      },
+      {
+        phase: "Agents and the pet",
+        icon: "zap",
+        color: "var(--signal-green)",
+        content:
+          "Answer agent and impact watcher behind MCP, Slack replies, and Wisp, a Windows desktop companion that watches for @bubble in Cursor and Gmail and fills only that blank from the graph, with the citation on a card first.",
+      },
+      {
+        phase: "Off the laptop",
+        icon: "cloud",
+        color: "var(--text-secondary)",
+        content:
+          "Containerized the webhook, agent and worker, deployed to AWS ECS in Sydney behind an nginx edge, added a hosted Connect page and per-company login so each browser session stays on its own tenant, and pooled Postgres connections so typing-time cues return quickly.",
+      },
+    ],
+  },
+  {
     id: "orpheus-tts",
     name: "Orpheus TTS",
     tagline: "A language model where the 'language' is sound",
