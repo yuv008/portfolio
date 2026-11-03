@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { projects } from "@/components/projects/projectData";
 import { useInView } from "@/lib/hooks/useInView";
 import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
+import { meetWisp } from "@/lib/wisp";
 
 /* ── Media map ─────────────────────────────────────────────── */
 const PROJECT_IMAGES: Record<string, string> = {
@@ -671,6 +672,23 @@ export function Projects() {
                           {key} ↗
                         </a>
                       ))}
+                  {project.id === "weave" && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        meetWisp(e.currentTarget);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest transition-colors hover:text-neural-violet"
+                      style={{
+                        fontFamily: "var(--font-display), monospace",
+                        border: "1px solid rgba(171,138,255,0.35)",
+                        color: "#b9a8ff",
+                      }}
+                    >
+                      Meet Wisp
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
