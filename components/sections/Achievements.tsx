@@ -5,24 +5,18 @@ import { sectionIds } from "@/lib/constants";
 const achievements = [
   {
     event: "Devclash 2025",
-    result: "1st Prize",
     detail: "24-hour hackathon at DY Patil Pimpri",
     project: "ShetNiyojan",
-    color: "#6ee7ff",
   },
   {
     event: "Synapse 2.0",
-    result: "1st Prize",
     detail: "AI hackathon at MKSSS CCOEW",
     project: "LegiFy",
-    color: "#ab8aff",
   },
   {
     event: "L&T NeuroHack",
-    result: "1st Prize",
     detail: "24-hour hackathon at COEP Mindspark 24",
     project: "WarCast",
-    color: "#ffac5e",
   },
 ];
 
@@ -30,41 +24,30 @@ export function Achievements() {
   return (
     <section id={sectionIds.achievements} className="section-shell">
       <div className="section-container">
-        <div
-          className="mb-10"
-        >
+        <div className="mb-10">
           <p className="section-kicker mb-4">// Selected_Recognition</p>
           <h2 className="section-title">
             Achievements<span className="text-neural-violet">_</span>
           </h2>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           {achievements.map((item) => (
-            <article
-              key={item.event}
-              className="glass-panel relative overflow-hidden rounded-[1.75rem] p-6"
-            >
-              <div
-                className="absolute inset-x-0 top-0 h-px"
-                style={{ background: `linear-gradient(to right, ${item.color}, transparent)` }}
-              />
-              <div className="flex items-center justify-between gap-3">
-                <span className="material-symbols-outlined" style={{ color: item.color }} aria-hidden="true">
-                  emoji_events
+            <article key={item.event} className="tile tile-hover flex min-h-[240px] flex-col justify-between p-7">
+              <div className="flex items-start justify-between">
+                <span className="tile-icon">
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
+                    emoji_events
+                  </span>
                 </span>
-                <span
-                  className="rounded-full px-3 py-1 font-display text-[0.6rem] uppercase tracking-[0.18em]"
-                  style={{ color: item.color, background: `${item.color}14`, border: `1px solid ${item.color}35` }}
-                >
-                  {item.result}
-                </span>
+                <span className="tile-label">1st prize</span>
               </div>
-              <h3 className="mt-6 font-display text-xl font-semibold text-text-strong">{item.event}</h3>
-              <p className="mt-2 text-sm leading-6 text-text-soft">{item.detail}</p>
-              <p className="mt-5 border-t border-surface-border/20 pt-4 font-display text-[0.65rem] uppercase tracking-[0.15em] text-text-muted">
-                Built {item.project}
-              </p>
+
+              <div>
+                <h3 className="tile-title">{item.event}</h3>
+                <p className="tile-body mt-2">{item.detail}</p>
+                <p className="tile-label mt-5 border-t border-white/[0.07] pt-4">Built {item.project}</p>
+              </div>
             </article>
           ))}
         </div>

@@ -1,0 +1,94 @@
+{
+  "python": {
+    "title": "Python",
+    "brand": "#3776AB"
+  },
+  "pytorch": {
+    "title": "PyTorch",
+    "brand": "#EE4C2C"
+  },
+  "go": {
+    "title": "Go",
+    "brand": "#00ADD8"
+  },
+  "cplusplus": {
+    "title": "C++",
+    "brand": "#00599C"
+  },
+  "typescript": {
+    "title": "TypeScript",
+    "brand": "#3178C6"
+  },
+  "react": {
+    "title": "React",
+    "brand": "#61DAFB"
+  },
+  "nextdotjs": {
+    "title": "Next.js",
+    "brand": "#E9F0F5"
+  },
+  "svelte": {
+    "title": "Svelte",
+    "brand": "#FF3E00"
+  },
+  "tailwindcss": {
+    "title": "Tailwind CSS",
+    "brand": "#06B6D4"
+  },
+  "fastapi": {
+    "title": "FastAPI",
+    "brand": "#009688"
+  },
+  "postgresql": {
+    "title": "PostgreSQL",
+    "brand": "#4169E1"
+  },
+  "mongodb": {
+    "title": "MongoDB",
+    "brand": "#47A248"
+  },
+  "mysql": {
+    "title": "MySQL",
+    "brand": "#4479A1"
+  },
+  "docker": {
+    "title": "Docker",
+    "brand": "#2496ED"
+  },
+  "kubernetes": {
+    "title": "Kubernetes",
+    "brand": "#326CE5"
+  },
+  "qdrant": {
+    "title": "Qdrant",
+    "brand": "#DC244C"
+  },
+  "livekit": {
+    "title": "LiveKit",
+    "brand": "#FFFFFF"
+  },
+  "langchain": {
+    "title": "LangChain",
+    "brand": "#7FC8FF"
+  },
+  "crewai": {
+    "title": "CrewAI",
+    "brand": "#FF5A50"
+  },
+  "pipecat": {
+    "title": "Pipecat",
+    "brand": "#E9F0F5"
+  },
+  "opentelemetry": {
+    "title": "OpenTelemetry",
+    "brand": "#E9F0F5"
+  },
+  "jaeger": {
+    "title": "Jaeger",
+    "brand": "#66CFE3"
+  },
+  "lightning": {
+    "title": "Lightning",
+    "brand": "#792EE5"
+  }
+}

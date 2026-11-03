@@ -37,7 +37,7 @@ const experiences: ExperienceItem[] = [
       { label: "Transport errors", value: "0" },
       { label: "Platforms tested", value: "5" },
     ],
-    color: "#a8e8ff",
+    color: "#6ee7ff",
     icon: "sensors",
     product: {
       name: "VEE Legion",
@@ -78,7 +78,7 @@ const experiences: ExperienceItem[] = [
       { label: "Tickets", value: "Consistent" },
       { label: "UI quality", value: "Improved" },
     ],
-    color: "#dcb8ff",
+    color: "#6ee7ff",
     icon: "hub",
   },
   {
@@ -95,7 +95,7 @@ const experiences: ExperienceItem[] = [
       { label: "Dataset", value: "10k+" },
       { label: "Model", value: "Llama 3.1-8B" },
     ],
-    color: "#00d4ff",
+    color: "#6ee7ff",
     icon: "psychology",
   },
 ];
@@ -155,29 +155,8 @@ export function Experience() {
         {/* Cards */}
         <div className="flex flex-col gap-6">
           {experiences.map((exp) => (
-            <div
-              key={exp.id}
-              className="group relative rounded-3xl border border-outline-variant/10 overflow-hidden transition-all duration-500 hover:border-opacity-30"
-              style={{
-                background: "rgba(22, 28, 34, 0.94)",
-                borderColor: `${exp.color}15`,
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = `${exp.color}40`;
-                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 40px ${exp.color}10`;
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = `${exp.color}15`;
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-              }}
-            >
-              {/* Colored left accent bar */}
-              <div
-                className="absolute left-0 top-0 bottom-0 w-[3px] opacity-60"
-                style={{ background: `linear-gradient(to bottom, ${exp.color}, transparent)` }}
-              />
-
-              <div className="p-8 pl-10 md:pl-12 grid grid-cols-1 md:grid-cols-12 gap-8">
+            <div key={exp.id} className="tile tile-hover overflow-hidden">
+              <div className="grid grid-cols-1 gap-8 p-8 md:grid-cols-12 md:p-10">
                 {/* ── Left: role info ── */}
                 <div className="md:col-span-5">
                   <div className="flex items-start gap-4 mb-5">
