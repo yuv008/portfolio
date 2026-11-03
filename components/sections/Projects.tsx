@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { projects, type Project } from "@/components/projects/projectData";
 import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
 import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
-import { explainProject, meetWisp } from "@/lib/wisp";
+import { PROJECT_OPEN_EVENT, explainProject, meetWisp } from "@/lib/wisp";
 
 const ACCENT: Record<string, string> = {
   weave: "#b9a8ff",
@@ -176,6 +176,16 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
 export function Projects() {
   const [openId, setOpenId] = useState<string | null>(null);
   const close = useCallback(() => setOpenId(null), []);
+
+  // Other sections (Achievements) can open a project's detail panel.
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const id = (e as CustomEvent<{ id: string }>).detail?.id;
+      if (id && projects.some((p) => p.id === id)) setOpenId(id);
+    };
+    window.addEventListener(PROJECT_OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(PROJECT_OPEN_EVENT, onOpen);
+  }, []);
   const open = projects.find((p) => p.id === openId) ?? null;
 
   return (

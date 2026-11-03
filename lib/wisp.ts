@@ -19,3 +19,11 @@ export function explainProject(id: string) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent<{ id: string }>(WISP_EXPLAIN_EVENT, { detail: { id } }));
 }
+
+/** Ask the Projects section to open a project's detail panel. */
+export const PROJECT_OPEN_EVENT = "project:open";
+
+export function openProject(id: string) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent<{ id: string }>(PROJECT_OPEN_EVENT, { detail: { id } }));
+}

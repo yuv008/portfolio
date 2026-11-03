@@ -90,7 +90,7 @@ export const navLinks = [
     label: "Experience",
     icon: "work",
     href: `#${sectionIds.experience}`,
-    spyIds: [sectionIds.experience, sectionIds.education, sectionIds.achievements],
+    spyIds: [sectionIds.experience, sectionIds.achievements],
   },
   { id: "projects", label: "Projects", icon: "grid_view", href: `#${sectionIds.projects}`, spyIds: [sectionIds.projects] },
   { id: "stack", label: "Stack", icon: "layers", href: `#${sectionIds.skills}`, spyIds: [sectionIds.skills] },

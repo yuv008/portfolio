@@ -4,18 +4,21 @@ import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { ContactGlobe } from "@/components/three/ContactGlobe";
-import { accentStyles, sectionIds, socialLinks, socialNodes } from "@/lib/constants";
+import { sectionIds, socialLinks } from "@/lib/constants";
 
-const initialForm = {
-  name: "",
-  email: "",
-  message: "",
-};
+const initialForm = { name: "", email: "", message: "" };
+
+const LINKS = [
+  { label: "LinkedIn", detail: "linkedin.com/in/yuvraj008", href: socialLinks.linkedin, icon: "hub", external: true },
+  { label: "GitHub", detail: "github.com/yuv008", href: socialLinks.github, icon: "code", external: true },
+  { label: "Hugging Face", detail: "huggingface.co/yuv008", href: socialLinks.huggingface, icon: "psychology", external: true },
+  { label: "Resume", detail: "PDF, one page", href: "/Yuvraj_Sanghai_Resume.pdf", icon: "description", external: true },
+];
 
 export function Contact() {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState<Partial<typeof initialForm>>({});
-  const [submitting, setSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const onFieldChange = (field: keyof typeof initialForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -23,205 +26,174 @@ export function Contact() {
   };
 
   const validate = () => {
-    const nextErrors: Partial<typeof initialForm> = {};
-
-    if (!form.name.trim()) nextErrors.name = "Name is required.";
-    if (!form.email.trim()) nextErrors.email = "Email is required.";
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      nextErrors.email = "Enter a valid email address.";
-    }
-    if (!form.message.trim()) nextErrors.message = "Message is required.";
-
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    const next: Partial<typeof initialForm> = {};
+    if (!form.name.trim()) next.name = "Please add your name.";
+    if (!form.email.trim()) next.email = "Please add your email.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = "That email doesn't look right.";
+    if (!form.message.trim()) next.message = "Please write a message.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validate()) {
-      toast.error("Transmission failed validation. Check the required fields.");
+      toast.error("Please fill in the highlighted fields.");
       return;
     }
+    const subject = encodeURIComponent(`Portfolio message from ${form.name}`);
+    const body = encodeURIComponent(`${form.message}\n\nFrom: ${form.name}\nReply to: ${form.email}`);
+    window.location.href = `mailto:${socialLinks.email}?subject=${subject}&body=${body}`;
+    toast.success("Opening your email app with the message filled in.");
+    setForm(initialForm);
+  };
 
+  const copyEmail = async () => {
     try {
-      setSubmitting(true);
-      await new Promise((resolve) => window.setTimeout(resolve, 700));
-
-      const subject = encodeURIComponent(`Portfolio inquiry from ${form.name}`);
-      const body = encodeURIComponent(`${form.message}\n\nFrom: ${form.name}\nReply to: ${form.email}`);
-      window.location.href = `mailto:${socialLinks.email}?subject=${subject}&body=${body}`;
-
-      toast.success("Transmission staged in your default mail client.");
-      setForm(initialForm);
+      await navigator.clipboard.writeText(socialLinks.email);
+      setCopied(true);
+      toast.success("Email copied.");
+      window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Transmission could not be prepared. Please try again.");
-    } finally {
-      setSubmitting(false);
+      toast.error(`Couldn't copy. My email is ${socialLinks.email}`);
     }
   };
+
+  const field =
+    "w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-text-strong outline-none transition-colors placeholder:text-text-muted focus:border-neural-cyan/60 focus:bg-black/40";
 
   return (
     <section id={sectionIds.contact} className="section-shell">
       <div className="section-container">
-        <header
-          className="mb-14"
-        >
-          <p className="section-kicker mb-4">Terminal / Transmission</p>
+        <header className="mb-12">
+          <p className="section-kicker mb-4">// Contact</p>
           <h2 className="section-title">
-            Establish <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Connection</span>
+            Let&apos;s{" "}
+            <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">build something.</span>
           </h2>
           <p className="section-copy mt-5">
-            Send a message through the neural gateway or route through the authenticated social nodes. The form validates client-side and opens a prefilled message in your default mail client.
+            Tell me about the role, the project or the idea. The quickest way is email, and the form below opens your mail app with everything filled in.
           </p>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <div
-            className="terminal-shell overflow-hidden"
-          >
-            <div className="terminal-bar">
-              <div className="flex gap-2">
-                <span className="terminal-dot bg-neural-red/60" />
-                <span className="terminal-dot bg-neural-amber/60" />
-                <span className="terminal-dot bg-neural-green/60" />
-              </div>
-              <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
-                system_session_transmit
-              </span>
-            </div>
-            <form className="space-y-6 p-8" onSubmit={handleSubmit} noValidate>
-              <div className="grid gap-5 md:grid-cols-2">
-                <label className="space-y-3">
-                  <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
-                    Sender Identity
-                  </span>
-                  <div className="input-shell">
-                    <input
-                      aria-label="Your name"
-                      value={form.name}
-                      onChange={(event) => onFieldChange("name", event.target.value)}
-                      placeholder="John_Doe"
-                      className="w-full bg-transparent text-sm text-text-strong outline-none placeholder:text-text-muted"
-                      suppressHydrationWarning
-                    />
-                  </div>
-                  {errors.name ? <p className="text-sm text-neural-red">{errors.name}</p> : null}
-                </label>
-
-                <label className="space-y-3">
-                  <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
-                    Return Protocol
-                  </span>
-                  <div className="input-shell">
-                    <input
-                      aria-label="Your email address"
-                      type="email"
-                      value={form.email}
-                      onChange={(event) => onFieldChange("email", event.target.value)}
-                      placeholder="user@neural.network"
-                      className="w-full bg-transparent text-sm text-text-strong outline-none placeholder:text-text-muted"
-                      suppressHydrationWarning
-                    />
-                  </div>
-                  {errors.email ? <p className="text-sm text-neural-red">{errors.email}</p> : null}
-                </label>
-              </div>
-
-              <label className="block space-y-3">
-                <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
-                  Write Payload
-                </span>
-                <div className="input-shell">
-                  <textarea
-                    aria-label="Your message"
-                    value={form.message}
-                    onChange={(event) => onFieldChange("message", event.target.value)}
-                    placeholder="Describe the system, product, or collaboration you want to build."
-                    className="min-h-[120px] w-full resize-none bg-transparent text-sm leading-7 text-text-strong outline-none placeholder:text-text-muted"
-                  />
-                </div>
-                {errors.message ? <p className="text-sm text-neural-red">{errors.message}</p> : null}
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <form className="tile p-6 md:p-8" onSubmit={handleSubmit} noValidate>
+            <div className="grid gap-5 md:grid-cols-2">
+              <label className="block">
+                <span className="tile-label">Name</span>
+                <input
+                  aria-label="Your name"
+                  autoComplete="name"
+                  value={form.name}
+                  onChange={(e) => onFieldChange("name", e.target.value)}
+                  placeholder="Your name"
+                  aria-invalid={!!errors.name}
+                  className={`${field} mt-2 ${errors.name ? "!border-neural-red/70" : ""}`}
+                />
+                {errors.name && <p className="mt-1.5 text-xs text-neural-red">{errors.name}</p>}
               </label>
-
-              <div className="flex flex-col gap-4 border-t border-surface-border/20 pt-6 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-3 text-text-muted">
-                  <span className="material-symbols-outlined text-sm">encrypted</span>
-                  <span className="font-display text-[0.62rem] uppercase tracking-[0.28em]">
-                    Mail Client Relay / AES-256 Styled
-                  </span>
-                </div>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="inline-flex items-center justify-center gap-3 rounded-full border border-neural-cyan/35 bg-neural-cyan/12 px-6 py-3 font-display text-[0.72rem] uppercase tracking-[0.32em] text-neural-cyan transition-all hover:bg-neural-cyan/18 disabled:cursor-not-allowed disabled:opacity-60"
-                  suppressHydrationWarning
-                >
-                  <span>{submitting ? "Transmitting..." : "Transmit"}</span>
-                  <span className="material-symbols-outlined text-base">send</span>
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div
-            className="space-y-6"
-          >
-            <div className="glass-panel rounded-[2rem] p-5">
-              <div className="mb-3">
-                <h3 className="font-display text-xl text-text-strong">Pune Link Node</h3>
-                <p className="mt-1 font-display text-[0.62rem] uppercase tracking-[0.28em] text-text-muted">
-                  18.52°N / 73.86°E
-                </p>
-              </div>
-              <div className="h-52 overflow-hidden rounded-[1.5rem] border border-surface-border/20 bg-surface-2/60">
-                <ContactGlobe />
-              </div>
+              <label className="block">
+                <span className="tile-label">Email</span>
+                <input
+                  aria-label="Your email address"
+                  type="email"
+                  autoComplete="email"
+                  value={form.email}
+                  onChange={(e) => onFieldChange("email", e.target.value)}
+                  placeholder="you@company.com"
+                  aria-invalid={!!errors.email}
+                  className={`${field} mt-2 ${errors.email ? "!border-neural-red/70" : ""}`}
+                />
+                {errors.email && <p className="mt-1.5 text-xs text-neural-red">{errors.email}</p>}
+              </label>
             </div>
 
-            <div className="glass-panel rounded-[2rem] p-5">
-              <h3 className="font-display text-xl text-text-strong">Social Nodes</h3>
-              <div className="mt-5 grid gap-3">
-                {socialNodes.map((node) => {
-                  const accent = accentStyles[node.tone];
-                  return (
-                    <Link
-                      key={node.label}
-                      href={node.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group flex items-center justify-between rounded-[1.25rem] border border-surface-border/20 bg-surface-2/55 px-4 py-4 transition-all hover:border-neural-cyan/25 hover:bg-surface-2/75"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`flex h-11 w-11 items-center justify-center rounded-full border ${accent.border} ${accent.bg}`}>
-                          <span className={`material-symbols-outlined ${accent.text}`}>{node.icon}</span>
-                        </div>
-                        <span className="font-display text-sm uppercase tracking-[0.2em] text-text-strong">
-                          {node.label}
-                        </span>
-                      </div>
-                      <span className="material-symbols-outlined text-text-muted transition-colors group-hover:text-neural-cyan">
-                        arrow_outward
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
+            <label className="mt-5 block">
+              <span className="tile-label">Message</span>
+              <textarea
+                aria-label="Your message"
+                value={form.message}
+                onChange={(e) => onFieldChange("message", e.target.value)}
+                placeholder="What would you like to build or talk about?"
+                aria-invalid={!!errors.message}
+                rows={6}
+                className={`${field} mt-2 resize-none leading-7 ${errors.message ? "!border-neural-red/70" : ""}`}
+              />
+              {errors.message && <p className="mt-1.5 text-xs text-neural-red">{errors.message}</p>}
+            </label>
 
-            <div className="glass-panel rounded-[2rem] p-5">
-              <div className="mb-3 flex items-center gap-3">
-                <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-neural-green" />
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+              <p className="max-w-[16rem] text-xs leading-5 text-text-muted">This opens your email app. Nothing is sent from this page.</p>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#8ff0ff_0%,#6ee7ff_38%,#b49cff_100%)] px-6 py-3 font-body text-sm font-bold text-[#06101a] shadow-[0_12px_32px_-10px_rgba(110,231,255,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] transition-all hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-white"
+              >
+                Send message
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">
+                  arrow_forward
                 </span>
-                <span className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-neural-green">
-                  Neural_Status
-                </span>
-              </div>
-              <p className="font-display text-sm leading-8 text-text-soft">
-                LOC: Pune, Maharashtra<br />
-                TZ: UTC+05:30<br />
-                AVAILABILITY: High_Priority
+              </button>
+            </div>
+          </form>
+
+          <div className="tile flex flex-col p-2.5">
+            <div className="tile-media h-[210px]">
+              <ContactGlobe />
+              <p className="absolute bottom-3 left-4 font-display text-[10px] uppercase tracking-[0.18em] text-text-muted">
+                Pune · UTC+05:30
               </p>
+            </div>
+
+            <div className="flex flex-1 flex-col p-4">
+              <p className="text-sm leading-6 text-text-soft">
+                Currently building <span className="text-text-strong">VEE Legion</span> at VoiceraCX.
+              </p>
+
+              <button
+                type="button"
+                onClick={copyEmail}
+                className="group mt-4 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-left transition-colors hover:border-neural-cyan/40"
+              >
+                <span className="flex items-center gap-3">
+                  <span className="tile-icon">
+                    <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
+                      mail
+                    </span>
+                  </span>
+                  <span>
+                    <span className="block text-sm font-semibold text-text-strong">{socialLinks.email}</span>
+                    <span className="block text-xs text-text-muted">{copied ? "Copied" : "Click to copy"}</span>
+                  </span>
+                </span>
+                <span className="material-symbols-outlined text-text-muted transition-colors group-hover:text-neural-cyan" style={{ fontSize: 20 }} aria-hidden="true">
+                  {copied ? "check" : "content_copy"}
+                </span>
+              </button>
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {LINKS.map((l) => (
+                  <Link
+                    key={l.label}
+                    href={l.href}
+                    target={l.external ? "_blank" : undefined}
+                    rel={l.external ? "noreferrer" : undefined}
+                    className="group flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/25 px-3.5 py-3 transition-colors hover:border-neural-cyan/40"
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="material-symbols-outlined text-neural-cyan" style={{ fontSize: 20 }} aria-hidden="true">
+                        {l.icon}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-text-strong">{l.label}</span>
+                        <span className="block truncate text-[11px] text-text-muted">{l.detail}</span>
+                      </span>
+                    </span>
+                    <span className="material-symbols-outlined shrink-0 text-text-muted transition-colors group-hover:text-neural-cyan" style={{ fontSize: 18 }} aria-hidden="true">
+                      arrow_outward
+                    </span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
