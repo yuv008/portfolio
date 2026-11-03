@@ -82,16 +82,18 @@ export const sectionIds = {
 } as const;
 
 export const navLinks = [
-  { id: "nodes", label: "Nodes", href: `#${sectionIds.about}`, spyIds: [sectionIds.hero, sectionIds.about] },
-  { id: "legion", label: "Legion", href: "#stress-test", spyIds: ["stress-test"] },
-  { id: "matrix", label: "Matrix", href: `#${sectionIds.skills}`, spyIds: [sectionIds.projects, sectionIds.skills] },
+  { id: "home", label: "Home", icon: "home", href: `#${sectionIds.hero}`, spyIds: [sectionIds.hero] },
+  { id: "legion", label: "Legion", icon: "fact_check", href: "#stress-test", spyIds: ["stress-test"] },
+  { id: "about", label: "About", icon: "person", href: `#${sectionIds.about}`, spyIds: [sectionIds.about] },
   {
-    id: "history",
-    label: "History",
+    id: "experience",
+    label: "Experience",
+    icon: "work",
     href: `#${sectionIds.experience}`,
     spyIds: [sectionIds.experience, sectionIds.education, sectionIds.achievements],
   },
-  { id: "terminal", label: "Terminal", href: `#${sectionIds.contact}`, spyIds: [sectionIds.contact] },
+  { id: "projects", label: "Projects", icon: "grid_view", href: `#${sectionIds.projects}`, spyIds: [sectionIds.projects] },
+  { id: "stack", label: "Stack", icon: "layers", href: `#${sectionIds.skills}`, spyIds: [sectionIds.skills] },
 ];
 
 export const heroStats = [
