@@ -2,8 +2,10 @@
 
 import { sectionIds } from "@/lib/constants";
 import { openProject } from "@/lib/wisp";
+import { Wash } from "@/components/ui/Wash";
 
 type Win = {
+  wash: [string, string];
   event: string;
   detail: string;
   result: string;
@@ -12,10 +14,10 @@ type Win = {
 };
 
 const WINS: Win[] = [
-  { event: "Devclash 2025", detail: "24-hour hackathon at DY Patil Pimpri", result: "1st prize", project: { id: "shetniyojan", name: "ShetNiyojan" }, icon: "emoji_events" },
-  { event: "Synapse 2.0", detail: "AI hackathon at MKSSS CCOEW", result: "1st prize", project: { id: "legify", name: "Legify" }, icon: "emoji_events" },
-  { event: "L&T NeuroHack", detail: "24-hour hackathon at COEP Mindspark 24", result: "1st prize", project: { id: "warcast", name: "WarCast" }, icon: "emoji_events" },
-  { event: "MHT-CET 2022", detail: "Merit rank 971 among 400,000+ candidates", result: "99.35 percentile", icon: "military_tech" },
+  { wash: ["#7ee0a6", "#6ee7ff"], event: "Devclash 2025", detail: "24-hour hackathon at DY Patil Pimpri", result: "1st prize", project: { id: "shetniyojan", name: "ShetNiyojan" }, icon: "emoji_events" },
+  { wash: ["#9fc2ff", "#ab8aff"], event: "Synapse 2.0", detail: "AI hackathon at MKSSS CCOEW", result: "1st prize", project: { id: "legify", name: "Legify" }, icon: "emoji_events" },
+  { wash: ["#ffb36b", "#ff7078"], event: "L&T NeuroHack", detail: "24-hour hackathon at COEP Mindspark 24", result: "1st prize", project: { id: "warcast", name: "WarCast" }, icon: "emoji_events" },
+  { wash: ["#ab8aff", "#6ee7ff"], event: "MHT-CET 2022", detail: "Merit rank 971 among 400,000+ candidates", result: "99.35 percentile", icon: "military_tech" },
 ];
 
 function Medal({ icon }: { icon: string }) {
@@ -53,6 +55,7 @@ export function Achievements() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {WINS.map((w) => (
             <article key={w.event} className="tile tile-hover flex flex-col p-2.5">
+              <Wash from={w.wash[0]} to={w.wash[1]} dim={0.55} />
               <Medal icon={w.icon} />
               <div className="flex flex-1 flex-col p-4 pt-5">
                 <p className="font-display text-xl font-semibold tracking-tight text-neural-cyan">{w.result}</p>

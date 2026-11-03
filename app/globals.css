@@ -84,6 +84,7 @@
      through), hairline border, faint top highlight, one hover behaviour. */
   .tile {
     position: relative;
+    isolation: isolate;
     border-radius: 1.75rem;
     border: 1px solid rgba(255, 255, 255, 0.07);
     background: linear-gradient(180deg, rgb(25, 31, 39) 0%, rgb(19, 25, 32) 100%);
@@ -259,4 +260,23 @@
   outline: 2px solid rgba(171, 138, 255, 0.65);
   outline-offset: 4px;
   transition: outline-color 0.3s ease;
+}
+
+/* The_Legion: a pinned visual beside scrolling steps. --stage-h is shared so the stage and the room around the
+   steps always agree, even on short screens. */
+.legion-grid {
+  --stage-h: min(580px, calc(100vh - 9rem));
+}
+@media (min-width: 1024px) {
+  .legion-stage {
+    height: var(--stage-h);
+    top: max(5.5rem, calc((100vh - var(--stage-h)) / 2));
+  }
+  /* Steps are 36vh tall with their text centred; add the extra room the stage needs above the first
+     and below the last step, so the stage stays pinned while those steps are at the centre. */
+  .legion-steps {
+    padding-top: max(0px, calc(var(--stage-h) / 2 - 18vh));
+    /* A little extra below, so the stage stays pinned while the last step is read, then leaves with the section. */
+    padding-bottom: max(0px, calc(var(--stage-h) / 2 - 18vh + 22vh));
+  }
 }

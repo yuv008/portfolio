@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoopVideo } from "@/components/ui/LoopVideo";
+import { Wash } from "@/components/ui/Wash";
 import { VideoLightbox } from "@/components/ui/VideoLightbox";
 
 /* ── Steps ─────────────────────────────────────────────────── */
@@ -208,7 +209,7 @@ function AgentTestDemo() {
         ))}
       </div>
 
-      <div ref={log} role="log" aria-live="polite" className="mt-4 h-[220px] space-y-3 overflow-y-auto rounded-xl bg-black/30 p-4">
+      <div ref={log} role="log" aria-live="polite" className="mt-4 h-[clamp(140px,26vh,220px)] space-y-3 overflow-y-auto rounded-xl bg-black/30 p-4">
         {shown === 0 && <p className="text-xs text-text-muted">Press “Run test” to start the call.</p>}
         {scenario.turns.slice(0, shown).map((t, i) => (
           <div key={i} className={t.who === "agent" ? "pl-8" : "pr-8"}>
@@ -282,6 +283,7 @@ function AgentTestDemo() {
 function StepImage({ step, playing = true }: { step: Step; playing?: boolean }) {
   return (
     <figure className="tile p-2.5">
+      <Wash image={step.image} dim={0.34} />
       <div className="tile-media p-2.5">
         <div className="overflow-hidden rounded-[0.85rem]" style={{ aspectRatio: "960 / 448" }}>
           {step.clip ? (
@@ -373,10 +375,10 @@ export function StressTest() {
           </div>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div className="legion-grid grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           {/* Sticky stage (desktop) */}
           <div className="relative hidden lg:block">
-            <div className="sticky h-[580px]" style={{ top: "max(6rem, calc(50vh - 290px))" }}>
+            <div className="legion-stage sticky">
               <div className="relative h-full w-full">
                 {STEPS.map((s, i) => (
                   <div
@@ -402,7 +404,7 @@ export function StressTest() {
           </div>
 
           {/* Steps */}
-          <ol className="space-y-6 lg:space-y-0">
+          <ol className="legion-steps space-y-6 lg:space-y-0">
             {STEPS.map((s, i) => (
               <li
                 key={s.id}

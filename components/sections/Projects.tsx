@@ -5,6 +5,7 @@ import { projects, type Project } from "@/components/projects/projectData";
 import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
 import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
+import { Wash } from "@/components/ui/Wash";
 import { PROJECT_OPEN_EVENT, explainProject, meetWisp } from "@/lib/wisp";
 
 const ACCENT: Record<string, string> = {
@@ -30,6 +31,8 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const accent = ACCENT[project.id] ?? "#a8e8ff";
   const layout = LAYOUT[project.id] ?? { span: "lg:col-span-4" };
   const hero = !!layout.hero;
+  const washImage =
+    project.cover.kind === "hover-video" ? project.cover.image : project.cover.kind === "slides" ? project.cover.images[0] : undefined;
   const github = project.links?.github;
   const metrics = project.metrics.slice(0, hero ? 3 : 1);
 
@@ -38,6 +41,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
       id={`project-${project.id}`}
       className={`tile tile-hover group relative flex flex-col overflow-hidden ${layout.span}`}
     >
+      <Wash image={washImage} from={accent} to={accent} dim={washImage ? 0.52 : 0.6} />
       <div className="shrink-0 p-2.5 pb-0">
         <div className="tile-media cursor-pointer p-2" style={{ height: hero ? 340 : 210 }} onClick={onOpen}>
           <div className="relative h-full w-full overflow-hidden rounded-[0.8rem]">
