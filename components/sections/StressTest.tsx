@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { LoopVideo } from "@/components/ui/LoopVideo";
 import { VideoLightbox } from "@/components/ui/VideoLightbox";
 
 /* ── Steps ─────────────────────────────────────────────────── */
@@ -10,7 +11,8 @@ type Step = {
   kicker: string;
   title: string;
   body: string;
-  image?: string;
+  image?: string; // poster
+  clip?: string; // looping clip
   alt?: string;
   chips?: { value: string; label: string }[];
   demo?: boolean;
@@ -23,6 +25,7 @@ const STEPS: Step[] = [
     title: "Which calls went wrong?",
     body: "An AI agent can handle thousands of calls a day. A few go wrong, and nobody knows which until a customer complains. VEE Legion finds them first.",
     image: "/legion/step-problem.webp",
+    clip: "/legion/clips/problem.mp4",
     alt: "A wall of resolved calls with two flagged as failures",
   },
   {
@@ -31,6 +34,7 @@ const STEPS: Step[] = [
     title: "Callers who push back",
     body: "Scenario-driven callers are frustrated, confused, anxious, pushy, tech-savvy or on a noisy line. Red-team callers try prompt injection, jailbreaks and social engineering. All of them test the agent exactly as it is, on VEE, Twilio, Retell, Vapi or Synthflow.",
     image: "/legion/step-callers.webp",
+    clip: "/legion/clips/callers.mp4",
     alt: "Twelve caller personas shown as cards",
   },
   {
@@ -39,6 +43,7 @@ const STEPS: Step[] = [
     title: "Define a good call in plain words",
     body: "Pass or fail can be a sentence, such as “verify the caller’s identity before changing account details”, judged by an LLM next to automated checks for WER/CER, latency, tool calls, PII and keywords. A failed judge run never counts against the agent.",
     image: "/legion/step-define.webp",
+    clip: "/legion/clips/define.mp4",
     alt: "The create-a-test wizard choosing callers and pass/fail rules",
   },
   {
@@ -47,6 +52,7 @@ const STEPS: Step[] = [
     title: "Hundreds of calls at once",
     body: "Slot-based orchestration in Go ramps load up instead of firing everything at once, so the test measures the agent and not the test rig.",
     image: "/legion/step-run.webp",
+    clip: "/legion/clips/run.mp4",
     alt: "A test run executing many calls in parallel",
     chips: [
       { value: "200", label: "concurrent calls verified" },
@@ -59,6 +65,7 @@ const STEPS: Step[] = [
     title: "Know exactly why it failed",
     body: "Every call is scored and every failure is shown turn by turn. Real production calls can be imported and graded with the same checks, so tests and reality sit on one scale.",
     image: "/legion/step-fail.webp",
+    clip: "/legion/clips/why.mp4",
     alt: "A transcript with the failing agent turn stamped FAIL",
   },
   {
@@ -272,13 +279,21 @@ function AgentTestDemo() {
 
 /* ── Visual used by both the sticky stage and the mobile layout ── */
 
-function StepImage({ step }: { step: Step }) {
+function StepImage({ step, playing = true }: { step: Step; playing?: boolean }) {
   return (
-    <figure className="overflow-hidden rounded-2xl" style={{ background: "#0f1a3a", border: "1px solid rgba(255,255,255,0.08)" }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={step.image} alt={step.alt} loading="lazy" decoding="async" draggable={false} className="block h-auto w-full" />
-      <figcaption className="px-4 py-2 font-display text-[9px] uppercase tracking-[0.16em] text-text-muted" style={{ background: "rgba(8,12,18,0.85)" }}>
-        Still from the VEE Legion launch video
+    <figure className="tile p-2.5">
+      <div className="tile-media p-2.5">
+        <div className="overflow-hidden rounded-[0.85rem]" style={{ aspectRatio: "960 / 448" }}>
+          {step.clip ? (
+            <LoopVideo src={step.clip} poster={step.image} playing={playing} />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={step.image} alt={step.alt} loading="lazy" decoding="async" draggable={false} className="h-full w-full object-cover" />
+          )}
+        </div>
+      </div>
+      <figcaption className="px-2 pb-1 pt-2.5 font-display text-[9px] uppercase tracking-[0.16em] text-text-muted">
+        {step.alt} · from the VEE Legion launch video
       </figcaption>
     </figure>
   );
@@ -387,7 +402,7 @@ export function StressTest() {
                     aria-hidden={i !== active}
                     className={`transition-opacity duration-500 ${i === active ? "relative opacity-100" : "pointer-events-none absolute inset-x-0 top-0 opacity-0"}`}
                   >
-                    {s.demo ? <AgentTestDemo /> : <StepImage step={s} />}
+                    {s.demo ? <AgentTestDemo /> : <StepImage step={s} playing={i === active} />}
                     {s.chips && (
                       <div className="mt-4 flex gap-3">
                         {s.chips.map((c) => (
