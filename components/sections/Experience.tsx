@@ -197,7 +197,7 @@ export function Experience() {
     <section id="experience" className="section-shell">
       <div className="section-container">
         <div className="mb-12">
-          <p className="section-kicker mb-4">// Work · Education</p>
+          <p className="section-kicker mb-4">{"// Work · Education"}</p>
           <h2 className="section-title">
             The_{" "}
             <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Journey</span>

@@ -345,7 +345,7 @@ export function StressTest() {
       <div className="section-container">
         <div className="mb-14">
           <div>
-            <p className="section-kicker mb-4">// Work · VoiceraCX</p>
+            <p className="section-kicker mb-4">{"// Work · VoiceraCX"}</p>
             <h2 className="section-title">
               The_{" "}
               <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Legion</span>
