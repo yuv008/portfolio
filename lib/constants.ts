@@ -97,9 +97,9 @@ export const navLinks = [
 ];
 
 export const heroStats = [
-  { label: "Response time", value: "1.2s", tone: "cyan" as const },
-  { label: "Concurrent calls", value: "200", tone: "violet" as const },
-  { label: "Query latency", value: "−90%", tone: "amber" as const },
+  { label: "Concurrent calls", value: "200", tone: "cyan" as const },
+  { label: "Transport errors", value: "0", tone: "violet" as const },
+  { label: "Platforms tested", value: "5", tone: "amber" as const },
 ];
 
 export const socialNodes = [

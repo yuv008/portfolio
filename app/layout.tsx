@@ -3,7 +3,8 @@ import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { Toaster } from "react-hot-toast";
-import HeroField from "@/components/three/HeroField";
+import { HeroFieldLazy } from "@/components/three/HeroFieldLazy";
+import { LiteMode } from "@/components/ui/LiteMode";
 
 
 const jetbrainsMono = JetBrains_Mono({
@@ -58,20 +59,13 @@ export default function RootLayout({
       }}
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          as="style"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet"
-        />
+        {/* Icons: a self-hosted subset of Material Symbols (about 11 KiB instead of the full 1.1 MB font).
+            Regenerate with `node scripts/build-icon-font.mjs` after adding an icon. */}
+        <link rel="preload" href="/fonts/material-symbols-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="font-body text-text-strong relative">
-        <HeroField
+        <LiteMode />
+        <HeroFieldLazy
           className="pointer-events-none fixed inset-0 z-0"
           colors={["#6ee7ff", "#ab8aff", "#d1dce9"]}
           particles={64000}

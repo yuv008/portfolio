@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
 import { LoopVideo } from "@/components/ui/LoopVideo";
+import { useLite } from "@/lib/lite";
 import { ArchitectureDiagram } from "./ArchitectureDiagram";
 import type { Project } from "./projectData";
 
@@ -50,6 +51,7 @@ function HoverVideo({
 function Slides({ images, alt }: { images: string[]; alt: string }) {
   const [i, setI] = useState(0);
   const [visible, setVisible] = useState(false);
+  const lite = useLite();
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,10 +63,10 @@ function Slides({ images, alt }: { images: string[]; alt: string }) {
   }, []);
 
   useEffect(() => {
-    if (!visible || reduced() || images.length < 2) return;
+    if (!visible || lite || reduced() || images.length < 2) return;
     const t = window.setInterval(() => setI((n) => (n + 1) % images.length), 3200);
     return () => window.clearInterval(t);
-  }, [visible, images.length]);
+  }, [visible, lite, images.length]);
 
   return (
     <div ref={root} className="absolute inset-0 overflow-hidden">

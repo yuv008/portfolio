@@ -34,7 +34,7 @@ export function About() {
     <section id="about" className="section-shell">
       <div className="section-container">
         <header className="mb-14 text-center">
-          <p className="section-kicker mb-4">// Manifest_v5.0</p>
+          <p className="section-kicker mb-4">{"// Manifest_v5.0"}</p>
           <h2 className="section-title">
             The_{" "}
             <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">

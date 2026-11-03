@@ -25,6 +25,32 @@
   --neural-red: 255 112 120;
 }
 
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: block;
+  src: url("/fonts/material-symbols-subset.woff2") format("woff2");
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "opsz" 24;
+}
+
 @layer base {
   html {
     color-scheme: dark;
@@ -279,4 +305,19 @@
     /* A little extra below, so the stage stays pinned while the last step is read, then leaves with the section. */
     padding-bottom: max(0px, calc(var(--stage-h) / 2 - 18vh + 22vh));
   }
+}
+
+/* Lite mode (see lib/lite.ts): drop the expensive effects. */
+[data-lite="on"] .tile-anim,
+[data-lite="on"] .arch-flow {
+  animation: none !important;
+}
+[data-lite="on"] .wash {
+  display: none !important;
+}
+[data-lite="on"] [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-image: none !important;
+  background-color: rgba(18, 24, 32, 0.94) !important;
 }

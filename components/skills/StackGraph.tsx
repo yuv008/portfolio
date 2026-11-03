@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY } from "d3-force-3d";
 import { STACK_HUBS } from "@/lib/stack";
+import { isLite } from "@/lib/lite";
 
 type GNode = {
   id: string;
@@ -222,14 +223,15 @@ export function StackGraph({
       if (!visible) return;
       const dt = now - last;
       last = now;
-      if (!reduce) {
+      const still = reduce || isLite();
+      if (!still) {
         // keep the layout gently alive
         if (sim.alpha() < 0.04) sim.alpha(0.04);
         sim.tick();
       }
       draw();
       void dt;
-      if (!reduce || dragging) raf = requestAnimationFrame(frame);
+      if (!still || dragging) raf = requestAnimationFrame(frame);
     }
     const kick = () => {
       if (!raf && visible) raf = requestAnimationFrame(frame);

@@ -66,7 +66,7 @@ export function Contact() {
     <section id={sectionIds.contact} className="section-shell">
       <div className="section-container">
         <header className="mb-12">
-          <p className="section-kicker mb-4">// Contact</p>
+          <p className="section-kicker mb-4">{"// Contact"}</p>
           <h2 className="section-title">
             Let&apos;s{" "}
             <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">build something.</span>

@@ -46,7 +46,7 @@ export function Achievements() {
     <section id={sectionIds.achievements} className="section-shell">
       <div className="section-container">
         <div className="mb-10">
-          <p className="section-kicker mb-4">// Recognition</p>
+          <p className="section-kicker mb-4">{"// Recognition"}</p>
           <h2 className="section-title">
             Achievements<span className="text-neural-violet">_</span>
           </h2>
