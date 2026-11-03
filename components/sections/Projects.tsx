@@ -36,29 +36,23 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
   return (
     <article
       id={`project-${project.id}`}
-      className={`group relative flex flex-col overflow-hidden rounded-[2rem] transition-all duration-300 hover:-translate-y-1 ${layout.span}`}
-      style={{
-        background: "rgba(20,27,35,0.94)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
-      }}
+      className={`tile tile-hover group relative flex flex-col overflow-hidden ${layout.span}`}
     >
-      <div
-        className="relative shrink-0 cursor-pointer overflow-hidden"
-        style={{ height: hero ? 340 : 210 }}
-        onClick={onOpen}
-      >
-        <ProjectCover project={project} />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16" style={{ background: "linear-gradient(to bottom, transparent, rgba(20,27,35,0.94))" }} />
-        <span className="pointer-events-none absolute left-5 top-4 h-2 w-2 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
-        {project.featured && (
-          <span
-            className="pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.18em]"
-            style={{ fontFamily: "var(--font-display), monospace", color: accent, background: "rgba(8,12,18,0.7)", border: `1px solid ${accent}40` }}
-          >
-            Featured
-          </span>
-        )}
+      <div className="shrink-0 p-2.5 pb-0">
+        <div className="tile-media cursor-pointer p-2" style={{ height: hero ? 340 : 210 }} onClick={onOpen}>
+          <div className="relative h-full w-full overflow-hidden rounded-[0.8rem]">
+            <ProjectCover project={project} />
+          </div>
+          <span className="pointer-events-none absolute left-5 top-4 h-2 w-2 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
+          {project.featured && (
+            <span
+              className="pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.18em]"
+              style={{ fontFamily: "var(--font-display), monospace", color: accent, background: "rgba(8,12,18,0.7)", border: `1px solid ${accent}40` }}
+            >
+              Featured
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col p-6">

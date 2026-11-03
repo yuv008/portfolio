@@ -31,7 +31,7 @@ export function TopNavBar() {
 
       <nav aria-label="Sections" className="fixed inset-x-0 top-4 z-[60] flex justify-center px-3">
         <div className="flex items-center gap-2 sm:gap-3">
-          <ul className={`flex items-center gap-0.5 rounded-full p-1 sm:gap-1 sm:p-1.5 ${glass}`}>
+          <ul className={`group/nav flex items-center gap-0.5 rounded-full p-1 transition-[gap] duration-300 hover:gap-1 focus-within:gap-1 sm:gap-1 sm:p-1.5 ${glass}`}>
             {navLinks.map((link) => {
               const active = activeId === link.id;
               return (
@@ -40,7 +40,7 @@ export function TopNavBar() {
                     href={link.href}
                     aria-label={link.label}
                     aria-current={active ? "location" : undefined}
-                    className={`relative flex h-9 w-9 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neural-cyan/60 sm:h-10 sm:w-10 ${
+                    className={`relative flex h-9 items-center justify-center rounded-full px-[0.55rem] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neural-cyan/60 sm:h-10 sm:px-[0.65rem] ${
                       active ? "text-text-strong" : "text-text-muted hover:text-text-strong"
                     }`}
                   >
@@ -51,16 +51,14 @@ export function TopNavBar() {
                         transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       />
                     )}
-                    <span className="material-symbols-outlined relative" style={{ fontSize: 20 }} aria-hidden="true">
+                    <span className="material-symbols-outlined relative shrink-0" style={{ fontSize: 20 }} aria-hidden="true">
                       {link.icon}
                     </span>
+                    {/* The label opens when the pill is hovered or focused, widening the whole bar. */}
+                    <span className="relative max-w-0 overflow-hidden whitespace-nowrap pl-0 font-display text-[0.7rem] font-medium tracking-tight opacity-0 transition-all duration-300 ease-out group-focus-within/nav:max-w-[7.5rem] group-focus-within/nav:pl-2 group-focus-within/nav:pr-1 group-focus-within/nav:opacity-100 group-hover/nav:max-w-[7.5rem] group-hover/nav:pl-2 group-hover/nav:pr-1 group-hover/nav:opacity-100">
+                      {link.label}
+                    </span>
                   </Link>
-                  <span
-                    role="tooltip"
-                    className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-[rgba(14,20,28,0.95)] px-3 py-1 font-display text-[0.6rem] uppercase tracking-[0.18em] text-text-strong opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
-                  >
-                    {link.label}
-                  </span>
                 </li>
               );
             })}

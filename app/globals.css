@@ -86,7 +86,7 @@
     position: relative;
     border-radius: 1.75rem;
     border: 1px solid rgba(255, 255, 255, 0.07);
-    background: linear-gradient(180deg, rgb(19, 26, 35) 0%, rgb(13, 19, 27) 100%);
+    background: linear-gradient(180deg, rgb(25, 31, 39) 0%, rgb(19, 25, 32) 100%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 32px -14px rgba(0, 0, 0, 0.55);
     transition: border-color 0.3s ease, transform 0.3s ease;
   }
@@ -94,6 +94,44 @@
     border-color: rgba(110, 231, 255, 0.28);
     transform: translateY(-2px);
   }
+  /* Black "screen" inset in a tile: media sits in it with an even grey border around. */
+  .tile-media {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.2rem;
+    background: #05080c;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+  }
+  @keyframes tile-bar {
+    0%, 100% { transform: scaleY(0.22); }
+    50% { transform: scaleY(1); }
+  }
+  @keyframes tile-ping {
+    0% { transform: scale(0.4); opacity: 0.7; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  @keyframes tile-hit {
+    0%, 100% { opacity: 0.15; }
+    30%, 60% { opacity: 1; }
+  }
+  @keyframes tile-draw {
+    0% { stroke-dashoffset: 520; }
+    70%, 100% { stroke-dashoffset: 0; }
+  }
+  @keyframes tile-dot {
+    0% { offset-distance: 0%; opacity: 0; }
+    8% { opacity: 1; }
+    70%, 100% { offset-distance: 100%; opacity: 1; }
+  }
+  @keyframes kenburns {
+    0% { transform: scale(1) translateY(0); }
+    100% { transform: scale(1.07) translateY(-2%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tile-anim { animation: none !important; }
+  }
+
   .tile-icon {
     display: flex;
     height: 2.5rem;

@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
+import { LoopVideo } from "@/components/ui/LoopVideo";
 import { ArchitectureDiagram } from "./ArchitectureDiagram";
 import type { Project } from "./projectData";
 
 const reduced = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* Still image that plays a muted clip while hovered or focused. */
+/* Clip that plays while the tile is on screen. The poster shows first and when motion is reduced. */
 function HoverVideo({
   image,
   video,
@@ -22,51 +23,9 @@ function HoverVideo({
   watchHref?: string;
   fit?: "cover" | "contain";
 }) {
-  const fitClass = fit === "contain" ? "object-contain" : "object-cover object-top";
-  const ref = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-
-  const play = () => {
-    const v = ref.current;
-    if (!v || reduced()) return;
-    v.currentTime = 0;
-    void v.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
-  };
-  const stop = () => {
-    ref.current?.pause();
-    setPlaying(false);
-  };
-
   return (
-    <div className="absolute inset-0" style={{ background: "#0a0a0a" }} onMouseEnter={play} onMouseLeave={stop} onFocus={play} onBlur={stop}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image} alt={alt} loading="lazy" decoding="async" draggable={false} className={`h-full w-full ${fitClass}`} />
-      <video
-        ref={ref}
-        src={video}
-        poster={image}
-        muted
-        loop
-        playsInline
-        preload="none"
-        aria-hidden
-        className={`pointer-events-none absolute inset-0 h-full w-full ${fitClass} transition-opacity duration-500`}
-        style={{ opacity: playing ? 1 : 0 }}
-      />
-      <span
-        className="pointer-events-none absolute bottom-3 left-4 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] uppercase tracking-widest transition-opacity duration-300"
-        style={{
-          fontFamily: "var(--font-display), monospace",
-          background: "rgba(8,12,18,0.7)",
-          border: "1px solid rgba(255,255,255,0.15)",
-          opacity: playing ? 0 : 1,
-        }}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
-          play_arrow
-        </span>
-        Hover to preview
-      </span>
+    <div className="absolute inset-0" style={{ background: "#05080c" }} role="img" aria-label={alt}>
+      <LoopVideo src={video} poster={image} fit={fit} className={fit === "contain" ? "" : "object-top"} />
       {watchHref && (
         <a
           href={watchHref}
@@ -118,8 +77,8 @@ function Slides({ images, alt }: { images: string[]; alt: string }) {
           loading="lazy"
           decoding="async"
           draggable={false}
-          className="absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-[900ms]"
-          style={{ opacity: n === i ? 1 : 0 }}
+          className="tile-anim absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-[900ms]"
+          style={{ opacity: n === i ? 1 : 0, animation: n === i ? "kenburns 6.5s ease-out forwards" : "none" }}
         />
       ))}
       {images.length > 1 && (
