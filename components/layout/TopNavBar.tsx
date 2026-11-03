@@ -1,188 +1,96 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { navLinks } from "@/lib/constants";
 import { usePageSignals } from "@/lib/hooks/usePageSignals";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
+import { meetWisp } from "@/lib/wisp";
 
-const menuVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.12,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-};
-
+/**
+ * Floating control cluster, centred at the top: an icon pill for the sections (a soft
+ * circle slides to the active one), a round Wisp button, and a call to action.
+ */
 export function TopNavBar() {
   const activeId = useScrollSpy(navLinks);
-  const { isScrolled, nearBottom } = usePageSignals();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { isScrolled } = usePageSignals();
 
-  useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileOpen]);
+  const glass = `border border-white/10 backdrop-blur-xl transition-colors duration-300 ${
+    isScrolled ? "bg-[rgba(14,20,28,0.82)]" : "bg-white/[0.05]"
+  } shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)]`;
 
   return (
     <>
-      <nav className="fixed inset-x-0 top-0 z-[60]">
-        <div className="section-container pt-4">
-          <div
-            className={`flex items-center justify-between rounded-full border px-4 py-3 transition-all duration-300 md:px-6 ${
-              isScrolled
-                ? "border-surface-border/35 bg-background/90 shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
-                : "border-transparent bg-transparent"
-            }`}
-            suppressHydrationWarning
-          >
-            <Link
-              href="#hero"
-              className="font-display text-sm tracking-[0.28em] text-text-strong transition-opacity hover:opacity-80 md:text-base"
-            >
-              YUVRAJMS//ARCHIVE
-            </Link>
+      {/* Small signature on wide screens, since the nav no longer carries a wordmark */}
+      <Link
+        href="#hero"
+        className="fixed left-8 top-7 z-[60] hidden font-display text-[0.7rem] uppercase tracking-[0.3em] text-text-muted transition-colors hover:text-text-strong xl:block"
+      >
+        Yuvraj Sanghai
+      </Link>
 
-            <div className="hidden items-center gap-8 md:flex">
-              {navLinks.map((link) => {
-                const active = activeId === link.id;
-
-                return (
+      <nav aria-label="Sections" className="fixed inset-x-0 top-4 z-[60] flex justify-center px-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ul className={`flex items-center gap-0.5 rounded-full p-1 sm:gap-1 sm:p-1.5 ${glass}`}>
+            {navLinks.map((link) => {
+              const active = activeId === link.id;
+              return (
+                <li key={link.id} className="group relative">
                   <Link
-                    key={link.id}
                     href={link.href}
-                    className={`relative font-display text-[0.7rem] uppercase tracking-[0.34em] transition-colors ${
-                      active ? "text-neural-cyan" : "text-text-muted hover:text-text-strong"
+                    aria-label={link.label}
+                    aria-current={active ? "location" : undefined}
+                    className={`relative flex h-9 w-9 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neural-cyan/60 sm:h-10 sm:w-10 ${
+                      active ? "text-text-strong" : "text-text-muted hover:text-text-strong"
                     }`}
                   >
-                    {link.label}
-                    {active ? (
+                    {active && (
                       <motion.span
                         layoutId="nav-active"
-                        className="absolute inset-x-0 -bottom-2 h-px bg-neural-cyan"
+                        className="absolute inset-0 rounded-full bg-white/[0.10]"
+                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       />
-                    ) : null}
+                    )}
+                    <span className="material-symbols-outlined relative" style={{ fontSize: 20 }} aria-hidden="true">
+                      {link.icon}
+                    </span>
                   </Link>
-                );
-              })}
-            </div>
-
-            <div className="hidden items-center gap-3 md:flex">
-              <div className="rounded-full border border-neural-green/20 bg-neural-green/8 px-3 py-2">
-                <span className="flex items-center gap-2 font-display text-[0.62rem] uppercase tracking-[0.28em] text-neural-green">
-                  <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-neural-green" />
+                  <span
+                    role="tooltip"
+                    className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-[rgba(14,20,28,0.95)] px-3 py-1 font-display text-[0.6rem] uppercase tracking-[0.18em] text-text-strong opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
+                  >
+                    {link.label}
                   </span>
-                  Systems_Optimal
-                </span>
-              </div>
-              <Link
-                href="#contact"
-                className={`rounded-full border px-5 py-2 font-display text-[0.72rem] uppercase tracking-[0.32em] transition-all ${
-                  nearBottom
-                    ? "border-neural-cyan/45 bg-neural-cyan/14 text-neural-cyan shadow-glow-cyan"
-                    : "border-surface-border/35 bg-surface/65 text-text-strong hover:border-neural-cyan/40 hover:text-neural-cyan"
-                }`}
-                suppressHydrationWarning
-              >
-                Connect
-              </Link>
-            </div>
+                </li>
+              );
+            })}
+          </ul>
 
-            <button
-              type="button"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-surface-border/35 bg-surface/75 text-text-strong md:hidden"
-              aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
-              onClick={() => setMobileOpen((current) => !current)}
-            >
-              <span className="material-symbols-outlined">{mobileOpen ? "close" : "menu"}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            aria-label="Ask Wisp"
+            title="Ask Wisp"
+            onClick={(e) => meetWisp(e.currentTarget)}
+            className={`flex h-11 w-11 items-center justify-center rounded-full text-text-muted outline-none transition-colors hover:text-neural-violet focus-visible:ring-2 focus-visible:ring-neural-violet/60 sm:h-[3.25rem] sm:w-[3.25rem] ${glass}`}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
+              chat_bubble
+            </span>
+          </button>
+
+          <Link
+            href="#contact"
+            aria-label="Connect"
+            className="group flex h-11 items-center gap-3 rounded-full bg-[#e9f0f5] p-1 pr-1 text-[#0a0f16] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] outline-none transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-neural-cyan sm:h-[3.25rem] sm:pr-6"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#0a0f16] sm:h-11 sm:w-11">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icon.svg" alt="" width={28} height={28} className="h-7 w-7" />
+            </span>
+            <span className="hidden font-display text-sm font-semibold tracking-tight sm:inline">Connect</span>
+          </Link>
         </div>
       </nav>
-
-      <AnimatePresence>
-        {mobileOpen ? (
-          <motion.div
-            className="fixed inset-0 z-[80] bg-background/96 md:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="section-container flex min-h-screen flex-col justify-between py-10">
-              <div className="flex items-center justify-between">
-                <span className="font-display text-sm tracking-[0.28em] text-text-strong">
-                  NAVIGATION
-                </span>
-                <button
-                  type="button"
-                  aria-label="Close navigation menu"
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-surface-border/35 bg-surface/80 text-text-strong"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-
-              <motion.div
-                className="flex flex-1 flex-col justify-center gap-6"
-                variants={menuVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                {navLinks.map((link) => (
-                  <motion.div key={link.id} variants={itemVariants}>
-                    <Link
-                      href={link.href}
-                      className={`block font-display text-4xl uppercase tracking-[0.22em] ${
-                        activeId === link.id ? "text-neural-cyan" : "text-text-soft"
-                      }`}
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  </motion.div>
-                ))}
-              </motion.div>
-
-              <motion.div
-                className="space-y-4"
-                variants={menuVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                <motion.div variants={itemVariants} className="rounded-[1.75rem] border border-neural-green/20 bg-neural-green/10 p-4">
-                  <p className="font-display text-[0.62rem] uppercase tracking-[0.28em] text-neural-green">
-                    Status: Systems_Optimal
-                  </p>
-                </motion.div>
-                <motion.div variants={itemVariants}>
-                  <Link
-                    href="#contact"
-                    className="block rounded-full border border-neural-cyan/35 bg-neural-cyan/12 px-5 py-3 text-center font-display text-sm uppercase tracking-[0.32em] text-neural-cyan"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Connect
-                  </Link>
-                </motion.div>
-              </motion.div>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
     </>
   );
 }
