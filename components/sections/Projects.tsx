@@ -1,746 +1,213 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
-import { projects } from "@/components/projects/projectData";
-import { useInView } from "@/lib/hooks/useInView";
-import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
-import { meetWisp } from "@/lib/wisp";
+import { useCallback, useState } from "react";
+import { projects, type Project } from "@/components/projects/projectData";
+import { ProjectCover } from "@/components/projects/ProjectCover";
+import { ProjectDetail } from "@/components/projects/ProjectDetail";
+import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
+import { explainProject, meetWisp } from "@/lib/wisp";
 
-/* ── Media map ─────────────────────────────────────────────── */
-const PROJECT_IMAGES: Record<string, string> = {
-  "orpheus-tts":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuBGH2997hdFF4MNkLoOVa73F1hrtN2wecl2WKdJZynfB8Ky6yL87-1wy8zzq6YAKIFqSuiWHIa2ov923KqQLfXuHiLASFeEoTgIjH1ay-1haw_abu9mLDW6IShx_kD2SYsOz7hWJeb4v3OaLRCOZ7Skr_oXxjLFzTHB5Pv6-080_DG9ozG8SL87AD0a2EdyeO-6modikW4H53IyV6mXqHvYzX1DpXupcETbsu9mHqzSic-yz4JL0gB4tEnU9kBthfqXyAMisAmOg2U",
-  "smart-pathshala": "/smart-pathshala.png",
-  "legify":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDmquO-TmvSCNWbbe3E2ce4ZvzVkXzXPDXSxrgBOAc512e84U_4uGrk4iOi7sgll_Xm1aAcYVAygiuL0dBsZssU2NbzmG9iXOBN3kRNgFMLzd1cxpWYQnwmhc1kpQ5hseRWnHKwEqlYGIZo3vebhj9HsJedMzw09zEiUB5qboZqbbklWVnak8qeXa98BTSV9RfPrlDF_2SJncZG9wULo9Jpf07t5X40DocuWeo8EZNk2fVXzmNnY58mSuHysPTpA1gn4F2qFRDDG8A",
-};
-
-const PROJECT_VIDEOS: Record<string, string> = {
-  "shetniyojan": "/shetniyojan.mp4",
-};
-
-// Projects whose card shows a still image and plays a muted clip on hover
-const PROJECT_HOVER_VIDEOS: Record<string, string> = {
-  "weave": "/weave-demo.mp4",
-};
-
-const PROJECT_WAVEFORM = new Set(["orpheus-tts"]);
-
-const VIDEO_CLIP_END = 10; // seconds
-
-const ACCENT_HEX: Record<string, string> = {
-  "weave": "#b9a8ff",
+const ACCENT: Record<string, string> = {
+  weave: "#b9a8ff",
   "orpheus-tts": "#a8e8ff",
   "smart-pathshala": "#dcb8ff",
-  "shetniyojan": "#00d4ff",
-  "legify": "#d9dfe9",
+  shetniyojan: "#7ee0a6",
+  warcast: "#ffb36b",
+  legify: "#9fc2ff",
 };
 
-const FALLBACK_IMAGES = Object.values(PROJECT_IMAGES);
-const FALLBACK_HEX = Object.values(ACCENT_HEX);
+/** Bento placement. The first tile is the tall hero of the grid. */
+const LAYOUT: Record<string, { span: string; hero?: boolean }> = {
+  weave: { span: "md:col-span-2 lg:col-span-7 lg:row-span-2", hero: true },
+  "orpheus-tts": { span: "lg:col-span-5" },
+  "smart-pathshala": { span: "lg:col-span-5" },
+  shetniyojan: { span: "lg:col-span-4" },
+  warcast: { span: "lg:col-span-4" },
+  legify: { span: "md:col-span-2 lg:col-span-4" },
+};
 
-function getPrimaryLink(links?: Record<string, string>): string | null {
-  if (!links) return null;
-  return links.github ?? links.model ?? links.demo ?? Object.values(links)[0] ?? null;
-}
-
-function ProjectImageGallery({
-  images,
-  alt,
-}: {
-  images: string[];
-  alt: string;
-}) {
-  if (images.length === 1) {
-    return (
-      <img
-        src={images[0]}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-        draggable={false}
-        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
-      />
-    );
-  }
+function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
+  const accent = ACCENT[project.id] ?? "#a8e8ff";
+  const layout = LAYOUT[project.id] ?? { span: "lg:col-span-4" };
+  const hero = !!layout.hero;
+  const github = project.links?.github;
+  const metrics = project.metrics.slice(0, hero ? 3 : 1);
 
   return (
-    <div className="grid w-full h-full grid-cols-2 grid-rows-2 gap-1">
-      {images.slice(0, 4).map((src, index) => (
-        <div key={src} className="relative overflow-hidden">
-          <img
-            src={src}
-            alt={`${alt} screenshot ${index + 1}`}
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ── Still image that plays a muted clip on hover ─────────── */
-function HoverVideoCard({
-  image,
-  src,
-  alt,
-  href,
-}: {
-  image: string;
-  src: string;
-  alt: string;
-  href?: string;
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-
-  const enter = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.currentTime = 0;
-    void v.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
-  };
-  const leave = () => {
-    const v = videoRef.current;
-    if (v) v.pause();
-    setPlaying(false);
-  };
-
-  return (
-    <div className="relative w-full h-full overflow-hidden" onMouseEnter={enter} onMouseLeave={leave}>
-      <img
-        src={image}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-        draggable={false}
-        className="w-full h-full object-cover"
-      />
-      <video
-        ref={videoRef}
-        src={src}
-        poster={image}
-        muted
-        loop
-        playsInline
-        preload="none"
-        aria-hidden
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 pointer-events-none"
-        style={{ opacity: playing ? 1 : 0 }}
-      />
-      {href && (
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-3 left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest transition-colors"
-          style={{
-            fontFamily: "var(--font-display), monospace",
-            background: "rgba(8,12,18,0.7)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            backdropFilter: "blur(6px)",
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>play_arrow</span>
-          Watch demo
-        </a>
-      )}
-    </div>
-  );
-}
-
-/* ── Video Card (isolated so it has its own ref + state) ───── */
-function VideoCard({
-  src,
-  accentColor,
-}: {
-  src: string;
-  accentColor: string;
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const { ref: viewRef, inView } = useInView<HTMLDivElement>();
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (inView && playing) {
-      void video.play().catch(() => setPlaying(false));
-    } else {
-      video.pause();
-    }
-  }, [inView, playing]);
-
-  // Loop within 0–10 s
-  const handleTimeUpdate = useCallback(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.currentTime >= VIDEO_CLIP_END) {
-      v.currentTime = 0;
-      if (playing) v.play();
-    }
-    setProgress((v.currentTime / VIDEO_CLIP_END) * 100);
-  }, [playing]);
-
-  const togglePlay = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.paused) {
-      v.play();
-      setPlaying(true);
-    } else {
-      v.pause();
-      setPlaying(false);
-    }
-  };
-
-  return (
-    <div ref={viewRef} className="relative w-full h-full">
-      <video
-        ref={videoRef}
-        src={src}
-        preload="none"
-        muted
-        playsInline
-        className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700"
-        onTimeUpdate={handleTimeUpdate}
-      />
-
-      {/* Gradient overlay */}
+    <article
+      id={`project-${project.id}`}
+      className={`group relative flex flex-col overflow-hidden rounded-[2rem] transition-all duration-300 hover:-translate-y-1 ${layout.span}`}
+      style={{
+        background: "rgba(20,27,35,0.94)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+      }}
+    >
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(14,20,26,0.9))" }}
-      />
-
-      {/* Play / pause button */}
-      <button
-        onClick={togglePlay}
-        className="absolute bottom-3 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 z-10"
-        style={{
-          background: "rgba(0,0,0,0.82)",
-          border: `1px solid ${accentColor}50`,
-        }}
-        aria-label={playing ? "Pause" : "Play"}
+        className="relative shrink-0 cursor-pointer overflow-hidden"
+        style={{ height: hero ? 340 : 210 }}
+        onClick={onOpen}
       >
-        <span
-          className="material-symbols-outlined"
-          style={{ fontSize: "16px", color: accentColor }}
-        >
-          {playing ? "pause" : "play_arrow"}
-        </span>
-      </button>
-
-      {/* 10-second clip progress bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10">
-        <div
-          className="h-full transition-none"
-          style={{ width: `${progress}%`, background: accentColor }}
-        />
+        <ProjectCover project={project} />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16" style={{ background: "linear-gradient(to bottom, transparent, rgba(20,27,35,0.94))" }} />
+        <span className="pointer-events-none absolute left-5 top-4 h-2 w-2 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
+        {project.featured && (
+          <span
+            className="pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.18em]"
+            style={{ fontFamily: "var(--font-display), monospace", color: accent, background: "rgba(8,12,18,0.7)", border: `1px solid ${accent}40` }}
+          >
+            Featured
+          </span>
+        )}
       </div>
 
-      {/* Live demo badge */}
-      <span
-        className="absolute bottom-3 left-4 text-[9px] uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5 z-10"
-        style={{
-          fontFamily: "var(--font-display), monospace",
-          background: "rgba(0,0,0,0.78)",
-          color: accentColor,
-          border: `1px solid ${accentColor}40`,
-        }}
-      >
-        <span
-          className="w-1.5 h-1.5 rounded-full"
-          style={{
-            background: accentColor,
-            animation: playing ? "pulse 1.5s ease-in-out infinite" : "none",
-          }}
-        />
-        {playing ? "Live Demo" : "Paused"}
-      </span>
-    </div>
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-[10px] uppercase tracking-[0.2em]" style={{ fontFamily: "var(--font-display), monospace", color: accent }}>
+            {project.stack[0]}
+          </p>
+          <p className="text-[10px] uppercase tracking-[0.15em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
+            {project.period}
+          </p>
+        </div>
+
+        <h3 className={`mt-2 font-semibold text-text-strong ${hero ? "text-4xl" : "text-2xl"}`} style={{ fontFamily: "var(--font-display), monospace" }}>
+          {project.name}
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-text-soft">{project.tagline}</p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {project.stack.slice(0, hero ? 6 : 4).map((s) => (
+            <span key={s} className="rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.1em] text-text-soft" style={{ fontFamily: "var(--font-display), monospace", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              {s}
+            </span>
+          ))}
+          {project.stack.length > (hero ? 6 : 4) && (
+            <span className="px-1 py-1 text-[10px] text-text-muted">+{project.stack.length - (hero ? 6 : 4)}</span>
+          )}
+        </div>
+
+        <div className={`mt-5 grid gap-3 ${hero ? "grid-cols-3" : "grid-cols-1"}`}>
+          {metrics.map((m) => (
+            <div key={m.label} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <p className="text-xl font-semibold" style={{ fontFamily: "var(--font-display), monospace", color: accent }}>
+                {m.value}
+                {m.unit && <span className="ml-1 text-xs text-text-muted">{m.unit}</span>}
+              </p>
+              <p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-text-muted">{hero ? m.label : m.detail}</p>
+            </div>
+          ))}
+        </div>
+
+        {hero && (
+          <div className="mt-5">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
+              Design questions it answers
+            </p>
+            <ul className="mt-3 space-y-2">
+              {project.decisions.slice(0, 4).map((d) => (
+                <li key={d.question} className="text-sm leading-6 text-text-soft">
+                  <span className="mr-2" style={{ color: accent }}>›</span>
+                  {d.question}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {hero && (
+          <div className="mt-5">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
+              How it fits together
+            </p>
+            <div className="mt-3 h-[170px] rounded-2xl p-3" style={{ background: "rgba(8,12,18,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} compact className="h-full w-full" />
+            </div>
+          </div>
+        )}
+
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-6">
+          <button
+            type="button"
+            onClick={onOpen}
+            className="rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
+            style={{ fontFamily: "var(--font-display), monospace", background: `${accent}26`, border: `1px solid ${accent}55` }}
+          >
+            Details
+          </button>
+          <button
+            type="button"
+            onClick={() => explainProject(project.id)}
+            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-text-soft transition-colors hover:text-text-strong"
+            style={{ fontFamily: "var(--font-display), monospace", border: "1px solid rgba(255,255,255,0.12)" }}
+            aria-label={`Ask Wisp to explain ${project.name}`}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+              chat_bubble
+            </span>
+            Ask Wisp
+          </button>
+          {github ? (
+            <a
+              href={github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2 py-2 text-[10px] uppercase tracking-[0.15em] text-text-muted transition-colors hover:text-text-strong"
+              style={{ fontFamily: "var(--font-display), monospace" }}
+            >
+              GitHub ↗
+            </a>
+          ) : (
+            <span className="flex items-center gap-1 px-2 py-2 text-[10px] uppercase tracking-[0.15em] text-text-muted opacity-60" style={{ fontFamily: "var(--font-display), monospace" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>lock</span>
+              Private
+            </span>
+          )}
+          {project.id === "weave" && (
+            <button
+              type="button"
+              onClick={(e) => meetWisp(e.currentTarget)}
+              className="rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] transition-colors hover:brightness-125"
+              style={{ fontFamily: "var(--font-display), monospace", color: accent, border: `1px solid ${accent}55` }}
+            >
+              Meet Wisp
+            </button>
+          )}
+        </div>
+      </div>
+    </article>
   );
 }
 
-/* ── Main Projects section ─────────────────────────────────── */
 export function Projects() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const dotsRef = useRef<HTMLDivElement>(null);
-  const scrollUpdateFrame = useRef(0);
-  const activeIdx = useRef(0);
-
-  // Momentum scroll state
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollStart = useRef(0);
-  const lastX = useRef(0);
-  const lastTime = useRef(0);
-  const velocity = useRef(0);
-  const rafId = useRef<number | null>(null);
-
-  /* track scroll position */
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      if (scrollUpdateFrame.current) return;
-      scrollUpdateFrame.current = requestAnimationFrame(() => {
-        scrollUpdateFrame.current = 0;
-        const available = el.scrollWidth - el.clientWidth;
-        const pct = available > 0 ? (el.scrollLeft / available) * 100 : 0;
-        if (progressBarRef.current) progressBarRef.current.style.width = `${pct}%`;
-
-        const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-project-card='true']"));
-        if (!cards.length) return;
-
-        const scrollCenter = el.scrollLeft + el.clientWidth / 2;
-        let nearestIndex = 0;
-        let nearestDistance = Number.POSITIVE_INFINITY;
-
-        cards.forEach((card, index) => {
-          const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-          const distance = Math.abs(cardCenter - scrollCenter);
-          if (distance < nearestDistance) {
-            nearestDistance = distance;
-            nearestIndex = index;
-          }
-        });
-
-        if (activeIdx.current === nearestIndex) return;
-
-        const previousCard = cards[activeIdx.current];
-        const activeCard = cards[nearestIndex];
-        if (previousCard) {
-          previousCard.style.borderColor = "rgba(255,255,255,0.06)";
-          previousCard.style.boxShadow = "none";
-          previousCard.style.transform = "translateY(0)";
-        }
-        if (activeCard) {
-          const accent = activeCard.dataset.accent ?? "#a8e8ff";
-          activeCard.style.borderColor = `${accent}45`;
-          activeCard.style.boxShadow = `0 0 24px ${accent}14`;
-          activeCard.style.transform = "translateY(-4px)";
-        }
-        dotsRef.current?.querySelectorAll<HTMLButtonElement>("[data-project-index]").forEach((dot, index) => {
-          const color = dot.dataset.color ?? "#a8e8ff";
-          const selected = index === nearestIndex;
-          dot.style.width = selected ? "28px" : "8px";
-          dot.style.background = selected ? color : "rgba(255,255,255,0.15)";
-          dot.style.boxShadow = selected ? `0 0 10px ${color}` : "none";
-        });
-        activeIdx.current = nearestIndex;
-      });
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      if (scrollUpdateFrame.current) cancelAnimationFrame(scrollUpdateFrame.current);
-    };
-  }, []);
-
-  /* Cancel any running momentum animation */
-  const cancelMomentum = () => {
-    if (rafId.current) {
-      cancelAnimationFrame(rafId.current);
-      rafId.current = null;
-    }
-  };
-
-  const applyMomentum = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    velocity.current *= 0.92; // friction
-    if (Math.abs(velocity.current) < 0.5) {
-      velocity.current = 0;
-      return;
-    }
-    el.scrollLeft += velocity.current;
-    rafId.current = requestAnimationFrame(applyMomentum);
-  }, []);
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).closest("button, a, video")) return;
-    cancelMomentum();
-    isDragging.current = true;
-    startX.current = e.pageX;
-    scrollStart.current = scrollRef.current?.scrollLeft ?? 0;
-    lastX.current = e.pageX;
-    lastTime.current = Date.now();
-    velocity.current = 0;
-    const track = e.currentTarget as HTMLDivElement;
-    track.style.userSelect = "none";
-    track.style.cursor = "grabbing";
-    track.setPointerCapture(e.pointerId);
-  };
-
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!isDragging.current || !scrollRef.current) return;
-    const dx = e.pageX - startX.current;
-    scrollRef.current.scrollLeft = scrollStart.current - dx;
-
-    // track velocity
-    const now = Date.now();
-    const dt = now - lastTime.current || 1;
-    velocity.current = ((lastX.current - e.pageX) / dt) * 16;
-    lastX.current = e.pageX;
-    lastTime.current = now;
-  };
-
-  const onPointerUp = (e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    const track = e.currentTarget as HTMLDivElement;
-    track.style.userSelect = "";
-    track.style.cursor = "grab";
-    // kick off momentum
-    if (Math.abs(velocity.current) > 1) {
-      rafId.current = requestAnimationFrame(applyMomentum);
-    }
-  };
-
-  const scrollToCard = (idx: number) => {
-    cancelMomentum();
-    const el = scrollRef.current;
-    if (!el) return;
-    const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-project-card='true']"));
-    cards[idx]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
-  };
+  const [openId, setOpenId] = useState<string | null>(null);
+  const close = useCallback(() => setOpenId(null), []);
+  const open = projects.find((p) => p.id === openId) ?? null;
 
   return (
-    <section id="projects" className="relative z-10 pt-28 pb-16">
-      {/* Section header */}
-      <div className="px-8 md:px-20 mb-10 flex flex-col md:flex-row md:items-end gap-4">
+    <section id="projects" className="relative z-10 px-8 pb-20 pt-28 md:px-20">
+      <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end">
         <div>
-          <p
-            className="text-[10px] text-neural-cyan uppercase tracking-[0.2em] mb-2"
-            style={{ fontFamily: "var(--font-display), monospace" }}
-          >
+          <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-neural-cyan" style={{ fontFamily: "var(--font-display), monospace" }}>
             Manifest_v{projects.length}.0
           </p>
-          <h2
-            className="text-7xl md:text-8xl font-bold tracking-tighter leading-none"
-            style={{ fontFamily: "var(--font-display), monospace" }}
-          >
+          <h2 className="text-7xl font-bold leading-none tracking-tighter md:text-8xl" style={{ fontFamily: "var(--font-display), monospace" }}>
             THE{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#a8e8ff] to-[#dcb8ff]">
-              FORGE
-            </span>
+            <span className="bg-gradient-to-br from-[#a8e8ff] to-[#dcb8ff] bg-clip-text text-transparent">FORGE</span>
           </h2>
         </div>
-        <p className="md:ml-auto md:text-right max-w-xs text-text-soft text-sm leading-relaxed">
-          Incubating neural architectures and decentralized systems. A gallery of
-          synthetic intelligence.
+        <p className="max-w-xs text-sm leading-relaxed text-text-soft md:ml-auto md:text-right">
+          Six projects, from voice models to company memory. Open any tile for its architecture and design decisions, or ask Wisp to explain it.
         </p>
       </div>
 
-      {/* Scrollable strip */}
-      <div
-        ref={scrollRef}
-        className="flex gap-6 px-8 md:px-20 pb-6"
-        style={{
-          overflowX: "auto",
-          overflowY: "visible",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-          cursor: isDragging.current ? "grabbing" : "grab",
-          WebkitOverflowScrolling: "touch",
-          willChange: "scroll-position",
-        }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-      >
-        <div className="flex-shrink-0 w-2" aria-hidden />
-
-        {projects.map((project, idx) => {
-          const img = PROJECT_IMAGES[project.id] ?? FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length];
-          const color = ACCENT_HEX[project.id] ?? FALLBACK_HEX[idx % FALLBACK_HEX.length];
-          const primaryLink = getPrimaryLink(project.links);
-          const topMetric = project.metrics?.[0];
-          const isActive = activeIdx.current === idx;
-          const videoSrc = PROJECT_VIDEOS[project.id];
-          const isWaveform = PROJECT_WAVEFORM.has(project.id);
-          const galleryImages = project.images?.length ? project.images : [img];
-
-          return (
-            <div
-              key={project.id}
-              data-project-card="true"
-              data-accent={color}
-              className="group flex-shrink-0 transition-all duration-300"
-              style={{
-                width: "min(80vw, 680px)",
-                borderRadius: "2.5rem",
-                background: "rgba(20, 27, 35, 0.94)",
-                border: `1px solid ${isActive ? color + "45" : "rgba(255,255,255,0.06)"}`,
-                boxShadow: isActive ? `0 0 24px ${color}14` : "none",
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-                transform: isActive ? "translateY(-4px)" : "translateY(0)",
-                transition: "transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
-              }}
-            >
-              {/* Media panel */}
-              <div className="relative flex-shrink-0 overflow-hidden" style={{ height: PROJECT_HOVER_VIDEOS[project.id] ? "280px" : "220px" }}>
-                {isWaveform ? (
-                  <div className="w-full h-full" style={{ background: "rgba(8,12,18,0.8)" }}>
-                    <OrpheusWaveform />
-                  </div>
-                ) : videoSrc ? (
-                  <VideoCard src={videoSrc} accentColor={color} />
-                ) : PROJECT_HOVER_VIDEOS[project.id] && project.images?.length ? (
-                  <HoverVideoCard
-                    image={project.images[0]}
-                    src={PROJECT_HOVER_VIDEOS[project.id]}
-                    alt={project.name}
-                    href={project.links?.video}
-                  />
-                ) : project.images?.length ? (
-                  <ProjectImageGallery images={project.images} alt={project.name} />
-                ) : (
-                  <ProjectImageGallery images={galleryImages} alt={project.name} />
-                )}
-
-                {!(isWaveform || videoSrc || PROJECT_HOVER_VIDEOS[project.id]) && (
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(14,20,26,0.9))" }}
-                  />
-                )}
-
-                {/* Accent dot */}
-                <div
-                  className="absolute top-4 left-5 w-2 h-2 rounded-full"
-                  style={{ background: color, boxShadow: `0 0 8px ${color}` }}
-                />
-
-                {project.featured && (
-                  <span
-                    className="absolute top-3 right-4 text-[9px] uppercase tracking-widest px-3 py-1 rounded-full"
-                    style={{
-                      fontFamily: "var(--font-display), monospace",
-                      background: `${color}20`,
-                      color,
-                      border: `1px solid ${color}40`,
-                    }}
-                  >
-                    Featured
-                  </span>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex flex-col flex-1 p-7">
-                <div className="flex items-center justify-between mb-3">
-                  <span
-                    className="text-[10px] uppercase tracking-widest"
-                    style={{ fontFamily: "var(--font-display), monospace", color }}
-                  >
-                    {project.stack[0]}
-                  </span>
-                  <span
-                    className="text-[10px] text-text-muted"
-                    style={{ fontFamily: "var(--font-display), monospace" }}
-                  >
-                    {project.period.slice(0, 4)}
-                  </span>
-                </div>
-
-                <h3
-                  className="text-2xl font-bold mb-2 transition-colors duration-300"
-                  style={{
-                    fontFamily: "var(--font-display), monospace",
-                    color: isActive ? color : undefined,
-                  }}
-                >
-                  {project.name}
-                </h3>
-                <p className="text-sm text-text-soft leading-relaxed mb-4 line-clamp-2">
-                  {project.tagline}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mb-5">
-                  {project.stack.slice(0, 4).map((t) => (
-                    <span
-                      key={t}
-                      className="px-3 py-1 rounded-full text-[10px]"
-                      style={{
-                        fontFamily: "var(--font-display), monospace",
-                        background: `${color}0d`,
-                        border: `1px solid ${color}20`,
-                        color: "rgba(221,227,236,0.7)",
-                      }}
-                    >
-                      {t.toUpperCase()}
-                    </span>
-                  ))}
-                  {project.stack.length > 4 && (
-                    <span
-                      className="px-3 py-1 rounded-full text-[10px] text-text-muted"
-                      style={{ fontFamily: "var(--font-display), monospace" }}
-                    >
-                      +{project.stack.length - 4}
-                    </span>
-                  )}
-                </div>
-
-                {topMetric && (
-                  <div
-                    className="flex items-center gap-3 p-3 rounded-xl mb-5"
-                    style={{ background: `${color}0d`, border: `1px solid ${color}20` }}
-                  >
-                    <span
-                      className="text-xl font-bold"
-                      style={{ fontFamily: "var(--font-display), monospace", color }}
-                    >
-                      {topMetric.value}
-                      {topMetric.unit && (
-                        <span className="text-xs ml-1 opacity-70">{topMetric.unit}</span>
-                      )}
-                    </span>
-                    <span
-                      className="text-xs text-text-soft leading-snug"
-                      style={{ fontFamily: "var(--font-display), monospace" }}
-                    >
-                      {topMetric.detail}
-                    </span>
-                  </div>
-                )}
-
-                <div className="mt-auto flex items-center gap-3">
-                  {primaryLink ? (
-                    <a
-                      href={primaryLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all"
-                      style={{
-                        fontFamily: "var(--font-display), monospace",
-                        border: `1px solid ${color}40`,
-                        color,
-                        background: `${color}10`,
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.background = `${color}25`;
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.background = `${color}10`;
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-                        open_in_new
-                      </span>
-                      View Project
-                    </a>
-                  ) : (
-                    <span
-                      className="flex items-center gap-2 px-4 py-2 rounded-full text-[10px] uppercase tracking-widest opacity-40"
-                      style={{
-                        fontFamily: "var(--font-display), monospace",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-                        lock
-                      </span>
-                      Private
-                    </span>
-                  )}
-                  {project.links &&
-                    Object.entries(project.links).length > 1 &&
-                    Object.entries(project.links)
-                      .slice(1, 2)
-                      .map(([key, url]) => (
-                        <a
-                          key={key}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[10px] uppercase tracking-widest text-text-muted hover:text-neural-cyan transition-colors"
-                          style={{ fontFamily: "var(--font-display), monospace" }}
-                        >
-                          {key} ↗
-                        </a>
-                      ))}
-                  {project.id === "weave" && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        meetWisp(e.currentTarget);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest transition-colors hover:text-neural-violet"
-                      style={{
-                        fontFamily: "var(--font-display), monospace",
-                        border: "1px solid rgba(171,138,255,0.35)",
-                        color: "#b9a8ff",
-                      }}
-                    >
-                      Meet Wisp
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        <div className="flex-shrink-0 w-2" aria-hidden />
+      <div className="mx-auto grid max-w-[1400px] gap-5 md:grid-cols-2 lg:grid-cols-12">
+        {projects.map((p) => (
+          <Tile key={p.id} project={p} onOpen={() => setOpenId(p.id)} />
+        ))}
       </div>
 
-      {/* Controls */}
-      <div className="px-8 md:px-20 mt-5 flex items-center gap-5">
-        <div ref={dotsRef} className="flex gap-2">
-          {projects.map((p, i) => {
-            const color = ACCENT_HEX[p.id] ?? FALLBACK_HEX[i % FALLBACK_HEX.length];
-            return (
-              <button
-                key={p.id}
-                data-project-index={i}
-                data-color={color}
-                onClick={() => scrollToCard(i)}
-                className="rounded-full transition-all duration-300"
-                style={{
-                  width: activeIdx.current === i ? "28px" : "8px",
-                  height: "8px",
-                  background: activeIdx.current === i ? color : "rgba(255,255,255,0.15)",
-                  boxShadow: activeIdx.current === i ? `0 0 10px ${color}` : "none",
-                }}
-                aria-label={`Go to ${p.name}`}
-                suppressHydrationWarning
-              />
-            );
-          })}
-        </div>
-
-        <div className="flex-1 h-[2px] bg-white/5 rounded-full overflow-hidden">
-          <div
-            ref={progressBarRef}
-            className="h-full rounded-full"
-            style={{
-              width: "0%",
-              background: "linear-gradient(to right, #a8e8ff, #dcb8ff)",
-            }}
-          />
-        </div>
-
-        <span
-          className="text-[10px] text-text-muted whitespace-nowrap"
-          style={{ fontFamily: "var(--font-display), monospace" }}
-        >
-          {projects.length} projects
-        </span>
-      </div>
+      {open && <ProjectDetail project={open} accent={ACCENT[open.id] ?? "#a8e8ff"} onClose={close} />}
     </section>
   );
 }

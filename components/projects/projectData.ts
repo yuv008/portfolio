@@ -30,6 +30,12 @@ export interface JourneyPhase {
   content: string;
 }
 
+export type Cover =
+  | { kind: "hover-video"; image: string; video: string; watchHref?: string; fit?: "cover" | "contain" }
+  | { kind: "slides"; images: string[] }
+  | { kind: "waveform" }
+  | { kind: "diagram" };
+
 export interface Project {
   id: string;
   name: string;
@@ -38,7 +44,11 @@ export interface Project {
   stack: string[];
   period: string;
   links?: Record<string, string>;
-  images?: string[];
+  cover: Cover;
+  /** What the Wisp guide says when it explains this project (2 short sentences). */
+  petScript: string;
+  /** One short supporting fact shown under the script. */
+  petFact?: string;
   architecture: { nodes: ProjectNode[]; edges: ProjectEdge[] };
   decisions: Decision[];
   metrics: ProjectMetric[];
@@ -54,6 +64,16 @@ export const projects: Project[] = [
     featured: true,
     stack: ["FalkorDB", "Cypher", "Python", "FastAPI", "Postgres + pgvector", "MCP", "Groq", "Docker", "AWS ECS"],
     period: "October 2026",
+    cover: {
+      kind: "hover-video",
+      image: "/weave-hero.png",
+      video: "/weave-demo.mp4",
+      fit: "contain",
+      watchHref: "https://www.youtube.com/watch?v=psdbCkjoa38",
+    },
+    petScript:
+      "Weave is a company brain. It pulls Slack, Notion, Drive and GitHub into one knowledge graph, so every answer comes with its source and only shows what you're allowed to see.",
+    petFact: "7 connectors, 12 agent tools, 375 tests.",
     links: {
       github: "https://github.com/yuv008/Weave",
       demo: "https://we-9a1fc0e727ab4797bb20ad28efef5a43.ecs.ap-southeast-2.on.aws/",
@@ -61,7 +81,6 @@ export const projects: Project[] = [
       article:
         "https://medium.com/@atharvkulkarni005/weave-building-a-company-brain-on-falkordb-that-knows-whos-allowed-to-know-what-056559fd923b",
     },
-    images: ["/weave-hero.png"],
     architecture: {
       nodes: [
         { id: "sources", label: "Slack · Notion\nDrive · GitHub", type: "data", tooltip: "Plus Gmail, Calendar and HubSpot pollers" },
@@ -175,6 +194,10 @@ export const projects: Project[] = [
     featured: true,
     stack: ["Llama 3.2 3B", "LoRA", "Unsloth", "SNAC Codec", "llama.cpp", "GGUF", "FastAPI", "Lightning AI"],
     period: "March 2026",
+    cover: { kind: "waveform" },
+    petScript:
+      "Orpheus turns a language model into a voice. Yuvraj fine-tuned Llama 3.2 3B to predict audio tokens instead of text, then moved inference from CPU to a GPU for about 30 times the speed.",
+    petFact: "19 minutes of training on about 1,200 audio clips.",
     links: {
       github: "https://github.com/yuv008/Orpheus-tts",
       model: "https://huggingface.co/yuv008/orpheus-elise-merged",
@@ -314,6 +337,10 @@ export const projects: Project[] = [
     featured: true,
     stack: ["FastAPI", "React", "PostgreSQL", "Qdrant", "CrewAI"],
     period: "July 2025 – June 2026",
+    cover: { kind: "diagram" },
+    petScript:
+      "Smart Pathshala is an offline-first AI school platform for Tier-2 and Tier-3 India, with views for admins, teachers, parents and students. AI handles the calendar, exam generation and search.",
+    petFact: "Built to keep working without reliable internet.",
     architecture: {
       nodes: [
         { id: "client", label: "React Frontend", type: "frontend" },
@@ -365,6 +392,14 @@ export const projects: Project[] = [
     featured: false,
     stack: ["LLM", "Flask", "MongoDB"],
     period: "April 2025",
+    cover: {
+      kind: "hover-video",
+      image: "/covers/shetniyojan-home.webp",
+      video: "/covers/shetniyojan-loop.mp4",
+    },
+    petScript:
+      "ShetNiyojan helps farmers from planning to selling: crop recommendations, plant-disease detection and supply-chain routing in one app.",
+    petFact: "First place at Devclash 2025.",
     links: {
       github: "https://github.com/yuv008/ShetNiyojan",
     },
@@ -413,15 +448,21 @@ export const projects: Project[] = [
     featured: false,
     stack: ["Flask", "Python", "DistilBERT", "BART", "BeautifulSoup", "Newspaper3k"],
     period: "2025",
+    cover: {
+      kind: "slides",
+      images: [
+        "/covers/warcast-home.webp",
+        "/covers/warcast-search.webp",
+        "/covers/warcast-code.webp",
+        "/covers/warcast-dashboard.webp",
+      ],
+    },
+    petScript:
+      "WarCast collects defense news from 10+ sources, scores the sentiment with DistilBERT and writes short BART summaries, in several languages.",
+    petFact: "First prize at L&T NeuroHack.",
     links: {
       github: "https://github.com/GopalDose/WarCast",
     },
-    images: [
-      "/warcasthome.png",
-      "/warcastdashboard.png",
-      "/warcastsearch.png",
-      "/warcastcode.png",
-    ],
     architecture: {
       nodes: [
         { id: "sources", label: "10+ Defense Sources", type: "data" },
@@ -474,6 +515,13 @@ export const projects: Project[] = [
     featured: false,
     stack: ["BERTSum", "FAISS", "Django", "TTS/STT"],
     period: "March 2025",
+    cover: {
+      kind: "slides",
+      images: ["/covers/legify-home.webp", "/covers/legify-dashboard.webp"],
+    },
+    petScript:
+      "Legify turns dense legal documents into plain-language summaries, and lets you ask questions about them with voice in and out.",
+    petFact: "First place at Synapse 2.0.",
     links: {
       github: "https://github.com/yuv008/LegiFy",
     },
