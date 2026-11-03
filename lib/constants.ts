@@ -74,6 +74,7 @@ export const sectionIds = {
   hero: "hero",
   about: "about",
   projects: "projects",
+  wisp: "wisp",
   skills: "skills",
   experience: "experience",
   education: "education",
