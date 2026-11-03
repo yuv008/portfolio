@@ -307,19 +307,35 @@ export function StressTest() {
   const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            const i = Number((e.target as HTMLElement).dataset.step);
-            if (!Number.isNaN(i)) setActive(i);
-          }
-        });
-      },
-      { rootMargin: "-42% 0px -42% 0px", threshold: 0 },
-    );
-    refs.current.forEach((el) => el && obs.observe(el));
-    return () => obs.disconnect();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const mid = window.innerHeight / 2;
+      let best = 0;
+      let bestDist = Number.POSITIVE_INFINITY;
+      refs.current.forEach((li, i) => {
+        const text = li?.firstElementChild as HTMLElement | null;
+        if (!text) return;
+        const r = text.getBoundingClientRect();
+        const d = Math.abs((r.top + r.bottom) / 2 - mid);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      });
+      setActive(best);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   return (
@@ -360,13 +376,13 @@ export function StressTest() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           {/* Sticky stage (desktop) */}
           <div className="relative hidden lg:block">
-            <div className="sticky top-28 flex h-[520px] items-center">
-              <div className="relative w-full">
+            <div className="sticky h-[580px]" style={{ top: "max(6rem, calc(50vh - 290px))" }}>
+              <div className="relative h-full w-full">
                 {STEPS.map((s, i) => (
                   <div
                     key={s.id}
                     aria-hidden={i !== active}
-                    className={`transition-opacity duration-500 ${i === active ? "relative opacity-100" : "pointer-events-none absolute inset-x-0 top-0 opacity-0"}`}
+                    className={`absolute inset-0 flex flex-col justify-center transition-opacity duration-500 ${i === active ? "opacity-100" : "pointer-events-none opacity-0"}`}
                   >
                     {s.demo ? <AgentTestDemo /> : <StepImage step={s} playing={i === active} />}
                     {s.chips && (
@@ -394,7 +410,7 @@ export function StressTest() {
                   refs.current[i] = el;
                 }}
                 data-step={i}
-                className="lg:flex lg:min-h-[46vh] lg:items-center"
+                className="lg:flex lg:min-h-[36vh] lg:items-center"
               >
                 <div
                   className={`transition-opacity duration-300 ${i === active ? "lg:opacity-100" : "lg:opacity-45"}`}
