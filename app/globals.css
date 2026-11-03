@@ -161,3 +161,10 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(var(--neural-cyan), 0.48);
 }
+
+/* Wisp is currently explaining this element */
+[data-wisp-active="true"] {
+  outline: 2px solid rgba(171, 138, 255, 0.65);
+  outline-offset: 4px;
+  transition: outline-color 0.3s ease;
+}

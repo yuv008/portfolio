@@ -2,23 +2,34 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
-import { WISP_MEET_EVENT, type WispMeetDetail } from "@/lib/wisp";
+import { WISP_EXPLAIN_EVENT, WISP_MEET_EVENT, type WispMeetDetail } from "@/lib/wisp";
+import { projects } from "@/components/projects/projectData";
 
 /* ── Tour content (grounded in what each section shows) ─────── */
 
-type Stop = { id: string; label: string; tip: string; fact?: string; dock?: "top-right" };
+type Stop = { id: string; label: string; tip: string; fact?: string; project?: boolean };
 
-const STOPS: Stop[] = [
+const BASE_STOPS: Stop[] = [
   { id: "hero", label: "Home", tip: "This is Yuvraj, an AI R&D engineer who builds voice-agent systems, evaluation platforms and AI infrastructure." },
   { id: "about", label: "About", tip: "Three things he has built: real-time voice pipelines, hybrid vector search, and fine-tuned models.", fact: "Response time cut from 3 seconds to 1.2 seconds." },
   { id: "pipeline", label: "Pipeline", tip: "An interactive scroll through six chapters. Keep scrolling inside it to move from step to step." },
   { id: "experience", label: "Experience", tip: "Four roles: AI R&D Engineer and AI intern at VoiceraCX, plus internships at DAOStreet and Alesa AI Ltd, UK." },
   { id: "education", label: "Education", tip: "B.E. in Computer Engineering with Honors in Data Science at Pune Institute of Computer Technology." },
-  { id: "projects", label: "Projects", dock: "top-right", tip: "Weave, Orpheus TTS, Smart Pathshala, ShetNiyojan, WarCast and Legify. Hover the Weave card to see the demo.", fact: "Scroll sideways to browse them all." },
+  { id: "projects", label: "Projects", tip: "Weave, Orpheus TTS, Smart Pathshala, ShetNiyojan, WarCast and Legify. Hover the Weave card to see the demo.", fact: "Scroll sideways to browse them all." },
   { id: "skills", label: "Skills", tip: "A map of the stack: Python, PyTorch, LiveKit, Qdrant, FastAPI, Kubernetes and more." },
   { id: "achievements", label: "Achievements", tip: "Three first prizes at hackathons: Devclash 2025, Synapse 2.0 and L&T NeuroHack." },
   { id: "contact", label: "Contact", tip: "Last stop. Send a message from the terminal, or use one of the social links." },
 ];
+
+/** Section stops, with one stop per project tile right after the Projects intro. */
+const STOPS: Stop[] = BASE_STOPS.flatMap((stop) =>
+  stop.id === "projects"
+    ? [
+        { ...stop, tip: "Six projects in a bento grid. Tap any tile for its architecture and design decisions, or press Ask Wisp on a tile and I'll explain it." },
+        ...projects.map((p) => ({ id: `project-${p.id}`, label: p.name, tip: p.petScript, fact: p.petFact, project: true })),
+      ]
+    : [stop],
+);
 
 const MEET = {
   tip: "Hi, I'm Wisp! I'm the desktop companion from Weave. On a real desktop I follow your caret and fill in @bubble blanks from company memory. Here, I can walk you through the site.",
@@ -47,7 +58,9 @@ const reducedMotion = () =>
 export function WispGuide() {
   const items = useMemo(() => STOPS.map((s) => ({ id: s.id })), []);
   const activeId = useScrollSpy(items);
-  const stopIdx = Math.max(0, STOPS.findIndex((s) => s.id === activeId));
+  const spyIdx = Math.max(0, STOPS.findIndex((s) => s.id === activeId));
+  const [override, setOverride] = useState<number | null>(null); // set when a tile's "Ask Wisp" is pressed
+  const stopIdx = override ?? spyIdx;
   const stop = STOPS[stopIdx];
 
   const wrap = useRef<HTMLDivElement>(null);
@@ -59,6 +72,8 @@ export function WispGuide() {
   const flight = useRef<Animation | null>(null);
   const timers = useRef<number[]>([]);
   const seen = useRef(false);
+  const goToRef = useRef<(idx: number, scroll: boolean, openBubble: boolean) => void>(() => undefined);
+  const navUntil = useRef(0); // ignore scroll-spy changes while we are scrolling on purpose
 
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState<Mode>("greeting");
@@ -75,12 +90,15 @@ export function WispGuide() {
     const { w, h } = size.current;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    if (STOPS[idx]?.dock === "top-right" && vw >= 1024) {
-      // Sections whose content fills the screen: perch in the empty gap beside the heading.
-      return { x: Math.round(vw * 0.52 - w / 2), y: 104, right: false };
+    const leftEdge = vw >= 1280 ? 116 : 16; // clear of the side nav on wide screens
+    const el = STOPS[idx]?.project ? document.getElementById(STOPS[idx].id) : null;
+    if (el && vw >= 768) {
+      // Explaining a tile: stand at the viewport edge on the opposite side of it.
+      const r = el.getBoundingClientRect();
+      const right = r.left + r.width / 2 < vw / 2;
+      return { x: right ? vw - w - 16 : leftEdge, y: vh - h - 20, right };
     }
     const right = idx % 2 === 0;
-    const leftEdge = vw >= 1280 ? 116 : 16; // clear of the side nav on wide screens
     return { x: right ? vw - w - 16 : leftEdge, y: vh - h - 20, right };
   }, []);
 
@@ -167,7 +185,9 @@ export function WispGuide() {
   /* Roam: follow the active section. */
   useEffect(() => {
     if (!ready || pos.current.x === -9999) return;
-    const r = restPos(stopIdx);
+    if (Date.now() < navUntil.current) return;
+    setOverride(null);
+    const r = restPos(spyIdx);
     flyTo(r.x, r.y);
     if (mode === "greeting") {
       setMode("free");
@@ -180,6 +200,28 @@ export function WispGuide() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId]);
+
+  /* Outline the tile Wisp is currently explaining. */
+  useEffect(() => {
+    const st = STOPS[stopIdx];
+    if (!st?.project || bubble !== "tip") return;
+    const el = document.getElementById(st.id);
+    el?.setAttribute("data-wisp-active", "true");
+    return () => el?.removeAttribute("data-wisp-active");
+  }, [stopIdx, bubble]);
+
+  /* An "Ask Wisp" button on a project tile: fly over and explain that project. */
+  useEffect(() => {
+    const onExplain = (e: Event) => {
+      const id = (e as CustomEvent<{ id: string }>).detail?.id;
+      const idx = STOPS.findIndex((st) => st.id === `project-${id}`);
+      if (idx < 0 || pos.current.x === -9999) return;
+      setMode("free");
+      goToRef.current(idx, false, true);
+    };
+    window.addEventListener(WISP_EXPLAIN_EVENT, onExplain);
+    return () => window.removeEventListener(WISP_EXPLAIN_EVENT, onExplain);
+  }, []);
 
   /* The "Meet Wisp" button: fly to it, wiggle, introduce. */
   useEffect(() => {
@@ -234,8 +276,32 @@ export function WispGuide() {
   };
 
   const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
+    const isTile = STOPS.find((st) => st.id === id)?.project;
+    document
+      .getElementById(id)
+      ?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: isTile ? "center" : "start" });
   };
+
+  /* Go to an exact stop: scroll there, fly the pet over, then explain it (when touring). */
+  const goTo = (idx: number, scroll: boolean, openBubble: boolean) => {
+    const target = STOPS[idx];
+    if (!target) return;
+    navUntil.current = Date.now() + (scroll ? 2000 : 1300);
+    setOverride(idx);
+    setBubble(null);
+    win()?.weaveSuggestClose?.();
+    if (scroll) scrollTo(target.id);
+    later(
+      () => {
+        const r = restPos(idx);
+        flyTo(r.x, r.y);
+      },
+      scroll && !reducedMotion() ? 800 : 0,
+    );
+    if (openBubble) later(() => setBubble("tip"), scroll && !reducedMotion() ? 1800 : 1000);
+  };
+
+  goToRef.current = goTo;
 
   const startTour = () => {
     markSeen();
@@ -255,14 +321,8 @@ export function WispGuide() {
   };
 
   const next = () => {
-    win()?.weaveSuggestClose?.();
-    if (stopIdx >= STOPS.length - 1) {
-      setBubble(null);
-      scrollTo(STOPS[0].id);
-      return;
-    }
-    setBubble(null);
-    scrollTo(STOPS[stopIdx + 1].id);
+    // Step from the stop being explained, even if it was opened with "Ask Wisp".
+    goTo(stopIdx >= STOPS.length - 1 ? 0 : stopIdx + 1, true, true);
   };
 
   /* Clicking the pet opens the tip for the section you are on. */
@@ -291,7 +351,7 @@ export function WispGuide() {
       ? { tip: "Hi, I'm Wisp! Want a quick tour of the portfolio?", fact: undefined, source: "Wisp · guide" }
       : bubble === "meet"
         ? { tip: MEET.tip, fact: MEET.fact, source: "Weave · desktop pet" }
-        : { tip: stop.tip, fact: stop.fact, source: `Stop ${stopIdx + 1} of ${STOPS.length} · ${stop.label}` };
+        : { tip: stop.tip, fact: stop.fact, source: `Stop ${stopIdx + 1} of ${STOPS.length} · ${stop.project ? "Projects · " : ""}${stop.label}` };
 
   const primary =
     bubble === "greeting" || bubble === "meet"

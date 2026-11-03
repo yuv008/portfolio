@@ -11,3 +11,11 @@ export function meetWisp(el?: Element | null) {
     : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
   window.dispatchEvent(new CustomEvent<WispMeetDetail>(WISP_MEET_EVENT, { detail }));
 }
+
+/** Ask the guide to explain one project (by its id in projectData). */
+export const WISP_EXPLAIN_EVENT = "wisp:explain";
+
+export function explainProject(id: string) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent<{ id: string }>(WISP_EXPLAIN_EVENT, { detail: { id } }));
+}
