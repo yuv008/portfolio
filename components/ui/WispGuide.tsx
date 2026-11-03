@@ -38,8 +38,8 @@ const MEET = {
 const STORAGE_KEY = "wisp-guide";
 const COMPANIONS = 6;
 
-type Bubble = "greeting" | "tip" | "meet" | null;
-type Mode = "greeting" | "tour" | "free";
+type Bubble = "tip" | "meet" | null;
+type Mode = "initial" | "tour" | "free";
 
 type WispWin = Window & {
   weaveLook?: (gx: number, gy: number) => void;
@@ -72,11 +72,14 @@ export function WispGuide() {
   const timers = useRef<number[]>([]);
   const seen = useRef(false);
   const goToRef = useRef<(idx: number, scroll: boolean, openBubble: boolean) => void>(() => undefined);
+  const markSeenRef = useRef<() => void>(() => undefined);
   const navUntil = useRef(0); // ignore scroll-spy changes while we are scrolling on purpose
 
   const [ready, setReady] = useState(false);
-  const [mode, setMode] = useState<Mode>("greeting");
+  const [mode, setMode] = useState<Mode>("initial");
   const [bubble, setBubble] = useState<Bubble>(null);
+  const [chip, setChip] = useState(false); // small first-visit "Take the tour" hint, never a popup
+  const chipCleanup = useRef<(() => void) | null>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [bubblePos, setBubblePos] = useState<{ left: number; top: number; maxH?: number } | null>(null);
 
@@ -197,6 +200,7 @@ export function WispGuide() {
     return () => {
       t.forEach((id) => window.clearTimeout(id));
       flight.current?.cancel();
+      chipCleanup.current?.();
     };
   }, []);
 
@@ -205,8 +209,28 @@ export function WispGuide() {
     lastRight.current = r.right ? 1 : 0;
     pos.current = { x: -9999, y: -9999 };
     flyTo(r.x, r.y, false);
-    if (!seen.current) later(() => setBubble("greeting"), 1400);
-    else later(() => win()?.weaveSuggest?.({ summary: "tip" }), 1400);
+    later(() => win()?.weaveSuggest?.({ summary: "tip" }), 1400);
+    // First visit on a desktop-class screen: hint once after the first scroll or 5 s, then never again.
+    const wide = window.innerWidth >= 768 && window.matchMedia("(pointer: fine)").matches;
+    if (!seen.current && wide) {
+      let shown = false;
+      const show = () => {
+        if (shown) return;
+        shown = true;
+        window.removeEventListener("scroll", onScroll);
+        setChip(true);
+        later(() => {
+          setChip(false);
+          markSeenRef.current();
+        }, 7000);
+      };
+      const onScroll = () => {
+        if (window.scrollY > 240) show();
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
+      chipCleanup.current = () => window.removeEventListener("scroll", onScroll);
+      later(show, 5000);
+    }
   };
 
   /* Keep the pet parked correctly on resize. */
@@ -228,9 +252,8 @@ export function WispGuide() {
     setOverride(null);
     const r = restPos(spyIdx);
     flyTo(r.x, r.y);
-    if (mode === "greeting") {
+    if (mode === "initial") {
       setMode("free");
-      setBubble(null);
     } else if (mode === "tour") {
       later(() => setBubble("tip"), 1000);
     } else {
@@ -326,6 +349,7 @@ export function WispGuide() {
     }
     seen.current = true;
   };
+  markSeenRef.current = markSeen;
 
   const scrollTo = (id: string) => {
     const isTile = STOPS.find((st) => st.id === id)?.project;
@@ -356,14 +380,11 @@ export function WispGuide() {
   goToRef.current = goTo;
 
   const startTour = () => {
+    setChip(false);
     markSeen();
     win()?.weaveSuggestClose?.();
     setMode("tour");
-    if (stopIdx === 0 || bubble === "greeting") {
-      setBubble("tip");
-    } else {
-      setBubble("tip");
-    }
+    setBubble("tip");
   };
 
   const endTour = () => {
@@ -399,19 +420,17 @@ export function WispGuide() {
 
   const isLast = stopIdx >= STOPS.length - 1;
   const content =
-    bubble === "greeting"
-      ? { tip: "Hi, I'm Wisp! Want a quick tour of the portfolio?", fact: undefined, source: "Wisp · guide" }
-      : bubble === "meet"
-        ? { tip: MEET.tip, fact: MEET.fact, source: "Weave · desktop pet" }
-        : { tip: stop.tip, fact: stop.fact, source: `Stop ${stopIdx + 1} of ${STOPS.length} · ${stop.project ? "Projects · " : ""}${stop.label}` };
+    bubble === "meet"
+      ? { tip: MEET.tip, fact: MEET.fact, source: "Weave · desktop pet" }
+      : { tip: stop.tip, fact: stop.fact, source: `Stop ${stopIdx + 1} of ${STOPS.length} · ${stop.project ? "Projects · " : ""}${stop.label}` };
 
   const primary =
-    bubble === "greeting" || bubble === "meet"
+    bubble === "meet"
       ? { label: "Start tour", run: startTour }
       : { label: isLast ? "Back to top" : "Next stop", run: next };
   const secondary =
-    bubble === "greeting" || bubble === "meet"
-      ? { label: bubble === "meet" ? "Thanks" : "No thanks", run: endTour }
+    bubble === "meet"
+      ? { label: "Thanks", run: endTour }
       : { label: mode === "tour" ? "End tour" : "Close", run: endTour };
 
   return (
@@ -457,6 +476,17 @@ export function WispGuide() {
         className="absolute inset-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-neural-violet"
         style={{ pointerEvents: "auto", background: "transparent", cursor: "pointer" }}
       />
+
+      {chip && !bubble && (
+        <button
+          type="button"
+          onClick={startTour}
+          className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 font-body text-[12px] font-semibold text-text-strong shadow-[0_10px_30px_-10px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-xl transition-colors hover:bg-white/20"
+          style={{ pointerEvents: "auto" }}
+        >
+          Take the tour
+        </button>
+      )}
 
       {bubble && (
         <div
