@@ -63,12 +63,27 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
         </button>
 
         <div className="overflow-y-auto">
-          <div className="relative h-[200px] w-full md:h-[260px]">
-            <ProjectCover project={project} />
-            <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 45%, rgba(16,22,30,0.98))" }} />
+          {/* The cover sits in a framed black screen and is clipped to it, so zooming slideshows can never spill over the text below. */}
+          <div className="p-2.5 pb-0">
+            <div className="tile-media relative h-[220px] p-2 md:h-[340px]">
+              <div className="relative h-full w-full overflow-hidden rounded-[0.8rem]">
+                {project.cover.kind === "hover-video" && project.cover.fullVideo ? (
+                  <video
+                    src={project.cover.fullVideo}
+                    poster={project.cover.image}
+                    controls
+                    playsInline
+                    preload="none"
+                    className="h-full w-full bg-black object-contain"
+                  />
+                ) : (
+                  <ProjectCover project={project} />
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="px-6 pb-8 md:px-10">
+          <div className="px-6 pb-8 pt-7 md:px-10">
             <p className="font-display text-[10px] uppercase tracking-[0.2em]" style={{ color: accent }}>
               {project.period}
             </p>

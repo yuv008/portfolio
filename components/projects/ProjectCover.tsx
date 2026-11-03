@@ -67,7 +67,7 @@ function Slides({ images, alt }: { images: string[]; alt: string }) {
   }, [visible, images.length]);
 
   return (
-    <div ref={root} className="absolute inset-0">
+    <div ref={root} className="absolute inset-0 overflow-hidden">
       {images.map((src, n) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img
