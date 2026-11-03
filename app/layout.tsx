@@ -23,12 +23,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://yuvrajms.tech"),
   title: "Yuvraj Sanghai — AI R&D Engineer",
   description:
-    "AI R&D Engineer building voice-agent systems, evaluation platforms, and production AI infrastructure.",
+    "AI R&D Engineer building VEE Legion, a QA platform for voice and chat AI agents, plus voice-agent systems and production AI infrastructure.",
   openGraph: {
     title: "Yuvraj Sanghai",
-    description: "AI R&D Engineer building voice-agent systems and production AI infrastructure.",
+    description: "AI R&D Engineer building VEE Legion, a QA platform for voice and chat AI agents.",
     url: "https://yuvrajms.tech",
     siteName: "Yuvraj Sanghai",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
@@ -38,6 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Yuvraj Sanghai",
     description: "I build the systems behind the intelligence.",
+    images: ["/og-image.png"],
   },
 };
 

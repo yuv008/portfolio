@@ -83,6 +83,7 @@ export const sectionIds = {
 
 export const navLinks = [
   { id: "nodes", label: "Nodes", href: `#${sectionIds.about}`, spyIds: [sectionIds.hero, sectionIds.about] },
+  { id: "legion", label: "Legion", href: "#stress-test", spyIds: ["stress-test"] },
   { id: "matrix", label: "Matrix", href: `#${sectionIds.skills}`, spyIds: [sectionIds.projects, sectionIds.skills] },
   {
     id: "history",

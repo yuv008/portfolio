@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { VideoLightbox } from "@/components/ui/VideoLightbox";
+
 
 interface ExperienceItem {
   id: string;
@@ -11,26 +14,37 @@ interface ExperienceItem {
   metrics: { label: string; value: string }[];
   color: string;
   icon: string;
+  /** Optional launch video and site for a product worked on in this role. */
+  product?: { name: string; video: string; poster: string; site: string };
 }
 
 const experiences: ExperienceItem[] = [
   {
     id: "voiceracx",
     company: "VoiceraCX",
-    role: "AI R&D Engineer",
+    role: "AI R&D Engineer · VEE Legion",
     period: "June 2026 — Present",
-    description: "Building a production voice-agent simulation and evaluation platform for concurrent Twilio and LiveKit calls.",
+    description:
+      "Building VEE Legion, an independent QA platform that tests voice and chat AI agents with simulated callers, automated scoring and red-team attacks. Details in the section above.",
     bullets: [
-      "Engineered scenario-driven callers to test unmodified voice agents with automated evaluation and per-turn voice telemetry.",
-      "Built concurrency ramping and slot-based orchestration in Go; verified 200 concurrent calls with 0 transport errors.",
-      "Implemented WER/CER, latency, tool-call, PII, and keyword checks alongside LLM-as-a-judge; excluded failed judge runs from pass-rate calculations.",
+      "Defined the product scope and engineered VEE Legion, a production platform that tests unmodified voice and chat agents with scenario-driven callers across VEE, Twilio, Retell, Vapi and Synthflow.",
+      "Built Go-based concurrency ramping and slot-based orchestration over Twilio and LiveKit; validated 200 concurrent calls with zero transport errors through controlled load testing.",
+      "Developed automated evaluation across WER/CER, latency, tool calls, PII, scenario checks and LLM-as-a-judge, with safeguards against failed judge executions skewing pass rates.",
+      "Added red-team callers (prompt injection, jailbreaks), turn-level failure analysis, and real-call import so production calls are scored with the same checks.",
     ],
     metrics: [
       { label: "Calls verified", value: "200" },
       { label: "Transport errors", value: "0" },
+      { label: "Platforms tested", value: "5" },
     ],
     color: "#a8e8ff",
     icon: "sensors",
+    product: {
+      name: "VEE Legion",
+      video: "/legion/legion-promo.mp4",
+      poster: "/legion/legion-poster.webp",
+      site: "https://legion.voiceracx.ai",
+    },
   },
   {
     id: "voiceracx-intern",
@@ -85,6 +99,39 @@ const experiences: ExperienceItem[] = [
     icon: "psychology",
   },
 ];
+
+function ProductLinks({ product, color }: { product: NonNullable<ExperienceItem["product"]>; color: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-5 flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="group/video relative flex items-center gap-3 overflow-hidden rounded-2xl pr-4 transition-all hover:brightness-110"
+        style={{ border: `1px solid ${color}40`, background: `${color}0d` }}
+        aria-label={`Watch the ${product.name} launch video`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={product.poster} alt="" loading="lazy" decoding="async" className="h-14 w-24 object-cover" />
+        <span className="flex items-center gap-1.5 font-label text-[10px] uppercase tracking-widest" style={{ color }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+            play_arrow
+          </span>
+          Watch launch video
+        </span>
+      </button>
+      <a
+        href={product.site}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-label text-[10px] uppercase tracking-widest text-slate-400 transition-colors hover:text-on-surface"
+      >
+        legion.voiceracx.ai ↗
+      </a>
+      {open && <VideoLightbox src={product.video} poster={product.poster} title={`${product.name} launch video`} onClose={() => setOpen(false)} />}
+    </div>
+  );
+}
 
 export function Experience() {
   return (
@@ -188,6 +235,8 @@ export function Experience() {
                       </div>
                     ))}
                   </div>
+
+                  {exp.product && <ProductLinks product={exp.product} color={exp.color} />}
                 </div>
 
                 {/* ── Right: process bullets ── */}

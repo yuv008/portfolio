@@ -18,8 +18,9 @@ export function Hero() {
 
       {/* ── Left: Text content ── */}
       <div className="relative w-full md:w-1/2 z-10">
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-8"
+        <div className="mb-8 flex flex-wrap items-center gap-3">
+          <div
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full"
           style={{
             background: "rgba(110,231,255,0.08)",
             border: "1px solid rgba(110,231,255,0.2)",
@@ -32,6 +33,19 @@ export function Hero() {
           >
             AI R&D Engineer
           </span>
+        </div>
+        <a
+          href="#stress-test"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full transition-colors hover:brightness-125"
+          style={{ background: "rgba(171,138,255,0.08)", border: "1px solid rgba(171,138,255,0.25)" }}
+        >
+          <span
+            className="text-[10px] uppercase tracking-[0.2em]"
+            style={{ fontFamily: "var(--font-display), monospace", color: "#ab8aff" }}
+          >
+            Now building · VEE Legion ↗
+          </span>
+        </a>
         </div>
 
         <h1
@@ -49,7 +63,7 @@ export function Hero() {
         </h1>
 
         <p className="text-xl text-text-soft max-w-lg mb-12 leading-relaxed">
-          I build production voice-agent systems, evaluation platforms, and AI infrastructure—from real-time pipelines to fine-tuned models.
+          I build production voice-agent systems and evaluation platforms like VEE Legion, plus the AI infrastructure behind them, from real-time pipelines to fine-tuned models.
         </p>
 
         <div className="flex flex-wrap gap-4">
@@ -70,6 +84,18 @@ export function Hero() {
           >
             <span className="relative z-10">Initiate_Sequence</span>
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform" />
+          </a>
+          <a
+            href="#stress-test"
+            className="px-8 py-4 rounded-full tracking-widest transition-all active:scale-95"
+            style={{
+              fontFamily: "var(--font-display), monospace",
+              border: "1px solid rgba(110,231,200,0.4)",
+              color: "#6ee7c8",
+              background: "rgba(110,231,200,0.08)",
+            }}
+          >
+            See_Legion
           </a>
           <a
             href={`#${sectionIds.contact}`}
@@ -119,12 +145,19 @@ export function Hero() {
               return (
                 <div
                   key={item.label}
-                  className="rounded-2xl p-3"
+                  className="relative rounded-2xl p-3"
                   style={{
                     border: "1px solid rgba(110,231,255,0.1)",
                     background: "rgba(14,20,26,0.6)",
                   }}
                 >
+                  {item.label === "Concurrent calls" && (
+                    <a
+                      href="#stress-test"
+                      className="absolute inset-0 rounded-2xl"
+                      aria-label="See how VEE Legion was tested at 200 concurrent calls"
+                    />
+                  )}
                   <p
                     className="text-[0.6rem] uppercase tracking-[0.28em]"
                     style={{ fontFamily: "var(--font-display), monospace", color: "rgb(126,142,156)" }}

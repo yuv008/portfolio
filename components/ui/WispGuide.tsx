@@ -11,9 +11,9 @@ type Stop = { id: string; label: string; tip: string; fact?: string; project?: b
 
 const BASE_STOPS: Stop[] = [
   { id: "hero", label: "Home", tip: "This is Yuvraj, an AI R&D engineer who builds voice-agent systems, evaluation platforms and AI infrastructure." },
+  { id: "stress-test", label: "VEE Legion", tip: "This is VEE Legion, the QA platform he built at VoiceraCX. Scroll to see how simulated callers test an AI agent, then try the demo at the end.", fact: "Verified at 200 concurrent calls with 0 transport errors." },
   { id: "about", label: "About", tip: "Three things he has built: real-time voice pipelines, hybrid vector search, and fine-tuned models.", fact: "Response time cut from 3 seconds to 1.2 seconds." },
-  { id: "pipeline", label: "Pipeline", tip: "An interactive scroll through six chapters. Keep scrolling inside it to move from step to step." },
-  { id: "experience", label: "Experience", tip: "Four roles: AI R&D Engineer and AI intern at VoiceraCX, plus internships at DAOStreet and Alesa AI Ltd, UK." },
+  { id: "experience", label: "Experience", tip: "Four roles. Right now he is AI R&D Engineer at VoiceraCX, building VEE Legion, a QA platform that tests voice and chat AI agents. Before that: AI intern at VoiceraCX, then DAOStreet and Alesa AI Ltd, UK.", fact: "Watch the Legion launch video from the card." },
   { id: "education", label: "Education", tip: "B.E. in Computer Engineering with Honors in Data Science at Pune Institute of Computer Technology." },
   { id: "projects", label: "Projects", tip: "Weave, Orpheus TTS, Smart Pathshala, ShetNiyojan, WarCast and Legify. Hover the Weave card to see the demo.", fact: "Scroll sideways to browse them all." },
   { id: "skills", label: "Skills", tip: "A map of the stack: Python, PyTorch, LiveKit, Qdrant, FastAPI, Kubernetes and more." },
