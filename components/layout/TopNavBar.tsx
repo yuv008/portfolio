@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { navLinks } from "@/lib/constants";
-import { usePageSignals } from "@/lib/hooks/usePageSignals";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
 import { meetWisp } from "@/lib/wisp";
 
@@ -13,13 +12,12 @@ import { meetWisp } from "@/lib/wisp";
  */
 export function TopNavBar() {
   const activeId = useScrollSpy(navLinks);
-  const { isScrolled } = usePageSignals();
-
-  const glass = `border backdrop-blur-xl transition-[background,border-color,box-shadow] duration-300 ${
-    isScrolled
-      ? "border-white/[0.12] bg-[linear-gradient(180deg,rgba(24,32,44,0.9),rgba(13,19,28,0.9))]"
-      : "border-white/[0.14] bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))]"
-  } shadow-[0_14px_36px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(110,231,255,0.04),inset_0_1px_0_rgba(255,255,255,0.14)]`;
+  
+  // Frosted glass, as in the reference: a low-opacity fill with heavy blur and saturation so the
+  // page shows through, a bright hairline border, and inner top/bottom highlights.
+  const glass =
+    "border border-white/15 bg-white/10 backdrop-blur-2xl backdrop-saturate-200 " +
+    "shadow-[0_10px_40px_-10px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(255,255,255,0.05)]";
 
   return (
     <>
@@ -50,7 +48,7 @@ export function TopNavBar() {
                     {active && (
                       <motion.span
                         layoutId="nav-active"
-                        className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(110,231,255,0.28),rgba(171,138,255,0.30))] shadow-[0_0_18px_-2px_rgba(110,231,255,0.45),inset_0_0_0_1px_rgba(255,255,255,0.18)]"
+                        className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(110,231,255,0.30),rgba(171,138,255,0.34))] shadow-[0_0_18px_-2px_rgba(110,231,255,0.4),inset_0_0_0_1px_rgba(255,255,255,0.22)]"
                         transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       />
                     )}
