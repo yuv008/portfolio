@@ -1,6 +1,7 @@
 "use client";
 
 import { heroStats, sectionIds } from "@/lib/constants";
+import { meetWisp } from "@/lib/wisp";
 
 export function Hero() {
   return (
@@ -90,6 +91,19 @@ export function Hero() {
           >
             Open_Channel
           </a>
+          <button
+            type="button"
+            onClick={(e) => meetWisp(e.currentTarget)}
+            className="px-8 py-4 rounded-full tracking-widest transition-all active:scale-95"
+            style={{
+              fontFamily: "var(--font-display), monospace",
+              border: "1px solid rgba(171,138,255,0.35)",
+              color: "#ab8aff",
+              background: "rgba(171,138,255,0.08)",
+            }}
+          >
+            Meet_Wisp
+          </button>
         </div>
 
         {/* Stats grid — pulled out as standalone cards below CTAs */}

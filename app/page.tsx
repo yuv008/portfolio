@@ -8,6 +8,7 @@ import { Education } from "@/components/sections/Education";
 import { Achievements } from "@/components/sections/Achievements";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/layout/Footer";
+import { WispGuide } from "@/components/ui/WispGuide";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
       <Achievements />
       <Contact />
       <Footer />
+      <WispGuide />
     </main>
   );
 }

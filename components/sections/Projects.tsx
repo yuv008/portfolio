@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { projects } from "@/components/projects/projectData";
 import { useInView } from "@/lib/hooks/useInView";
 import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
+import { meetWisp } from "@/lib/wisp";
 
 /* ── Media map ─────────────────────────────────────────────── */
 const PROJECT_IMAGES: Record<string, string> = {
@@ -16,6 +17,11 @@ const PROJECT_IMAGES: Record<string, string> = {
 
 const PROJECT_VIDEOS: Record<string, string> = {
   "shetniyojan": "/shetniyojan.mp4",
+};
+
+// Projects whose card shows a still image and plays a muted clip on hover
+const PROJECT_HOVER_VIDEOS: Record<string, string> = {
+  "weave": "/weave-demo.mp4",
 };
 
 const PROJECT_WAVEFORM = new Set(["orpheus-tts"]);
@@ -72,6 +78,77 @@ function ProjectImageGallery({
           />
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ── Still image that plays a muted clip on hover ─────────── */
+function HoverVideoCard({
+  image,
+  src,
+  alt,
+  href,
+}: {
+  image: string;
+  src: string;
+  alt: string;
+  href?: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  const enter = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.currentTime = 0;
+    void v.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+  };
+  const leave = () => {
+    const v = videoRef.current;
+    if (v) v.pause();
+    setPlaying(false);
+  };
+
+  return (
+    <div className="relative w-full h-full overflow-hidden" onMouseEnter={enter} onMouseLeave={leave}>
+      <img
+        src={image}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+        className="w-full h-full object-cover"
+      />
+      <video
+        ref={videoRef}
+        src={src}
+        poster={image}
+        muted
+        loop
+        playsInline
+        preload="none"
+        aria-hidden
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 pointer-events-none"
+        style={{ opacity: playing ? 1 : 0 }}
+      />
+      {href && (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="absolute bottom-3 left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest transition-colors"
+          style={{
+            fontFamily: "var(--font-display), monospace",
+            background: "rgba(8,12,18,0.7)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            backdropFilter: "blur(6px)",
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>play_arrow</span>
+          Watch demo
+        </a>
+      )}
     </div>
   );
 }
@@ -412,20 +489,27 @@ export function Projects() {
               }}
             >
               {/* Media panel */}
-              <div className="relative flex-shrink-0 overflow-hidden" style={{ height: "220px" }}>
+              <div className="relative flex-shrink-0 overflow-hidden" style={{ height: PROJECT_HOVER_VIDEOS[project.id] ? "280px" : "220px" }}>
                 {isWaveform ? (
                   <div className="w-full h-full" style={{ background: "rgba(8,12,18,0.8)" }}>
                     <OrpheusWaveform />
                   </div>
                 ) : videoSrc ? (
                   <VideoCard src={videoSrc} accentColor={color} />
+                ) : PROJECT_HOVER_VIDEOS[project.id] && project.images?.length ? (
+                  <HoverVideoCard
+                    image={project.images[0]}
+                    src={PROJECT_HOVER_VIDEOS[project.id]}
+                    alt={project.name}
+                    href={project.links?.video}
+                  />
                 ) : project.images?.length ? (
                   <ProjectImageGallery images={project.images} alt={project.name} />
                 ) : (
                   <ProjectImageGallery images={galleryImages} alt={project.name} />
                 )}
 
-                {!(isWaveform || videoSrc) && (
+                {!(isWaveform || videoSrc || PROJECT_HOVER_VIDEOS[project.id]) && (
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{ background: "linear-gradient(to bottom, transparent 30%, rgba(14,20,26,0.9))" }}
@@ -588,6 +672,23 @@ export function Projects() {
                           {key} ↗
                         </a>
                       ))}
+                  {project.id === "weave" && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        meetWisp(e.currentTarget);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest transition-colors hover:text-neural-violet"
+                      style={{
+                        fontFamily: "var(--font-display), monospace",
+                        border: "1px solid rgba(171,138,255,0.35)",
+                        color: "#b9a8ff",
+                      }}
+                    >
+                      Meet Wisp
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

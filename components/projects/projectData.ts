@@ -61,12 +61,7 @@ export const projects: Project[] = [
       article:
         "https://medium.com/@atharvkulkarni005/weave-building-a-company-brain-on-falkordb-that-knows-whos-allowed-to-know-what-056559fd923b",
     },
-    images: [
-      "/weave-live-home.png",
-      "/weave-architecture.png",
-      "/weave-permission-matrix.png",
-      "/weave-graph-model.png",
-    ],
+    images: ["/weave-hero.png"],
     architecture: {
       nodes: [
         { id: "sources", label: "Slack · Notion\nDrive · GitHub", type: "data", tooltip: "Plus Gmail, Calendar and HubSpot pollers" },
