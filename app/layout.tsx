@@ -3,7 +3,8 @@ import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { Toaster } from "react-hot-toast";
-import HeroField from "@/components/three/HeroField";
+import { HeroFieldLazy } from "@/components/three/HeroFieldLazy";
+import { LiteMode } from "@/components/ui/LiteMode";
 
 
 const jetbrainsMono = JetBrains_Mono({
@@ -63,7 +64,8 @@ export default function RootLayout({
         <link rel="preload" href="/fonts/material-symbols-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="font-body text-text-strong relative">
-        <HeroField
+        <LiteMode />
+        <HeroFieldLazy
           className="pointer-events-none fixed inset-0 z-0"
           colors={["#6ee7ff", "#ab8aff", "#d1dce9"]}
           particles={64000}

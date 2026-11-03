@@ -283,7 +283,8 @@ function AgentTestDemo() {
 function StepImage({ step, playing = true }: { step: Step; playing?: boolean }) {
   return (
     <figure className="tile p-2.5">
-      <Wash image={step.image} dim={0.34} />
+      {/* Stacked steps share one spot, so only the active one loads its image wash. */}
+      <Wash image={playing ? step.image : undefined} from="#2f5fe8" to="#2f5fe8" dim={0.34} />
       <div className="tile-media p-2.5">
         <div className="overflow-hidden rounded-[0.85rem]" style={{ aspectRatio: "960 / 448" }}>
           {step.clip ? (

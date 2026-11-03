@@ -15,7 +15,7 @@ export function Wash({
   dim?: number;
 }) {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[inherit]">
+    <div aria-hidden="true" className="wash pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[inherit]">
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

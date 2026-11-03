@@ -306,3 +306,18 @@
     padding-bottom: max(0px, calc(var(--stage-h) / 2 - 18vh + 22vh));
   }
 }
+
+/* Lite mode (see lib/lite.ts): drop the expensive effects. */
+[data-lite="on"] .tile-anim,
+[data-lite="on"] .arch-flow {
+  animation: none !important;
+}
+[data-lite="on"] .wash {
+  display: none !important;
+}
+[data-lite="on"] [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-image: none !important;
+  background-color: rgba(18, 24, 32, 0.94) !important;
+}

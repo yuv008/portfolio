@@ -1,4 +1,5 @@
 import { socialLinks } from "@/lib/constants";
+import { LiteToggle } from "@/components/ui/LiteToggle";
 
 export function Footer() {
   const glass =
@@ -25,7 +26,11 @@ export function Footer() {
           <a className={link} href={`mailto:${socialLinks.email}`}>
             Email
           </a>
+          <LiteToggle className="hidden text-[13px] sm:inline" />
         </nav>
+      </div>
+      <div className="mt-3 text-center sm:hidden">
+        <LiteToggle className="text-xs" />
       </div>
     </footer>
   );

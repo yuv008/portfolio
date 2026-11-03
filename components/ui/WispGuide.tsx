@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
 import { WISP_EXPLAIN_EVENT, WISP_MEET_EVENT, type WispMeetDetail } from "@/lib/wisp";
 import { projects } from "@/components/projects/projectData";
+import { isLite, LITE_EVENT } from "@/lib/lite";
 
 /* ── Tour content (grounded in what each section shows) ─────── */
 
@@ -204,7 +205,27 @@ export function WispGuide() {
     };
   }, []);
 
+  /* Lite mode: stop the pet's looping CSS animations (float, sway, blink) inside its frame. */
+  const applyLite = useCallback(() => {
+    const doc = frame.current?.contentDocument;
+    if (!doc) return;
+    let st = doc.getElementById("lite-style");
+    if (isLite()) {
+      if (!st) {
+        st = doc.createElement("style");
+        st.id = "lite-style";
+        st.textContent = "*, *::before, *::after { animation: none !important; }";
+        doc.head.appendChild(st);
+      }
+    } else st?.remove();
+  }, []);
+  useEffect(() => {
+    window.addEventListener(LITE_EVENT, applyLite);
+    return () => window.removeEventListener(LITE_EVENT, applyLite);
+  }, [applyLite]);
+
   const onFrameLoad = () => {
+    applyLite();
     const r = restPos(0);
     lastRight.current = r.right ? 1 : 0;
     pos.current = { x: -9999, y: -9999 };
