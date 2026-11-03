@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { navLinks } from "@/lib/constants";
+import { usePageSignals } from "@/lib/hooks/usePageSignals";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
 import { meetWisp } from "@/lib/wisp";
 
@@ -15,6 +16,7 @@ const SPY_ITEMS = [...navLinks, { id: "contact", spyIds: ["contact"] }];
 export function TopNavBar() {
   // Contact has no icon (the Connect button is its entry), but it is tracked so the last
   // icon does not stay highlighted while you are in it.
+  const { isScrolled } = usePageSignals();
   const activeAny = useScrollSpy(SPY_ITEMS);
   const activeId = navLinks.some((l) => l.id === activeAny) ? activeAny : null;
   
@@ -29,7 +31,7 @@ export function TopNavBar() {
       {/* Small signature on wide screens, since the nav no longer carries a wordmark */}
       <Link
         href="#hero"
-        className="group/sig fixed left-8 top-6 z-[60] hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-colors hover:text-text-strong xl:flex"
+        className={`group/sig fixed left-8 top-6 z-[60] hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong xl:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
       >
         <span className="h-2 w-2 rounded-full bg-gradient-to-br from-neural-cyan to-neural-violet shadow-[0_0_10px_rgba(110,231,255,0.7)]" aria-hidden="true" />
         Yuvraj Sanghai

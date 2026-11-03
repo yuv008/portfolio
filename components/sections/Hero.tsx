@@ -63,43 +63,25 @@ export function Hero() {
         </h1>
 
         <p className="text-xl text-text-soft max-w-lg mb-12 leading-relaxed">
-          I build production voice-agent systems and evaluation platforms like VEE Legion, plus the AI infrastructure behind them, from real-time pipelines to fine-tuned models.
+          At VoiceraCX I build <span className="text-text-strong">VEE Legion</span>, an independent QA platform that tests voice and chat AI agents with simulated callers and red-team attacks before customers find the failures.<span className="hidden sm:inline"> I also build real-time voice pipelines, retrieval and fine-tuned models.</span>
         </p>
 
         <div className="flex flex-wrap gap-4">
           <a
-            href={`#${sectionIds.projects}`}
-            className="group relative px-8 py-4 rounded-full font-bold tracking-widest overflow-hidden transition-all active:scale-95"
+            href="#stress-test"
+            className="group relative overflow-hidden rounded-full px-7 py-4 font-bold tracking-widest transition-all active:scale-95"
             style={{
               fontFamily: "var(--font-display), monospace",
-              background: "linear-gradient(to right, #6ee7ff, #a8e8ff)",
+              background: "linear-gradient(to right, #6ee7ff, #b49cff)",
               color: "#001f27",
             }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 30px rgba(110,231,255,0.4)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
-            }}
           >
-            <span className="relative z-10">Initiate_Sequence</span>
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform" />
-          </a>
-          <a
-            href="#stress-test"
-            className="px-8 py-4 rounded-full tracking-widest transition-all active:scale-95"
-            style={{
-              fontFamily: "var(--font-display), monospace",
-              border: "1px solid rgba(110,231,200,0.4)",
-              color: "#6ee7c8",
-              background: "rgba(110,231,200,0.08)",
-            }}
-          >
-            See_Legion
+            <span className="relative z-10">See_Legion</span>
+            <div className="absolute inset-0 translate-y-full bg-white/20 transition-transform group-hover:translate-y-0" />
           </a>
           <a
             href={`#${sectionIds.contact}`}
-            className="px-8 py-4 rounded-full tracking-widest transition-all active:scale-95"
+            className="px-7 py-4 rounded-full tracking-widest transition-all active:scale-95"
             style={{
               fontFamily: "var(--font-display), monospace",
               border: "1px solid rgba(255,255,255,0.12)",
@@ -120,7 +102,7 @@ export function Hero() {
           <button
             type="button"
             onClick={(e) => meetWisp(e.currentTarget)}
-            className="px-8 py-4 rounded-full tracking-widest transition-all active:scale-95"
+            className="px-7 py-4 rounded-full tracking-widest transition-all active:scale-95"
             style={{
               fontFamily: "var(--font-display), monospace",
               border: "1px solid rgba(171,138,255,0.35)",
