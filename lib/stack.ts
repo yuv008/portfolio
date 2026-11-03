@@ -4,6 +4,8 @@ export type StackHub = {
   label: string;
   icon: string;
   blurb: string;
+  /** Where this area was used, with a real result from the work. */
+  proof: { stat: string; text: string };
   skills: string[];
 };
 
@@ -13,6 +15,7 @@ export const STACK_HUBS: StackHub[] = [
     label: "AI / ML",
     icon: "psychology",
     blurb: "Fine-tuning, retrieval and agent frameworks",
+    proof: { stat: "LoRA", text: "Fine-tuned Llama 3.2 3B to speak audio tokens (Orpheus) and Llama 3.1 8B on 10k+ dream terms." },
     skills: ["PyTorch", "LangChain", "LLMs", "RAG", "LoRA / PEFT", "Unsloth", "CrewAI", "SNAC Codec"],
   },
   {
@@ -20,6 +23,7 @@ export const STACK_HUBS: StackHub[] = [
     label: "Voice & Inference",
     icon: "graphic_eq",
     blurb: "Real-time voice pipelines and model serving",
+    proof: { stat: "3s → 1.2s", text: "Cut voice response time with LiveKit streaming inference, pooling and caching." },
     skills: ["FastAPI", "Pipecat", "LiveKit", "Twilio", "llama.cpp", "GGUF"],
   },
   {
@@ -27,6 +31,7 @@ export const STACK_HUBS: StackHub[] = [
     label: "Evaluation & Testing",
     icon: "fact_check",
     blurb: "Scoring and stress-testing AI agents",
+    proof: { stat: "200 calls", text: "Validated 200 concurrent test calls with zero transport errors for VEE Legion." },
     skills: ["LLM-as-a-judge", "WER/CER", "Latency benchmarking", "Red-teaming", "PII checks", "Load testing", "Twilio", "LiveKit"],
   },
   {
@@ -34,6 +39,7 @@ export const STACK_HUBS: StackHub[] = [
     label: "Data & Infrastructure",
     icon: "database",
     blurb: "Storage, retrieval and running things in production",
+    proof: { stat: "−90%", text: "Query latency after moving from Chroma to Qdrant with hybrid dense-sparse search." },
     skills: [
       "Qdrant", "PostgreSQL", "MySQL", "MongoDB", "Docker", "Kubernetes", "Helm",
       "OpenTelemetry", "Jaeger", "KEDA", "ChromaDB", "FAISS", "Lightning AI",
@@ -44,6 +50,7 @@ export const STACK_HUBS: StackHub[] = [
     label: "Languages",
     icon: "code_blocks",
     blurb: "What I write systems in",
+    proof: { stat: "Go", text: "Concurrency ramping and slot-based orchestration for Legion, with Python for the models." },
     skills: ["Python", "C++", "Go"],
   },
   {
@@ -51,6 +58,7 @@ export const STACK_HUBS: StackHub[] = [
     label: "Frontend",
     icon: "web",
     blurb: "Interfaces for the systems above",
+    proof: { stat: "This site", text: "Svelte at DAOStreet; this portfolio is Next.js, Three.js and Framer Motion." },
     skills: ["React", "Next.js", "Svelte", "TypeScript", "Tailwind", "Framer Motion"],
   },
 ];

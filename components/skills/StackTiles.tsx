@@ -2,7 +2,11 @@
 
 import { STACK_HUBS } from "@/lib/stack";
 
-/** One tile per category. Hovering or focusing a tile lights its tools in the wall and the graph. */
+/**
+ * One compact tile per area. The tool lists live in the wall and the graph, so each tile
+ * says something new: where that area was used, with a real result. Hovering or focusing a
+ * tile still lights its tools in the wall and the graph.
+ */
 export function StackTiles({
   focus,
   onFocus,
@@ -22,22 +26,20 @@ export function StackTiles({
             onMouseLeave={() => onFocus(null)}
             onFocus={() => onFocus(hub.id)}
             onBlur={() => onFocus(null)}
-            className="tile tile-hover flex min-h-[230px] flex-col justify-between p-6 outline-none focus-visible:ring-2 focus-visible:ring-neural-cyan/60"
+            className="tile tile-hover flex min-h-[190px] flex-col p-6 outline-none focus-visible:ring-2 focus-visible:ring-neural-cyan/60"
             style={active ? { borderColor: "rgba(110,231,255,0.35)" } : undefined}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
               <span className="tile-icon">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
                   {hub.icon}
                 </span>
               </span>
-              <span className="tile-label">{hub.skills.length} tools</span>
+              <h3 className="text-sm font-semibold text-text-strong">{hub.label}</h3>
             </div>
-            <div>
-              <h3 className="tile-title">{hub.label}</h3>
-              <p className="tile-body mt-1.5 text-[13px]">{hub.blurb}</p>
-              <p className="mt-3 text-xs leading-5 text-text-muted">{hub.skills.join(" · ")}</p>
-            </div>
+
+            <p className="mt-5 font-display text-2xl font-semibold tracking-tight text-neural-cyan">{hub.proof.stat}</p>
+            <p className="tile-body mt-1.5 text-[13px]">{hub.proof.text}</p>
           </article>
         );
       })}
