@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ConcurrencyRamp } from "@/components/ui/TileVisuals";
+import { Wash } from "@/components/ui/Wash";
 
 type Item = {
   id: string;
@@ -100,6 +101,7 @@ function Pill({ value, label }: { value: string; label: string }) {
 function CurrentRole({ item }: { item: Item }) {
   return (
     <article className="tile p-2.5">
+      <Wash from="#6ee7ff" to="#ab8aff" dim={0.5} />
       <div className="grid gap-2.5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="relative">
           <ConcurrencyRamp />
