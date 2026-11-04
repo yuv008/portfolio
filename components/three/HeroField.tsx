@@ -130,14 +130,24 @@ export default function HeroField({
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    camera.position.set(0, 0.4, isSmall ? 6.4 : 4.6);
+    const baseZ = isSmall ? 6.4 : 4.6;
+    camera.position.set(0, 0.4, baseZ);
 
-    const geo = new THREE.BufferGeometry();
-    const seeds = new Float32Array(count * 3);
-    for (let i = 0; i < seeds.length; i++) seeds[i] = Math.random();
-    geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
-    geo.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 3));
-    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 10);
+    // Two layers give real parallax: a dense, distant cloud and a sparse, larger one that sits nearer the
+    // camera. The camera pans and dollies, so the near layer slides further than the far one.
+    const nearCount = scrollLinked ? Math.round(count * 0.1) : 0;
+    const farCount = count - nearCount;
+    const makeGeo = (n: number) => {
+      const g = new THREE.BufferGeometry();
+      const sd = new Float32Array(n * 3);
+      for (let i = 0; i < sd.length; i++) sd[i] = Math.random();
+      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+      g.setAttribute("aSeed", new THREE.BufferAttribute(sd, 3));
+      g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 10);
+      return g;
+    };
+    const geo = makeGeo(farCount);
+    const geoNear = nearCount ? makeGeo(nearCount) : null;
 
     const uniforms = {
       uTime: { value: 0 },
@@ -165,36 +175,56 @@ export default function HeroField({
     const points = new THREE.Points(geo, mat);
     scene.add(points);
 
+    const nearUniforms = THREE.UniformsUtils.clone(uniforms);
+    nearUniforms.uSize.value = uniforms.uSize.value * 2.1;
+    const matNear = new THREE.ShaderMaterial({
+      uniforms: nearUniforms,
+      vertexShader: VERT,
+      fragmentShader: FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const near = geoNear ? new THREE.Points(geoNear, matNear) : null;
+    if (near) {
+      near.scale.setScalar(1.75);
+      near.position.set(0.2, -0.1, 0.9);
+      scene.add(near);
+    }
+
     // Adaptive quality: seeds are random, so drawing a prefix of the buffer
     // is an even thinning of the whole field. Only ever steps down.
-    const minCount = Math.round(count * 0.3);
-    let drawCount = count;
+    const minCount = Math.round(farCount * 0.3);
+    let drawCount = farCount;
 
-    // Size to the container, not the window
-    // Shift the cloud right on wide screens to balance the left-hand text column.
-    // It eases back to centre as the page scrolls past the hero. Projection-only, so no extra cost.
-    let shift = 0;
-    const applyShift = () => {
-      const w = mount.clientWidth || 1;
-      const h = mount.clientHeight || 1;
-      const wide = scrollLinked && w >= 900;
-      const f = wide ? 0.22 * (1 - Math.min(window.scrollY / (window.innerHeight || 1), 1)) : 0;
-      if (f === shift && camera.view?.enabled === (f !== 0)) return;
-      shift = f;
-      if (f === 0) camera.clearViewOffset();
-      else camera.setViewOffset(w, h, -f * w, 0, w, h);
+    // Camera path. At the top of the page the cloud sits to the right of the hero. As you scroll it drifts
+    // across to the left while the camera slowly dollies in, so it feels like moving through the cloud.
+    // Kept deliberately gentle. Both are eased in the frame loop; everything is still at the top of the page.
+    const SWEEP = 0.22; // fraction of the window width the cloud starts to the right (and ends to the left)
+    const DOLLY = isSmall ? 0.8 : 1.35; // world units the camera moves forward over the page
+    let camF = scrollLinked ? SWEEP : 0;
+    let camZ = baseZ;
+    let targetF = camF;
+    let targetZ = camZ;
+    const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+    const unitW = () => 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
+    const applyCamera = () => {
+      const wide = scrollLinked && (mount.clientWidth || 1) >= 900;
+      camera.position.x = -(wide ? camF : 0) * unitW() * camZ + pointer.x * 0.12;
+      camera.position.y = 0.4 - pointer.y * 0.06;
+      camera.position.z = camZ;
     };
     const resize = () => {
       const w = mount.clientWidth || 1;
       const h = mount.clientHeight || 1;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      shift = -1;
-      applyShift();
+      applyCamera();
       renderer.setSize(w, h, false);
       renderer.domElement.style.width = "100%";
       renderer.domElement.style.height = "100%";
       uniforms.uPixelRatio.value = renderer.getPixelRatio();
+      nearUniforms.uPixelRatio.value = renderer.getPixelRatio();
       if (reduceMotion) renderer.render(scene, camera);
     };
     const ro = new ResizeObserver(resize);
@@ -215,7 +245,10 @@ export default function HeroField({
       const y = window.scrollY;
       const fade = Math.min(y / vh, 1);
       targetOpacity = baseOpacity * (1 - fade * (1 - scrollDim));
-      applyShift();
+      const progress = Math.min(Math.max(y / Math.max(pageHeight - vh, 1), 0), 1);
+      const smooth = (x: number) => x * x * (3 - 2 * x);
+      targetF = SWEEP - 2 * SWEEP * smooth(Math.min(progress / 0.7, 1));
+      targetZ = baseZ - DOLLY * smooth(Math.min(progress / 0.8, 1));
       const rest = Math.max(pageHeight - vh * 2, 1);
       const t = Math.min(Math.max((y - vh) / rest, 0), 1);
       targetShape = shape + (1 - shape) * t * t * (3 - 2 * t);
@@ -223,6 +256,11 @@ export default function HeroField({
         // No animation: jump straight to the new state and draw once
         uniforms.uOpacity.value = targetOpacity;
         uniforms.uShape.value = targetShape;
+        nearUniforms.uOpacity.value = targetOpacity * 0.55;
+        nearUniforms.uShape.value = targetShape;
+        camF = targetF;
+        camZ = targetZ;
+        applyCamera();
         renderer.render(scene, camera);
       }
     };
@@ -230,6 +268,13 @@ export default function HeroField({
       window.addEventListener("scroll", onScroll, { passive: true });
       onScroll();
     }
+    // A little cursor depth on desktop: the near layer follows the pointer more than the far one.
+    const finePointer = window.matchMedia("(pointer: fine)").matches && !isSmall;
+    const onPointer = (e: PointerEvent) => {
+      pointer.tx = (e.clientX / window.innerWidth - 0.5) * 2;
+      pointer.ty = (e.clientY / window.innerHeight - 0.5) * 2;
+    };
+    if (scrollLinked && finePointer && !reduceMotion) window.addEventListener("pointermove", onPointer, { passive: true });
 
     // Only animate when the hero is on screen and the tab is visible
     let onScreen = true;
@@ -282,6 +327,7 @@ export default function HeroField({
       if (drawCount > minCount) {
         drawCount = Math.max(minCount, Math.round(drawCount * 0.7));
         geo.setDrawRange(0, drawCount);
+        geoNear?.setDrawRange(0, Math.round(drawCount * (nearCount / Math.max(farCount, 1))));
       } else if (renderer.getPixelRatio() > 1) {
         renderer.setPixelRatio(1);
         resize();
@@ -303,9 +349,19 @@ export default function HeroField({
       const dt = Math.min(clock.getDelta(), 0.05);
       uniforms.uTime.value += dt;
       points.rotation.y += dt * 0.05;
+      if (near) near.rotation.y += dt * 0.08;
       const ease = 1 - Math.exp(-dt * 4);
+      const slow = 1 - Math.exp(-dt * 2.2); // the camera glides more slowly than the fades
       uniforms.uOpacity.value += (targetOpacity - uniforms.uOpacity.value) * ease;
       uniforms.uShape.value += (targetShape - uniforms.uShape.value) * ease;
+      camF += (targetF - camF) * slow;
+      camZ += (targetZ - camZ) * slow;
+      pointer.x += (pointer.tx - pointer.x) * slow;
+      pointer.y += (pointer.ty - pointer.y) * slow;
+      applyCamera();
+      nearUniforms.uTime.value = uniforms.uTime.value;
+      nearUniforms.uShape.value = uniforms.uShape.value;
+      nearUniforms.uOpacity.value = uniforms.uOpacity.value * 0.55;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(frame);
     };
@@ -328,9 +384,12 @@ export default function HeroField({
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointermove", onPointer);
       document.removeEventListener("visibilitychange", onVisibility);
       geo.dispose();
+      geoNear?.dispose();
       mat.dispose();
+      matNear.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
