@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ConcurrencyRamp } from "@/components/ui/TileVisuals";
+import { useRef, useState } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
 import { Wash } from "@/components/ui/Wash";
+import { explainStop } from "@/lib/wisp";
 
 type Item = {
   id: string;
@@ -98,49 +99,93 @@ function Pill({ value, label }: { value: string; label: string }) {
   );
 }
 
+function BranchChip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.14em] text-text-soft">
+      {children}
+    </span>
+  );
+}
+
+function AskWisp({ id, name }: { id: string; name: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => explainStop(id)}
+      aria-label={`Ask Wisp to explain ${name}`}
+      className="inline-flex items-center gap-1.5 rounded-full border border-white/12 px-3 py-1.5 font-display text-[10px] uppercase tracking-[0.15em] text-text-soft transition-colors hover:text-text-strong"
+    >
+      <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">
+        chat_bubble
+      </span>
+      Ask Wisp
+    </button>
+  );
+}
+
+/** A small, looping grid of calls ramping up: the thing the current role is about. Static in Lite mode. */
+function MiniRamp() {
+  const cols = 20;
+  const rows = 4;
+  return (
+    <div className="hidden shrink-0 sm:block" aria-hidden="true">
+      <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${cols}, 7px)` }}>
+        {Array.from({ length: cols * rows }, (_, i) => (
+          <span
+            key={i}
+            className="tile-anim h-[7px] rounded-[2px]"
+            style={{ background: "#e6e6e6", opacity: 0.14, animation: `slot-on 5.2s ease-in-out ${(((i % cols) * 0.11) + Math.floor(i / cols) * 0.04).toFixed(2)}s infinite` }}
+          />
+        ))}
+      </div>
+      <p className="mt-2 font-display text-[9px] uppercase tracking-[0.16em] text-text-muted">Concurrency ramp · illustrative</p>
+    </div>
+  );
+}
+
 function CurrentRole({ item }: { item: Item }) {
   return (
-    <article className="tile p-2.5">
+    <article className="tile p-5 md:p-6">
       <Wash from="#e6e6e6" to="#acacac" dim={0.5} />
-      <div className="grid gap-2.5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="relative">
-          <ConcurrencyRamp />
-          <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 font-display text-[10px] uppercase tracking-[0.16em] text-neural-green backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-neural-green shadow-[0_0_8px_rgba(239,239,239,0.9)]" />
-            Current role
-          </span>
-        </div>
-
-        <div className="flex flex-col p-4 md:p-5">
-          <p className="tile-label">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <BranchChip>
+              <span className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]" />
+              HEAD → main
+            </BranchChip>
+            <BranchChip>⑂ merged pict · Jul 2026</BranchChip>
+          </div>
+          <p className="tile-label mt-4">
             {item.period} · {item.place}
           </p>
           <h3 className="mt-2 text-2xl font-semibold tracking-tight text-text-strong">{item.company}</h3>
           <p className="mt-0.5 text-sm font-medium text-neural-cyan">{item.role}</p>
-          <p className="tile-body mt-3">{item.summary}</p>
-          <ul className="mt-4 space-y-2.5">
-            {item.bullets.map((b) => (
-              <li key={b} className="flex gap-3 text-[13px] leading-6 text-text-soft">
-                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-neural-cyan" aria-hidden="true" />
-                {b}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
-            {item.metrics?.map((m) => (
-              <Pill key={m.label} value={m.value} label={m.label} />
-            ))}
-            <a
-              href="#stress-test"
-              className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-text-soft transition-colors hover:text-neural-cyan"
-            >
-              See VEE Legion
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">
-                arrow_upward
-              </span>
-            </a>
-          </div>
         </div>
+        <MiniRamp />
+      </div>
+      <p className="tile-body mt-3">{item.summary}</p>
+      <ul className="mt-4 space-y-2.5">
+        {item.bullets.map((b) => (
+          <li key={b} className="flex gap-3 text-[13px] leading-6 text-text-soft">
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-neural-cyan" aria-hidden="true" />
+            {b}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        {item.metrics?.map((m) => (
+          <Pill key={m.label} value={m.value} label={m.label} />
+        ))}
+        <span className="ml-auto flex items-center gap-3">
+          <AskWisp id={`journey-${item.id}`} name={item.company} />
+          <a href="#stress-test" className="inline-flex items-center gap-1 text-xs font-semibold text-text-soft transition-colors hover:text-neural-cyan">
+            See VEE Legion
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">
+              arrow_upward
+            </span>
+          </a>
+        </span>
       </div>
     </article>
   );
@@ -149,36 +194,24 @@ function CurrentRole({ item }: { item: Item }) {
 function CompactRole({ item }: { item: Item }) {
   const [open, setOpen] = useState(false);
   return (
-    <article className="tile tile-hover">
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-start justify-between gap-4 rounded-[inherit] p-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-neural-cyan/60 md:p-6"
-      >
-        <span className="min-w-0">
-          <span className="tile-label block">
-            {item.period} · {item.place}
-          </span>
-          <span className="mt-1.5 flex flex-wrap items-baseline gap-x-3">
-            <span className="text-lg font-semibold text-text-strong">{item.company}</span>
-            <span className="text-sm text-neural-cyan">{item.role}</span>
-          </span>
-          <span className="tile-body mt-1.5 block">{item.summary}</span>
-          {item.metrics && (
-            <span className="mt-3 flex flex-wrap gap-2">
-              {item.metrics.map((m) => (
-                <Pill key={m.label} value={m.value} label={m.label} />
-              ))}
-            </span>
-          )}
-        </span>
-        <span className="material-symbols-outlined mt-1 shrink-0 text-text-muted" style={{ fontSize: 22 }} aria-hidden="true">
-          {open ? "remove" : "add"}
-        </span>
-      </button>
+    <article className="tile tile-hover p-5 md:p-6">
+      <p className="tile-label">
+        {item.period} · {item.place}
+      </p>
+      <h3 className="mt-1.5 flex flex-wrap items-baseline gap-x-3">
+        <span className="text-lg font-semibold text-text-strong">{item.company}</span>
+        <span className="text-sm font-normal text-neural-cyan">{item.role}</span>
+      </h3>
+      <p className="tile-body mt-1.5">{item.summary}</p>
+      {item.metrics && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {item.metrics.map((m) => (
+            <Pill key={m.label} value={m.value} label={m.label} />
+          ))}
+        </div>
+      )}
       {open && (
-        <ul className="space-y-2.5 px-5 pb-5 md:px-6 md:pb-6">
+        <ul id={`details-${item.id}`} className="mt-4 space-y-2.5">
           {item.bullets.map((b) => (
             <li key={b} className="flex gap-3 text-[13px] leading-6 text-text-soft">
               <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-neural-cyan" aria-hidden="true" />
@@ -187,7 +220,130 @@ function CompactRole({ item }: { item: Item }) {
           ))}
         </ul>
       )}
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={`details-${item.id}`}
+          onClick={() => setOpen((v) => !v)}
+          className="inline-flex items-center gap-1.5 font-display text-[10px] uppercase tracking-[0.15em] text-text-muted transition-colors hover:text-text-strong"
+        >
+          {open ? "Hide details" : "Details"}
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform .2s" }}>
+            <path d="M2 3.5 5 6.5 8 3.5" />
+          </svg>
+        </button>
+        <span className="ml-auto">
+          <AskWisp id={`journey-${item.id}`} name={item.company} />
+        </span>
+      </div>
     </article>
+  );
+}
+
+function EducationCard() {
+  return (
+    <article className="tile p-5 md:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <span className="tile-icon">
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
+              school
+            </span>
+          </span>
+          <div>
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <BranchChip>⑂ pict/b.e. · ran alongside everything above</BranchChip>
+            </div>
+            <p className="tile-label">
+              {EDUCATION.period} · {EDUCATION.place}
+            </p>
+            <h3 className="mt-1 text-lg font-semibold text-text-strong">{EDUCATION.school}</h3>
+            <p className="text-sm text-text-soft">
+              {EDUCATION.degree} · {EDUCATION.honors}
+            </p>
+          </div>
+        </div>
+        <AskWisp id="journey-pict" name="PICT" />
+      </div>
+    </article>
+  );
+}
+
+/* ── The graph gutter: lanes, nodes and the merge curve ────── */
+
+const X_MAIN = 22;
+const X_PICT = 62;
+const NODE_Y = 44;
+
+type LaneMode = "none" | "full" | "toNode" | "fromNode";
+type Row = { id: string; main: LaneMode; pict: LaneMode; node: "main" | "pict"; head?: boolean; merge?: boolean };
+
+const ROWS: Row[] = [
+  { id: "voiceracx", main: "fromNode", pict: "fromNode", node: "main", head: true, merge: true },
+  { id: "voiceracx-intern", main: "full", pict: "full", node: "main" },
+  { id: "daostreet", main: "full", pict: "full", node: "main" },
+  { id: "alesa", main: "toNode", pict: "full", node: "main" },
+  { id: "pict", main: "none", pict: "toNode", node: "pict" },
+];
+
+function Lane({ x, mode, lit, start = NODE_Y }: { x: number; mode: LaneMode; lit: boolean; start?: number }) {
+  if (mode === "none") return null;
+  const top = mode === "fromNode" ? start : 0;
+  const bottom = mode === "toNode" ? `calc(100% - ${NODE_Y}px)` : 0;
+  return (
+    <span
+      className="absolute w-0.5 -translate-x-1/2 transition-colors duration-700"
+      style={{ left: x, top, bottom, background: lit ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.16)" }}
+    />
+  );
+}
+
+function Gutter({ row, lit }: { row: Row; lit: boolean }) {
+  const x = row.node === "main" ? X_MAIN : X_PICT;
+  const size = row.head ? 16 : 12;
+  return (
+    <div className="relative hidden md:block" aria-hidden="true">
+      <Lane x={X_MAIN} mode={row.main} lit={lit} />
+      {/* The degree branch runs in grey the whole way; it only turns bright where its own node is. */}
+      <Lane x={X_PICT} mode={row.pict} lit={row.node === "pict" ? lit : false} start={row.merge ? NODE_Y + 40 : NODE_Y} />
+      {row.merge && (
+        <svg className="absolute" style={{ left: X_MAIN, top: NODE_Y }} width={X_PICT - X_MAIN} height={40} viewBox={`0 0 ${X_PICT - X_MAIN} 40`} fill="none">
+          <path d={`M${X_PICT - X_MAIN} 40 C${X_PICT - X_MAIN} 16, 0 24, 0 0`} stroke={lit ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.22)"} strokeWidth="2" style={{ transition: "stroke .7s" }} />
+        </svg>
+      )}
+      <span
+        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-all duration-500"
+        style={{
+          left: x,
+          top: NODE_Y,
+          width: size,
+          height: size,
+          background: lit ? "#ffffff" : "#0a0a0b",
+          borderColor: lit ? "#ffffff" : "rgba(255,255,255,0.35)",
+          boxShadow: lit ? "0 0 14px rgba(255,255,255,0.65)" : undefined,
+        }}
+      />
+    </div>
+  );
+}
+
+function TimelineRow({ row, children }: { row: Row; children: React.ReactNode }) {
+  const ref = useRef<HTMLLIElement>(null);
+  const reduce = useReducedMotion();
+  // A role lights up once it has scrolled into the upper part of the screen.
+  const seen = useInView(ref, { margin: "0px 0px -45% 0px", once: true });
+  const lit = !!reduce || seen;
+  return (
+    <li ref={ref} className="grid gap-x-3 md:grid-cols-[92px_minmax(0,1fr)]">
+      <Gutter row={row} lit={lit} />
+      <div className="pb-4">
+        {/* The id sits on the card itself so Wisp's outline hugs the card, not the graph beside it. */}
+        <div id={`journey-${row.id}`} className="rounded-[1.75rem]">
+          {children}
+        </div>
+      </div>
+    </li>
   );
 }
 
@@ -202,46 +358,26 @@ export function Experience() {
             The_{" "}
             <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Journey</span>
           </h2>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-text-soft">
+            Drawn like a commit graph: my work on the main line, and my degree running alongside it as a branch that merged in July 2026.
+          </p>
         </div>
 
-        <div className="relative space-y-4 md:pl-8">
-          <span
-            className="absolute bottom-3 left-[7px] top-3 hidden w-px bg-gradient-to-b from-neural-cyan/50 via-white/10 to-transparent md:block"
-            aria-hidden="true"
-          />
-          <div className="relative">
-            <span className="absolute -left-8 top-8 hidden h-3.5 w-3.5 rounded-full border-2 border-neural-cyan bg-background shadow-[0_0_12px_rgba(230,230,230,0.7)] md:block" aria-hidden="true" />
+        <ol>
+          <TimelineRow row={ROWS[0]}>
             <CurrentRole item={current} />
-          </div>
-          {rest.map((item) => (
-            <div key={item.id} className="relative">
-              <span className="absolute -left-8 top-8 hidden h-3 w-3 rounded-full border-2 border-white/30 bg-background md:block" aria-hidden="true" />
+          </TimelineRow>
+          {rest.map((item, i) => (
+            <TimelineRow key={item.id} row={ROWS[i + 1]}>
               <CompactRole item={item} />
-            </div>
+            </TimelineRow>
           ))}
-
-          <div id="education" className="relative">
-            <span className="absolute -left-8 top-8 hidden h-3 w-3 rounded-full border-2 border-neural-violet/70 bg-background md:block" aria-hidden="true" />
-            <article className="tile flex flex-wrap items-center justify-between gap-4 p-5 md:p-6">
-              <div className="flex items-center gap-4">
-                <span className="tile-icon" style={{ color: "rgb(var(--neural-violet))" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
-                    school
-                  </span>
-                </span>
-                <div>
-                  <p className="tile-label">
-                    {EDUCATION.period} · {EDUCATION.place}
-                  </p>
-                  <h3 className="mt-1 text-lg font-semibold text-text-strong">{EDUCATION.school}</h3>
-                  <p className="text-sm text-text-soft">
-                    {EDUCATION.degree} · {EDUCATION.honors}
-                  </p>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
+          <TimelineRow row={ROWS[4]}>
+            <div id="education">
+              <EducationCard />
+            </div>
+          </TimelineRow>
+        </ol>
       </div>
     </section>
   );
