@@ -27,10 +27,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://yuvrajms.tech"),
   title: "Yuvraj Sanghai — AI R&D Engineer",
   description:
-    "AI R&D Engineer building VEE Legion, a QA platform for voice and chat AI agents, plus voice-agent systems and production AI infrastructure.",
+    "AI R&D Engineer. I build VEE Legion, which finds failures in voice and chat AI agents before customers do, and the voice systems behind them.",
   openGraph: {
     title: "Yuvraj Sanghai",
-    description: "AI R&D Engineer building VEE Legion, a QA platform for voice and chat AI agents.",
+    description: "Voice and chat AI agents fail in ways nobody sees until a customer complains. I build VEE Legion, which finds those failures first.",
     url: "https://yuvrajms.tech",
     siteName: "Yuvraj Sanghai",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Yuvraj Sanghai",
-    description: "I build the systems behind the intelligence.",
+    description: "Voice and chat AI agents fail in ways nobody sees until a customer complains. I build the QA platform that finds those failures first.",
     images: ["/og-image.png"],
   },
 };
