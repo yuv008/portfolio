@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { projects, type Project } from "@/components/projects/projectData";
 import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
-import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
 import { Wash } from "@/components/ui/Wash";
 import { useStagger } from "@/components/ui/Parallax";
 import { PROJECT_OPEN_EVENT, explainProject, meetWisp } from "@/lib/wisp";
@@ -38,34 +37,6 @@ const LAYOUT: Record<string, { span: string; hero?: boolean; drift: number }> = 
   legify: { span: "md:col-span-2 lg:col-span-4", drift: 1 },
 };
 
-/** The full, labelled diagram at a readable size. It is wider than the tile, so it pans: drag, swipe or scroll sideways. */
-function PannableDiagram({ project }: { project: Project }) {
-  const box = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ x: number; left: number } | null>(null);
-  return (
-    <div className="relative mt-3 rounded-2xl" style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
-      <div
-        ref={box}
-        className="cursor-grab overflow-x-auto overflow-y-hidden p-3 active:cursor-grabbing [scrollbar-width:thin]"
-        style={{ maskImage: "linear-gradient(to right, #000 88%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, #000 88%, transparent 100%)" }}
-        onPointerDown={(e) => {
-          if (e.pointerType === "mouse" && box.current) drag.current = { x: e.clientX, left: box.current.scrollLeft };
-        }}
-        onPointerMove={(e) => {
-          if (drag.current && box.current) box.current.scrollLeft = drag.current.left - (e.clientX - drag.current.x);
-        }}
-        onPointerUp={() => (drag.current = null)}
-        onPointerLeave={() => (drag.current = null)}
-      >
-        <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} className="h-[230px] w-auto max-w-none select-none" />
-      </div>
-      <p className="pointer-events-none absolute bottom-1.5 right-4 text-[9px] uppercase tracking-[0.16em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
-        Drag to explore →
-      </p>
-    </div>
-  );
-}
-
 function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const accent = ACCENT[project.id] ?? "#f4f4f4";
   const glow = GLOW[project.id] ?? accent;
@@ -86,7 +57,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
     >
       <Wash image={washImage} from={glow} to={glow} dim={washImage ? 0.52 : 0.6} />
       <div className="shrink-0 p-2.5 pb-0">
-        <div className="tile-media cursor-pointer p-2" style={{ height: hero ? 340 : 210 }} onClick={onOpen}>
+        <div className="tile-media cursor-pointer p-2" style={{ height: hero ? 430 : 210 }} onClick={onOpen}>
           <div className="relative h-full w-full overflow-hidden rounded-[0.8rem]">
             <ProjectCover project={project} />
           </div>
@@ -145,23 +116,14 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
             <p className="text-[10px] uppercase tracking-[0.18em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
               Design questions it answers
             </p>
-            <ul className="mt-3 space-y-2">
-              {project.decisions.slice(0, 4).map((d) => (
+            <ul className="mt-3 space-y-2.5">
+              {project.decisions.map((d) => (
                 <li key={d.question} className="text-sm leading-6 text-text-soft">
                   <span className="mr-2" style={{ color: accent }}>›</span>
                   {d.question}
                 </li>
               ))}
             </ul>
-          </div>
-        )}
-
-        {hero && (
-          <div className="mt-5">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
-              How it fits together
-            </p>
-            <PannableDiagram project={project} />
           </div>
         )}
 

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArchitectureDiagram, NODE_TYPE_COLORS } from "./ArchitectureDiagram";
+import { NODE_TYPE_COLORS } from "./ArchitectureDiagram";
+import { PannableDiagram } from "./PannableDiagram";
 import { ProjectCover } from "./ProjectCover";
 import type { Project } from "./projectData";
 
@@ -163,6 +164,11 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
                   )}
 
                   <div>
+                    <h4 className="font-display text-[11px] uppercase tracking-[0.18em] text-text-muted">How it fits together</h4>
+                    <PannableDiagram project={project} height={240} />
+                  </div>
+
+                  <div>
                     <h4 className="font-display text-[11px] uppercase tracking-[0.18em] text-text-muted">Looking back</h4>
                     <p className="mt-2 max-w-3xl text-sm leading-7 text-text-soft">{project.reflection}</p>
                   </div>
@@ -171,9 +177,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
 
               {tab === "Architecture" && (
                 <div>
-                  <div className="rounded-2xl p-4" style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} className="h-auto max-h-[420px] w-full" />
-                  </div>
+                  <PannableDiagram project={project} height={340} className="" />
                   <div className="mt-3 flex flex-wrap gap-3">
                     {usedTypes.map((t) => (
                       <span key={t} className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
