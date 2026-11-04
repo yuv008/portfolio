@@ -2,8 +2,6 @@
 
 import { heroStats, sectionIds } from "@/lib/constants";
 import { meetWisp } from "@/lib/wisp";
-import { ConcurrencyRamp } from "@/components/ui/TileVisuals";
-import { Wash } from "@/components/ui/Wash";
 
 export function Hero() {
   return (
@@ -19,7 +17,7 @@ export function Hero() {
         style={{ boxShadow: "0 0 200px 100px rgba(171,138,255,0.07)" }} />
 
       {/* ── Left: Text content ── */}
-      <div className="relative w-full md:w-[54%] z-10">
+      <div className="relative w-full md:w-1/2 z-10">
         <div className="mb-8 flex flex-wrap items-center gap-3">
           <div
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full"
@@ -160,27 +158,6 @@ export function Hero() {
           </div>
         )}
       </div>
-      {/* ── Right: Legion card, the counterweight to the text column (hidden on phones) ── */}
-      <a
-        href="#stress-test"
-        aria-label="See how VEE Legion was tested at 200 concurrent calls"
-        className="tile tile-hover relative z-10 hidden w-[44%] max-w-[560px] shrink-0 flex-col gap-3 self-start p-4 md:mt-14 md:flex"
-      >
-        <Wash from="#6ee7ff" to="#ab8aff" dim={0.6} />
-        <div className="flex items-center justify-between px-1 pt-1">
-          <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-neural-cyan" style={{ fontFamily: "var(--font-display), monospace" }}>
-            <span className="h-2 w-2 rounded-full bg-neural-cyan shadow-[0_0_8px_rgba(110,231,255,0.8)]" aria-hidden="true" />
-            Live · VEE Legion
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.15em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
-            200 calls · 0 errors
-          </span>
-        </div>
-        <div className="[@media(max-height:700px)]:[&_.grid]:!max-w-[290px] [@media(max-height:700px)]:[&_.tile-media]:!min-h-0 [@media(max-height:700px)]:[&_p]:hidden"><ConcurrencyRamp /></div>
-        <p className="px-1 pb-1 text-sm text-text-soft [@media(max-height:820px)]:hidden">
-          Simulated callers ramp up against a voice agent. <span className="text-text-strong">See the stress test →</span>
-        </p>
-      </a>
     </section>
   );
 }
