@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
 import { LoopVideo } from "@/components/ui/LoopVideo";
+import { ParallaxMedia } from "@/components/ui/Parallax";
 import { useLite } from "@/lib/lite";
 import { ArchitectureDiagram } from "./ArchitectureDiagram";
 import type { Project } from "./projectData";
@@ -26,7 +27,9 @@ function HoverVideo({
 }) {
   return (
     <div className="absolute inset-0" style={{ background: "#05080c" }} role="img" aria-label={alt}>
-      <LoopVideo src={video} poster={image} fit={fit} className={fit === "contain" ? "" : "object-top"} />
+      <ParallaxMedia>
+        <LoopVideo src={video} poster={image} fit={fit} className={fit === "contain" ? "" : "object-top"} />
+      </ParallaxMedia>
       {watchHref && (
         <a
           href={watchHref}
@@ -70,6 +73,7 @@ function Slides({ images, alt }: { images: string[]; alt: string }) {
 
   return (
     <div ref={root} className="absolute inset-0 overflow-hidden">
+      <ParallaxMedia>
       {images.map((src, n) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -83,6 +87,7 @@ function Slides({ images, alt }: { images: string[]; alt: string }) {
           style={{ opacity: n === i ? 1 : 0, animation: n === i ? "kenburns 6.5s ease-out forwards" : "none" }}
         />
       ))}
+      </ParallaxMedia>
       {images.length > 1 && (
         <div className="absolute bottom-3 right-4 flex gap-1.5" aria-hidden>
           {images.map((_, n) => (
