@@ -81,11 +81,13 @@ export function ArchitectureDiagram({
   edges,
   compact = false,
   className = "",
+  style,
 }: {
   nodes: ProjectNode[];
   edges: ProjectEdge[];
   compact?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   const { placed, width, height } = useMemo(() => layout(nodes, edges, compact), [nodes, edges, compact]);
   const byId = useMemo(() => new Map(placed.map((p) => [p.id, p])), [placed]);
@@ -97,6 +99,7 @@ export function ArchitectureDiagram({
       viewBox={`${-pad} ${-pad} ${width + pad * 2} ${height + pad * 2}`}
       preserveAspectRatio="xMidYMid meet"
       className={className}
+      style={style}
       role="img"
       aria-label="Architecture diagram"
     >
