@@ -49,14 +49,14 @@ export function Hero() {
         </div>
 
         <h1
-          className="text-6xl md:text-8xl font-bold leading-[0.9] tracking-tighter mb-6"
-          style={{ fontFamily: "var(--font-display), monospace", color: "rgb(var(--neural-text))" }}
+          className="mb-6 font-serif font-normal leading-[0.94] tracking-[-0.02em] text-[4.25rem] md:text-[clamp(5rem,8.4vw,7.5rem)]"
+          style={{ color: "rgb(var(--neural-text))" }}
         >
           I build systems{" "}
           <br />
           <span
-            className="text-transparent bg-clip-text"
-            style={{ backgroundImage: "linear-gradient(to right, #e6e6e6, #acacac)" }}
+            className="text-transparent bg-clip-text italic"
+            style={{ backgroundImage: "linear-gradient(to right, #e6e6e6, #acacac)", paddingRight: "0.08em" }}
           >
             that think.
           </span>

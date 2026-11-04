@@ -29,6 +29,7 @@ const config: Config = {
         display: ["var(--font-display)", "monospace"],
         body: ["var(--font-body)", "sans-serif"],
         mono: ["var(--font-display)", "monospace"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
       },
       boxShadow: {
         glass: "0 24px 80px rgba(0, 0, 0, 0.28)",

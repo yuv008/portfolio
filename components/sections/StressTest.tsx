@@ -421,7 +421,7 @@ export function StressTest() {
                   aria-current={i === active ? "step" : undefined}
                 >
                   <p className="font-display text-[10px] uppercase tracking-[0.2em] text-neural-cyan">{s.kicker}</p>
-                  <h3 className="mt-2 text-2xl font-semibold text-text-strong md:text-3xl" style={{ fontFamily: "var(--font-display), monospace" }}>
+                  <h3 className="mt-2 font-serif text-3xl font-normal tracking-[-0.01em] text-text-strong md:text-4xl">
                     {s.title}
                   </h3>
                   <p className="mt-3 max-w-lg text-sm leading-7 text-text-soft">{s.body}</p>
@@ -458,7 +458,7 @@ export function StressTest() {
               <div className="lc-head flex items-start justify-between gap-4">
                 <div>
                   <p className="font-display text-[10px] uppercase tracking-[0.2em] text-neural-cyan">{s.kicker}</p>
-                  <h3 className="mt-1.5 text-2xl font-semibold text-text-strong" style={{ fontFamily: "var(--font-display), monospace" }}>
+                  <h3 className="mt-1.5 font-serif text-3xl font-normal tracking-[-0.01em] text-text-strong">
                     {s.title}
                   </h3>
                 </div>

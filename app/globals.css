@@ -5,6 +5,7 @@
   --font-family-display: var(--font-display), monospace;
   --font-family-body: var(--font-body), sans-serif;
   --font-family-mono: var(--font-display), monospace;
+  --font-family-serif: var(--font-serif), Georgia, serif;
 }
 
 :root {
@@ -98,8 +99,14 @@
   }
 
   .section-title {
-    @apply text-4xl font-semibold tracking-[-0.08em] text-text-strong md:text-6xl;
-    font-family: var(--font-display), monospace;
+    @apply text-5xl font-normal tracking-[-0.02em] text-text-strong md:text-7xl;
+    font-family: var(--font-serif), Georgia, serif;
+    line-height: 1.02;
+  }
+  /* The accent word in a title is set in the serif's italic, with room so the gradient never clips its slant. */
+  .section-title > span.bg-clip-text {
+    font-style: italic;
+    padding-right: 0.08em;
   }
 
   .section-copy {

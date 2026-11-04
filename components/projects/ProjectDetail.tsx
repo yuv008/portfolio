@@ -88,7 +88,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
             <p className="font-display text-[10px] uppercase tracking-[0.2em]" style={{ color: accent }}>
               {project.period}
             </p>
-            <h3 className="mt-1 font-display text-3xl font-semibold text-text-strong">{project.name}</h3>
+            <h3 className="mt-1 font-serif text-5xl font-normal tracking-[-0.01em] text-text-strong">{project.name}</h3>
             <p className="mt-2 max-w-2xl text-base text-text-soft">{project.tagline}</p>
 
             <div className="mt-4 flex flex-wrap gap-2">

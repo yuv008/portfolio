@@ -36,7 +36,10 @@ export function Skills() {
       <div className="section-container">
         <div className="mb-12">
           <p className="section-kicker mb-4">{"// System_Status: Operational"}</p>
-          <h2 className="section-title w-fit bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">THE MATRIX</h2>
+          <h2 className="section-title">
+            The_{" "}
+            <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Matrix</span>
+          </h2>
           <p className="section-copy mt-4 !text-base">
             The tools I build with, and how they connect. Hover a logo or a node to see what connects to it, or drag the graph.
           </p>

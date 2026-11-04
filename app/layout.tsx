@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Instrument_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { Toaster } from "react-hot-toast";
@@ -7,7 +7,8 @@ import { HeroFieldLazy } from "@/components/three/HeroFieldLazy";
 import { LiteMode } from "@/components/ui/LiteMode";
 
 
-const jetbrainsMono = JetBrains_Mono({
+// Labels, numbers and buttons: a quiet mono. Body copy: Instrument Sans. Big headlines: Instrument Serif.
+const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
@@ -15,12 +16,22 @@ const jetbrainsMono = JetBrains_Mono({
   fallback: ["Courier New", "monospace"],
 });
 
-const inter = Inter({
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
   preload: true,
   fallback: ["system-ui", "sans-serif"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+  preload: true,
+  fallback: ["Georgia", "serif"],
 });
 
 export const metadata: Metadata = {
@@ -52,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jetbrainsMono.variable} ${inter.variable} dark`}
+      className={`${geistMono.variable} ${instrumentSans.variable} ${instrumentSerif.variable} dark`}
       style={{
         background:
           "radial-gradient(ellipse at 18% 12%, rgba(230,230,230,0.08), transparent 34%), radial-gradient(ellipse at 82% 36%, rgba(172,172,172,0.07), transparent 38%), rgb(10 10 11)",
