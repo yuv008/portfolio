@@ -9,6 +9,16 @@ import { Wash } from "@/components/ui/Wash";
 import { useStagger } from "@/components/ui/Parallax";
 import { PROJECT_OPEN_EVENT, explainProject, meetWisp } from "@/lib/wisp";
 
+/** Each project keeps its own coloured glow behind the tile, even though the rest of the UI is monochrome. */
+const GLOW: Record<string, string> = {
+  weave: "#b9a8ff",
+  "orpheus-tts": "#a8e8ff",
+  "smart-pathshala": "#dcb8ff",
+  shetniyojan: "#7ee0a6",
+  warcast: "#ffb36b",
+  legify: "#9fc2ff",
+};
+
 const ACCENT: Record<string, string> = {
   weave: "#c6c6c6",
   "orpheus-tts": "#f4f4f4",
@@ -28,8 +38,37 @@ const LAYOUT: Record<string, { span: string; hero?: boolean; drift: number }> = 
   legify: { span: "md:col-span-2 lg:col-span-4", drift: 1 },
 };
 
+/** The full, labelled diagram at a readable size. It is wider than the tile, so it pans: drag, swipe or scroll sideways. */
+function PannableDiagram({ project }: { project: Project }) {
+  const box = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ x: number; left: number } | null>(null);
+  return (
+    <div className="relative mt-3 rounded-2xl" style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div
+        ref={box}
+        className="cursor-grab overflow-x-auto overflow-y-hidden p-3 active:cursor-grabbing [scrollbar-width:thin]"
+        style={{ maskImage: "linear-gradient(to right, #000 88%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, #000 88%, transparent 100%)" }}
+        onPointerDown={(e) => {
+          if (e.pointerType === "mouse" && box.current) drag.current = { x: e.clientX, left: box.current.scrollLeft };
+        }}
+        onPointerMove={(e) => {
+          if (drag.current && box.current) box.current.scrollLeft = drag.current.left - (e.clientX - drag.current.x);
+        }}
+        onPointerUp={() => (drag.current = null)}
+        onPointerLeave={() => (drag.current = null)}
+      >
+        <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} className="h-[230px] w-auto max-w-none select-none" />
+      </div>
+      <p className="pointer-events-none absolute bottom-1.5 right-4 text-[9px] uppercase tracking-[0.16em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
+        Drag to explore →
+      </p>
+    </div>
+  );
+}
+
 function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const accent = ACCENT[project.id] ?? "#f4f4f4";
+  const glow = GLOW[project.id] ?? accent;
   const layout = LAYOUT[project.id] ?? { span: "lg:col-span-4", drift: 0 };
   const articleRef = useRef<HTMLElement>(null);
   useStagger(articleRef, layout.drift);
@@ -45,13 +84,13 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
       id={`project-${project.id}`}
       className={`tile tile-hover group relative flex flex-col overflow-hidden ${layout.span}`}
     >
-      <Wash image={washImage} from={accent} to={accent} dim={washImage ? 0.52 : 0.6} />
+      <Wash image={washImage} from={glow} to={glow} dim={washImage ? 0.52 : 0.6} />
       <div className="shrink-0 p-2.5 pb-0">
         <div className="tile-media cursor-pointer p-2" style={{ height: hero ? 340 : 210 }} onClick={onOpen}>
           <div className="relative h-full w-full overflow-hidden rounded-[0.8rem]">
             <ProjectCover project={project} />
           </div>
-          <span className="pointer-events-none absolute left-5 top-4 h-2 w-2 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
+          <span className="pointer-events-none absolute left-5 top-4 h-2 w-2 rounded-full" style={{ background: glow, boxShadow: `0 0 8px ${glow}` }} />
           {project.featured && (
             <span
               className="pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.18em]"
@@ -122,9 +161,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
             <p className="text-[10px] uppercase tracking-[0.18em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
               How it fits together
             </p>
-            <div className="mt-3 h-[170px] rounded-2xl p-3" style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} compact className="h-full w-full" />
-            </div>
+            <PannableDiagram project={project} />
           </div>
         )}
 
