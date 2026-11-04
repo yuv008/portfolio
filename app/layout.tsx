@@ -55,7 +55,7 @@ export default function RootLayout({
       className={`${jetbrainsMono.variable} ${inter.variable} dark`}
       style={{
         background:
-          "radial-gradient(ellipse at 18% 12%, rgba(230,230,230,0.08), transparent 34%), radial-gradient(ellipse at 82% 36%, rgba(172,172,172,0.07), transparent 38%), rgb(8 12 18)",
+          "radial-gradient(ellipse at 18% 12%, rgba(230,230,230,0.08), transparent 34%), radial-gradient(ellipse at 82% 36%, rgba(172,172,172,0.07), transparent 38%), rgb(10 10 11)",
       }}
     >
       <head>
