@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { OrpheusWaveform } from "@/components/three/OrpheusWaveform";
+import { OrpheusOrb } from "@/components/three/OrpheusOrb";
 import { LoopVideo } from "@/components/ui/LoopVideo";
 import { ParallaxMedia } from "@/components/ui/Parallax";
 import { useLite } from "@/lib/lite";
@@ -118,11 +118,7 @@ export function ProjectCover({ project }: { project: Project }) {
     return <Slides images={c.images} alt={`${project.name} screenshots`} />;
   }
   if (c.kind === "waveform") {
-    return (
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(244,244,244,0.10), rgba(12,12,12,0.9) 70%)" }}>
-        <OrpheusWaveform />
-      </div>
-    );
+    return <OrpheusOrb />;
   }
   return (
     <div
