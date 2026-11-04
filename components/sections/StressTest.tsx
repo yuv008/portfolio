@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { LoopVideo } from "@/components/ui/LoopVideo";
 import { Wash } from "@/components/ui/Wash";
 import { VideoLightbox } from "@/components/ui/VideoLightbox";
+import { LegionRail } from "@/components/sections/LegionRail";
 
 /* ── Steps ─────────────────────────────────────────────────── */
 
@@ -376,7 +377,7 @@ export function StressTest() {
           </div>
         </div>
 
-        <div className="legion-grid grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div className="legion-classic legion-grid grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           {/* Sticky stage (desktop) */}
           <div className="relative hidden lg:block">
             <div className="legion-stage sticky">
@@ -445,6 +446,39 @@ export function StressTest() {
           </ol>
         </div>
       </div>
+
+      {/* Wide screens with motion: the steps ride a pinned horizontal rail. Everyone else gets the layout above. */}
+      <LegionRail
+        count={STEPS.length}
+        labels={STEPS.map((s) => s.title)}
+        renderCard={(i, on) => {
+          const s = STEPS[i];
+          return (
+            <div className="tile flex h-full flex-col gap-3 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-display text-[10px] uppercase tracking-[0.2em] text-neural-cyan">{s.kicker}</p>
+                  <h3 className="mt-1.5 text-2xl font-semibold text-text-strong" style={{ fontFamily: "var(--font-display), monospace" }}>
+                    {s.title}
+                  </h3>
+                </div>
+                {s.chips && (
+                  <div className="flex shrink-0 gap-2">
+                    {s.chips.map((c) => (
+                      <div key={c.label} className="rounded-xl px-3 py-1.5" style={{ background: "rgba(97,255,171,0.08)", border: "1px solid rgba(97,255,171,0.25)" }}>
+                        <p className="font-display text-lg font-semibold leading-none text-neural-green">{c.value}</p>
+                        <p className="mt-0.5 text-[10px] text-text-soft">{c.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className={`min-h-0 flex-1 overflow-x-hidden [&_figcaption]:hidden ${s.demo ? "overflow-y-auto" : "overflow-y-hidden"}`}>{s.demo ? <AgentTestDemo /> : <StepImage step={s} playing={on} />}</div>
+              <p className="text-sm leading-6 text-text-soft">{s.body}</p>
+            </div>
+          );
+        }}
+      />
 
       {video && <VideoLightbox src="/legion/legion-promo.mp4" poster="/legion/legion-poster.webp" title="VEE Legion launch video" onClose={() => setVideo(false)} />}
     </section>
