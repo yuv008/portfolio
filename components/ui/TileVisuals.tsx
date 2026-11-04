@@ -14,7 +14,7 @@ export function VoiceBars() {
           key={i}
           className="tile-anim block h-14 w-[3px] origin-center rounded-full"
           style={{
-            background: "linear-gradient(to top, #6ee7ff, #ab8aff)",
+            background: "linear-gradient(to top, #e6e6e6, #acacac)",
             animation: `tile-bar ${b.d}s ease-in-out ${b.delay}s infinite`,
           }}
         />
@@ -34,18 +34,18 @@ export function VectorSearch() {
     <div className="tile-media h-[132px]" aria-hidden="true">
       <svg viewBox="0 0 210 132" className="h-full w-full">
         {POINTS.map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r={2.2} fill="#52606f" />
+          <circle key={i} cx={x} cy={y} r={2.2} fill="#5e5e5e" />
         ))}
         <g>
-          <circle cx="105" cy="66" r="9" fill="none" stroke="#6ee7ff" strokeWidth="1" className="tile-anim" style={{ transformOrigin: "105px 66px", animation: "tile-ping 2.4s ease-out infinite" }} />
-          <circle cx="105" cy="66" r="4.5" fill="#6ee7ff" />
+          <circle cx="105" cy="66" r="9" fill="none" stroke="#e6e6e6" strokeWidth="1" className="tile-anim" style={{ transformOrigin: "105px 66px", animation: "tile-ping 2.4s ease-out infinite" }} />
+          <circle cx="105" cy="66" r="4.5" fill="#e6e6e6" />
         </g>
         {HITS.map((idx, n) => {
           const [x, y] = POINTS[idx];
           return (
             <g key={idx} className="tile-anim" style={{ animation: `tile-hit 3.6s ease-in-out ${n * 0.5}s infinite` }}>
-              <line x1="105" y1="66" x2={x} y2={y} stroke="#6ee7ff" strokeWidth="1" strokeOpacity="0.7" />
-              <circle cx={x} cy={y} r="4" fill="#6ee7ff" />
+              <line x1="105" y1="66" x2={x} y2={y} stroke="#e6e6e6" strokeWidth="1" strokeOpacity="0.7" />
+              <circle cx={x} cy={y} r="4" fill="#e6e6e6" />
             </g>
           );
         })}
@@ -75,13 +75,13 @@ export function LossCurve() {
         />
         <defs>
           <linearGradient id="loss" x1="12" y1="0" x2="198" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#ab8aff" />
-            <stop offset="1" stopColor="#6ee7ff" />
+            <stop offset="0" stopColor="#acacac" />
+            <stop offset="1" stopColor="#e6e6e6" />
           </linearGradient>
         </defs>
         <circle
           r="4"
-          fill="#6ee7ff"
+          fill="#e6e6e6"
           className="tile-anim"
           style={{ offsetPath: `path("${d}")`, animation: "tile-dot 4.2s ease-out infinite" }}
         />
@@ -105,7 +105,7 @@ export function ConcurrencyRamp() {
             <span
               key={i}
               className="tile-anim aspect-square rounded-[3px]"
-              style={{ background: "#6ee7ff", opacity: 0.12, animation: `slot-on 5.2s ease-in-out ${delay}s infinite` }}
+              style={{ background: "#e6e6e6", opacity: 0.12, animation: `slot-on 5.2s ease-in-out ${delay}s infinite` }}
             />
           );
         })}

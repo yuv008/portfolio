@@ -5,8 +5,8 @@
  */
 export function Wash({
   image,
-  from = "#6ee7ff",
-  to = "#ab8aff",
+  from = "#e6e6e6",
+  to = "#acacac",
   dim = 0.5,
 }: {
   image?: string;

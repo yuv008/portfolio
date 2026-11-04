@@ -83,7 +83,7 @@ export const STACK_LOGOS: StackLogo[] = [
   { name: "Kubernetes", slug: "kubernetes", match: ["Kubernetes"] },
   { name: "Qdrant", slug: "qdrant", match: ["Qdrant"] },
   { name: "LiveKit", slug: "livekit", match: ["LiveKit"] },
-  { name: "Twilio", slug: null, match: ["Twilio"], color: "#F22F46" },
+  { name: "Twilio", slug: null, match: ["Twilio"], color: "#676767" },
   { name: "LangChain", slug: "langchain", match: ["LangChain"] },
   { name: "CrewAI", slug: "crewai", match: ["CrewAI"] },
   { name: "Pipecat", slug: "pipecat", match: ["Pipecat"] },

@@ -9,7 +9,7 @@ export function OrpheusWaveform() {
     <div
       role="img"
       aria-label="Stylized audio waveform"
-      className="relative flex h-full w-full items-center justify-center gap-[3px] overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(110,231,255,0.12),transparent_65%)] px-6"
+      className="relative flex h-full w-full items-center justify-center gap-[3px] overflow-hidden bg-[radial-gradient(ellipse_at_center,rgba(230,230,230,0.12),transparent_65%)] px-6"
     >
       {BARS.map((height, index) => (
         <span

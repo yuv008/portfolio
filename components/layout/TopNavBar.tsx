@@ -33,7 +33,7 @@ export function TopNavBar() {
         href="#hero"
         className={`group/sig fixed left-8 top-6 z-[60] hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong xl:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
       >
-        <span className="h-2 w-2 rounded-full bg-gradient-to-br from-neural-cyan to-neural-violet shadow-[0_0_10px_rgba(110,231,255,0.7)]" aria-hidden="true" />
+        <span className="h-2 w-2 rounded-full bg-gradient-to-br from-neural-cyan to-neural-violet shadow-[0_0_10px_rgba(230,230,230,0.7)]" aria-hidden="true" />
         Yuvraj Sanghai
       </Link>
 
@@ -43,7 +43,7 @@ export function TopNavBar() {
         className={`fixed right-8 top-6 z-[60] hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong xl:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
       >
         Open to work
-        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)]" aria-hidden="true" />
+        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(193,193,193,0.7)]" aria-hidden="true" />
       </a>
 
       <nav aria-label="Sections" className="fixed inset-x-0 top-4 z-[60] flex justify-center px-3">
@@ -64,7 +64,7 @@ export function TopNavBar() {
                     {active && (
                       <motion.span
                         layoutId="nav-active"
-                        className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(110,231,255,0.30),rgba(171,138,255,0.34))] shadow-[0_0_18px_-2px_rgba(110,231,255,0.4),inset_0_0_0_1px_rgba(255,255,255,0.22)]"
+                        className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(230,230,230,0.30),rgba(172,172,172,0.34))] shadow-[0_0_18px_-2px_rgba(230,230,230,0.4),inset_0_0_0_1px_rgba(255,255,255,0.22)]"
                         transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       />
                     )}
@@ -90,7 +90,7 @@ export function TopNavBar() {
             aria-label="Ask Wisp"
             title="Ask Wisp"
             onClick={(e) => meetWisp(e.currentTarget)}
-            className={`flex h-11 w-11 items-center justify-center rounded-full text-neural-violet outline-none transition-all hover:scale-105 hover:text-white hover:shadow-[0_0_22px_-2px_rgba(171,138,255,0.6)] focus-visible:ring-2 focus-visible:ring-neural-violet/60 sm:h-[3.25rem] sm:w-[3.25rem] ${glass}`}
+            className={`flex h-11 w-11 items-center justify-center rounded-full text-neural-violet outline-none transition-all hover:scale-105 hover:text-white hover:shadow-[0_0_22px_-2px_rgba(172,172,172,0.6)] focus-visible:ring-2 focus-visible:ring-neural-violet/60 sm:h-[3.25rem] sm:w-[3.25rem] ${glass}`}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 21, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
               chat_bubble
@@ -100,9 +100,9 @@ export function TopNavBar() {
           <Link
             href="#contact"
             aria-label="Connect"
-            className="group flex h-11 items-center gap-3 rounded-full bg-[linear-gradient(135deg,#8ff0ff_0%,#6ee7ff_38%,#b49cff_100%)] p-1 pr-1 text-[#06101a] shadow-[0_12px_32px_-10px_rgba(110,231,255,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] outline-none transition-all hover:scale-[1.04] hover:shadow-[0_14px_38px_-8px_rgba(171,138,255,0.65),inset_0_1px_0_rgba(255,255,255,0.5)] focus-visible:ring-2 focus-visible:ring-white sm:h-[3.25rem] sm:pr-6"
+            className="group flex h-11 items-center gap-3 rounded-full bg-[linear-gradient(135deg,#f4f4f4_0%,#e6e6e6_38%,#bcbcbc_100%)] p-1 pr-1 text-[#0f0f0f] shadow-[0_12px_32px_-10px_rgba(230,230,230,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] outline-none transition-all hover:scale-[1.04] hover:shadow-[0_14px_38px_-8px_rgba(172,172,172,0.65),inset_0_1px_0_rgba(255,255,255,0.5)] focus-visible:ring-2 focus-visible:ring-white sm:h-[3.25rem] sm:pr-6"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#0a0f16] sm:h-11 sm:w-11">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#0e0e0e] sm:h-11 sm:w-11">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/icon.svg" alt="" width={28} height={28} className="h-7 w-7" />
             </span>

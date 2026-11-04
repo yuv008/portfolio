@@ -97,7 +97,7 @@ void main(){
 }`;
 
 export default function HeroField({
-  colors = ["#1E88E5", "#5CE1E6", "#E6F7FF"],
+  colors = ["#888888", "#dbdbdb", "#f4f4f4"],
   particles = 32000,
   opacity = 0.45,
   shape = 0,

@@ -522,14 +522,14 @@ export function WispGuide() {
             visibility: bubblePos ? "visible" : "hidden",
             maxHeight: bubblePos?.maxH,
             overflowY: bubblePos?.maxH ? "auto" : undefined,
-            background: "rgba(20,27,35,0.97)",
-            border: "1px solid rgba(171,138,255,0.35)",
-            boxShadow: "0 12px 32px rgba(0,0,0,0.45), 0 0 24px rgba(171,138,255,0.12)",
+            background: "rgba(26,26,26,0.97)",
+            border: "1px solid rgba(172,172,172,0.35)",
+            boxShadow: "0 12px 32px rgba(0,0,0,0.45), 0 0 24px rgba(172,172,172,0.12)",
           }}
         >
           <p
             className="text-[10px] uppercase tracking-[0.18em]"
-            style={{ fontFamily: "var(--font-display), monospace", color: "#ab8aff" }}
+            style={{ fontFamily: "var(--font-display), monospace", color: "#acacac" }}
           >
             {content.source}
           </p>
@@ -545,7 +545,7 @@ export function WispGuide() {
                 type="button"
                 onClick={primary.run}
                 className="whitespace-nowrap rounded-full px-4 py-1.5 text-[10px] uppercase tracking-[0.15em] text-text-strong transition-colors"
-                style={{ fontFamily: "var(--font-display), monospace", background: "rgba(171,138,255,0.28)" }}
+                style={{ fontFamily: "var(--font-display), monospace", background: "rgba(172,172,172,0.28)" }}
               >
                 {primary.label}
               </button>
@@ -564,7 +564,7 @@ export function WispGuide() {
                   <span
                     key={s.id}
                     className="h-1.5 w-1.5 rounded-full"
-                    style={{ background: i === stopIdx ? "#ab8aff" : "rgba(255,255,255,0.18)" }}
+                    style={{ background: i === stopIdx ? "#acacac" : "rgba(255,255,255,0.18)" }}
                   />
                 ))}
               </div>

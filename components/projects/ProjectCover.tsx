@@ -26,7 +26,7 @@ function HoverVideo({
   fit?: "cover" | "contain";
 }) {
   return (
-    <div className="absolute inset-0" style={{ background: "#05080c" }} role="img" aria-label={alt}>
+    <div className="absolute inset-0" style={{ background: "#080808" }} role="img" aria-label={alt}>
       <ParallaxMedia>
         <LoopVideo src={video} poster={image} fit={fit} className={fit === "contain" ? "" : "object-top"} />
       </ParallaxMedia>
@@ -39,7 +39,7 @@ function HoverVideo({
           className="absolute bottom-3 right-4 z-10 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] uppercase tracking-widest"
           style={{
             fontFamily: "var(--font-display), monospace",
-            background: "rgba(8,12,18,0.7)",
+            background: "rgba(12,12,12,0.7)",
             border: "1px solid rgba(255,255,255,0.15)",
           }}
         >
@@ -114,7 +114,7 @@ export function ProjectCover({ project }: { project: Project }) {
   }
   if (c.kind === "waveform") {
     return (
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(168,232,255,0.10), rgba(8,12,18,0.9) 70%)" }}>
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(244,244,244,0.10), rgba(12,12,12,0.9) 70%)" }}>
         <OrpheusWaveform />
       </div>
     );
@@ -124,7 +124,7 @@ export function ProjectCover({ project }: { project: Project }) {
       className="absolute inset-0 flex items-center justify-center p-5"
       style={{
         background:
-          "radial-gradient(ellipse at 50% 0%, rgba(171,138,255,0.16), transparent 60%), radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 18px 18px, rgb(10,14,20)",
+          "radial-gradient(ellipse at 50% 0%, rgba(172,172,172,0.16), transparent 60%), radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 18px 18px, rgb(14,14,14)",
       }}
     >
       <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} compact className="h-full w-full" />

@@ -14,10 +14,10 @@ type Win = {
 };
 
 const WINS: Win[] = [
-  { wash: ["#7ee0a6", "#6ee7ff"], event: "Devclash 2025", detail: "24-hour hackathon at DY Patil Pimpri", result: "1st prize", project: { id: "shetniyojan", name: "ShetNiyojan" }, icon: "emoji_events" },
-  { wash: ["#9fc2ff", "#ab8aff"], event: "Synapse 2.0", detail: "AI hackathon at MKSSS CCOEW", result: "1st prize", project: { id: "legify", name: "Legify" }, icon: "emoji_events" },
-  { wash: ["#ffb36b", "#ff7078"], event: "L&T NeuroHack", detail: "24-hour hackathon at COEP Mindspark 24", result: "1st prize", project: { id: "warcast", name: "WarCast" }, icon: "emoji_events" },
-  { wash: ["#ab8aff", "#6ee7ff"], event: "MHT-CET 2022", detail: "Merit rank 971 among 400,000+ candidates", result: "99.35 percentile", icon: "military_tech" },
+  { wash: ["#dddddd", "#e6e6e6"], event: "Devclash 2025", detail: "24-hour hackathon at DY Patil Pimpri", result: "1st prize", project: { id: "shetniyojan", name: "ShetNiyojan" }, icon: "emoji_events" },
+  { wash: ["#d4d4d4", "#acacac"], event: "Synapse 2.0", detail: "AI hackathon at MKSSS CCOEW", result: "1st prize", project: { id: "legify", name: "Legify" }, icon: "emoji_events" },
+  { wash: ["#d3d3d3", "#ff7078"], event: "L&T NeuroHack", detail: "24-hour hackathon at COEP Mindspark 24", result: "1st prize", project: { id: "warcast", name: "WarCast" }, icon: "emoji_events" },
+  { wash: ["#acacac", "#e6e6e6"], event: "MHT-CET 2022", detail: "Merit rank 971 among 400,000+ candidates", result: "99.35 percentile", icon: "military_tech" },
 ];
 
 function Medal({ icon }: { icon: string }) {
@@ -28,7 +28,7 @@ function Medal({ icon }: { icon: string }) {
           className="tile-anim absolute inset-0 rounded-full border border-neural-cyan/50"
           style={{ animation: "tile-ping 2.8s ease-out infinite" }}
         />
-        <span className="absolute inset-0 rounded-full border border-neural-cyan/35 bg-[radial-gradient(circle_at_35%_30%,rgba(143,240,255,0.28),rgba(171,138,255,0.12)_70%)]" />
+        <span className="absolute inset-0 rounded-full border border-neural-cyan/35 bg-[radial-gradient(circle_at_35%_30%,rgba(244,244,244,0.28),rgba(172,172,172,0.12)_70%)]" />
         <span className="material-symbols-outlined relative text-neural-cyan" style={{ fontSize: 32, fontVariationSettings: "'FILL' 1" }}>
           {icon}
         </span>

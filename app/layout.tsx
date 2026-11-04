@@ -55,7 +55,7 @@ export default function RootLayout({
       className={`${jetbrainsMono.variable} ${inter.variable} dark`}
       style={{
         background:
-          "radial-gradient(ellipse at 18% 12%, rgba(110,231,255,0.08), transparent 34%), radial-gradient(ellipse at 82% 36%, rgba(171,138,255,0.07), transparent 38%), rgb(8 12 18)",
+          "radial-gradient(ellipse at 18% 12%, rgba(230,230,230,0.08), transparent 34%), radial-gradient(ellipse at 82% 36%, rgba(172,172,172,0.07), transparent 38%), rgb(8 12 18)",
       }}
     >
       <head>
@@ -67,7 +67,7 @@ export default function RootLayout({
         <LiteMode />
         <HeroFieldLazy
           className="pointer-events-none fixed inset-0 z-0"
-          colors={["#6ee7ff", "#ab8aff", "#d1dce9"]}
+          colors={["#e6e6e6", "#acacac", "#dbdbdb"]}
           particles={64000}
           opacity={0.5}
           scrollDim={0.7}
