@@ -121,6 +121,36 @@
     border-color: rgba(230, 230, 230, 0.28);
     transform: translateY(-2px);
   }
+  /* Cursor spotlight and edge sheen on hover (pointer devices only; off in Lite mode). */
+  .tile-spot::after,
+  .tile-spot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .tile-spot::after {
+    background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.09), transparent 62%);
+  }
+  .tile-spot::before {
+    padding: 1px;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.6), transparent 62%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  @media (hover: hover) {
+    .tile-spot:hover::after,
+    .tile-spot:hover::before {
+      opacity: 1;
+    }
+  }
+  .ring-arc {
+    transition: stroke-dashoffset 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
   /* Black "screen" inset in a tile: media sits in it with an even grey border around. */
   .tile-media {
     position: relative;
@@ -357,6 +387,18 @@
 [data-lite="on"] .tile-anim,
 [data-lite="on"] .arch-flow {
   animation: none !important;
+}
+[data-lite="on"] .tile-spot::before,
+[data-lite="on"] .tile-spot::after {
+  display: none !important;
+}
+[data-lite="on"] .ring-arc {
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ring-arc {
+    transition: none;
+  }
 }
 [data-lite="on"] .wash {
   display: none !important;
