@@ -62,8 +62,8 @@ export function Hero() {
           </span>
         </h1>
 
-        <p className="text-xl text-text-soft max-w-lg mb-12 leading-relaxed">
-          At VoiceraCX I build <span className="text-text-strong">VEE Legion</span>, an independent QA platform that tests voice and chat AI agents with simulated callers and red-team attacks before customers find the failures.<span className="hidden sm:inline"> I also build real-time voice pipelines, retrieval and fine-tuned models.</span>
+        <p className="text-xl text-text-soft max-w-xl mb-12 leading-relaxed">
+          Voice and chat AI agents fail in ways nobody sees until a customer complains. I build <span className="text-text-strong">VEE Legion</span>, which finds those failures first with simulated callers and red-team attacks.<span className="hidden sm:inline"> I also build the real-time voice pipelines, retrieval and fine-tuned models behind them.</span>
         </p>
 
         <div className="flex flex-wrap gap-4">
