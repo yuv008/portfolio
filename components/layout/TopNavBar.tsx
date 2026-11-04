@@ -37,6 +37,15 @@ export function TopNavBar() {
         Yuvraj Sanghai
       </Link>
 
+      {/* Mirror of the signature on the right, so the corners balance on wide screens */}
+      <a
+        href="#contact"
+        className={`fixed right-8 top-6 z-[60] hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong xl:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
+      >
+        Open to work
+        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)]" aria-hidden="true" />
+      </a>
+
       <nav aria-label="Sections" className="fixed inset-x-0 top-4 z-[60] flex justify-center px-3">
         <div className="flex items-center gap-2 sm:gap-3">
           <ul className={`group/nav flex items-center gap-0.5 rounded-full p-1 transition-[gap] duration-300 hover:gap-1 focus-within:gap-1 sm:gap-1 sm:p-1.5 ${glass}`}>

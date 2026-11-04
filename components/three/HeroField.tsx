@@ -171,11 +171,26 @@ export default function HeroField({
     let drawCount = count;
 
     // Size to the container, not the window
+    // Shift the cloud right on wide screens to balance the left-hand text column.
+    // It eases back to centre as the page scrolls past the hero. Projection-only, so no extra cost.
+    let shift = 0;
+    const applyShift = () => {
+      const w = mount.clientWidth || 1;
+      const h = mount.clientHeight || 1;
+      const wide = scrollLinked && w >= 900;
+      const f = wide ? 0.22 * (1 - Math.min(window.scrollY / (window.innerHeight || 1), 1)) : 0;
+      if (f === shift && camera.view?.enabled === (f !== 0)) return;
+      shift = f;
+      if (f === 0) camera.clearViewOffset();
+      else camera.setViewOffset(w, h, -f * w, 0, w, h);
+    };
     const resize = () => {
       const w = mount.clientWidth || 1;
       const h = mount.clientHeight || 1;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      shift = -1;
+      applyShift();
       renderer.setSize(w, h, false);
       renderer.domElement.style.width = "100%";
       renderer.domElement.style.height = "100%";
@@ -200,6 +215,7 @@ export default function HeroField({
       const y = window.scrollY;
       const fade = Math.min(y / vh, 1);
       targetOpacity = baseOpacity * (1 - fade * (1 - scrollDim));
+      applyShift();
       const rest = Math.max(pageHeight - vh * 2, 1);
       const t = Math.min(Math.max((y - vh) / rest, 0), 1);
       targetShape = shape + (1 - shape) * t * t * (3 - 2 * t);
