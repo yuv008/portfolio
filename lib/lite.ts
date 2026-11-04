@@ -36,6 +36,7 @@ export function setLite(on: boolean, reason: LiteReason, persist = false) {
   const el = document.documentElement;
   el.dataset.lite = on ? "on" : "off";
   el.dataset.liteReason = on ? reason : "off";
+  delete el.dataset.liteFps;
   if (persist) {
     try {
       window.localStorage.setItem(KEY, on ? "on" : "off");
@@ -99,6 +100,8 @@ export function initLite(): () => void {
         slowWindows = fps < 24 ? slowWindows + 1 : 0;
         if (slowWindows >= 2) {
           setLite(true, "auto");
+          // Flag that this came from the frame-rate watch, so layouts do not swap under someone mid-scroll.
+          document.documentElement.dataset.liteFps = "1";
           return;
         }
         start = t;
