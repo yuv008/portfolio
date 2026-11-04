@@ -83,7 +83,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
           </p>
         </div>
 
-        <h3 className={`mt-2 font-semibold text-text-strong ${hero ? "text-4xl" : "text-2xl"}`} style={{ fontFamily: "var(--font-display), monospace" }}>
+        <h3 className={`mt-2 font-serif font-normal tracking-[-0.01em] text-text-strong ${hero ? "text-6xl" : "text-4xl"}`}>
           {project.name}
         </h3>
         <p className="mt-2 text-sm leading-6 text-text-soft">{project.tagline}</p>
@@ -202,9 +202,9 @@ export function Projects() {
           <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-neural-cyan" style={{ fontFamily: "var(--font-display), monospace" }}>
             Manifest_v{projects.length}.0
           </p>
-          <h2 className="text-7xl font-bold leading-none tracking-tighter md:text-8xl" style={{ fontFamily: "var(--font-display), monospace" }}>
-            THE{" "}
-            <span className="bg-gradient-to-br from-[#f4f4f4] to-[#dbdbdb] bg-clip-text text-transparent">FORGE</span>
+          <h2 className="section-title">
+            The_{" "}
+            <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Forge</span>
           </h2>
         </div>
         <p className="max-w-xs text-sm leading-relaxed text-text-soft md:ml-auto md:text-right">
