@@ -54,7 +54,7 @@ const VERT = /* glsl */ `
 uniform float uTime, uFreq, uAmp, uShape, uTwist, uSize, uPixelRatio;
 uniform vec3 uOffset;
 attribute vec3 aSeed;
-varying float vMix; varying float vR;
+varying float vMix; varying float vR; varying float vNear;
 ${NOISE}
 vec3 flow(vec3 p){
   return vec3(snoise(p), snoise(p+vec3(31.4,-12.7,5.1)), snoise(p+vec3(-7.3,19.9,43.2)));
@@ -79,21 +79,22 @@ void main(){
 
   vec4 mv = modelViewMatrix * vec4(q, 1.0);
   gl_Position = projectionMatrix * mv;
-  gl_PointSize = uSize * uPixelRatio * (0.55 + aSeed.z) / -mv.z;
+  gl_PointSize = min(uSize * uPixelRatio * (0.55 + aSeed.z) / -mv.z, 46.0 * uPixelRatio);
+  vNear = smoothstep(0.35, 1.7, -mv.z); // dots that fly past the camera dissolve instead of becoming blobs
   vMix = clamp(length(q - p) / (uAmp * 0.9 + 0.001), 0.0, 1.0);
   vR = aSeed.z;
 }`;
 
 const FRAG = /* glsl */ `
 uniform vec3 uC1, uC2, uC3; uniform float uOpacity;
-varying float vMix; varying float vR;
+varying float vMix; varying float vR; varying float vNear;
 void main(){
   float d = length(gl_PointCoord - 0.5);
   if (d > 0.5) discard;
   float a = smoothstep(0.5, 0.0, d);
   vec3 col = mix(uC1, uC2, smoothstep(0.1, 0.9, vMix));
   col = mix(col, uC3, step(0.86, vR) * 0.85);
-  gl_FragColor = vec4(col, a * uOpacity);
+  gl_FragColor = vec4(col, a * uOpacity * vNear);
 }`;
 
 export default function HeroField({
@@ -197,15 +198,31 @@ export default function HeroField({
     const minCount = Math.round(farCount * 0.3);
     let drawCount = farCount;
 
-    // Camera path. At the top of the page the cloud sits to the right of the hero. As you scroll it drifts
-    // across to the left while the camera slowly dollies in, so it feels like moving through the cloud.
-    // Kept deliberately gentle. Both are eased in the frame loop; everything is still at the top of the page.
-    const SWEEP = 0.22; // fraction of the window width the cloud starts to the right (and ends to the left)
-    const DOLLY = isSmall ? 0.8 : 1.35; // world units the camera moves forward over the page
-    let camF = scrollLinked ? SWEEP : 0;
+    // Camera path, in three moves as you scroll the page:
+    //   1. the cloud eases from the right of the hero to just right of centre,
+    //   2. then the camera dollies in, so the cloud comes toward you and the near dots fly past,
+    //   3. and in the last stretch it settles very slightly to the left.
+    // Everything is eased in the frame loop, and the top of the page is exactly the hero as before.
+    const RIGHT = 0.22; // how far right of centre the cloud starts (fraction of the window width)
+    const DOLLY = isSmall ? 1.0 : 1.7; // world units the camera moves toward the cloud
+    const X_KEYS: [number, number][] = [[0, RIGHT], [0.22, 0.04], [0.72, 0.0], [1, -0.06]];
+    const Z_KEYS: [number, number][] = [[0, 0], [0.22, 0], [0.72, 1], [1, 1]]; // fraction of DOLLY
+    const through = (p: number, keys: [number, number][]) => {
+      for (let i = 1; i < keys.length; i++) {
+        if (p <= keys[i][0]) {
+          const [p0, v0] = keys[i - 1];
+          const [p1, v1] = keys[i];
+          const t = Math.min(Math.max((p - p0) / (p1 - p0), 0), 1);
+          return v0 + (v1 - v0) * (t * t * (3 - 2 * t));
+        }
+      }
+      return keys[keys.length - 1][1];
+    };
+    let camF = scrollLinked ? RIGHT : 0;
     let camZ = baseZ;
     let targetF = camF;
     let targetZ = camZ;
+    let approach = 0; // 0 at the top, 1 when the camera is closest; used to ease the opacity a little
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
     const unitW = () => 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
     const applyCamera = () => {
@@ -246,9 +263,11 @@ export default function HeroField({
       const fade = Math.min(y / vh, 1);
       targetOpacity = baseOpacity * (1 - fade * (1 - scrollDim));
       const progress = Math.min(Math.max(y / Math.max(pageHeight - vh, 1), 0), 1);
-      const smooth = (x: number) => x * x * (3 - 2 * x);
-      targetF = SWEEP - 2 * SWEEP * smooth(Math.min(progress / 0.7, 1));
-      targetZ = baseZ - DOLLY * smooth(Math.min(progress / 0.8, 1));
+      targetF = through(progress, X_KEYS);
+      approach = through(progress, Z_KEYS);
+      targetZ = baseZ - DOLLY * approach;
+      // The closer the cloud comes, the more transparent it gets, so text stays readable.
+      targetOpacity *= 1 - 0.28 * approach;
       const rest = Math.max(pageHeight - vh * 2, 1);
       const t = Math.min(Math.max((y - vh) / rest, 0), 1);
       targetShape = shape + (1 - shape) * t * t * (3 - 2 * t);
