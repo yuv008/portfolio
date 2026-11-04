@@ -308,11 +308,41 @@
 }
 
 /* The_Legion has two presentations: the pinned horizontal rail (wide screens, motion allowed, not Lite) and
-   the classic two-column / stacked layout for everyone else (including screens under 640px tall). Only one is ever displayed. */
+   the classic two-column / stacked layout for everyone else (including screens under 500px tall). Only one is ever displayed. */
 .legion-rail {
   display: none;
+  --legion-h: min(82vh, 660px);
+  --legion-w: min(64vw, 820px, calc((var(--legion-h) - 310px) * 2.14 + 60px));
 }
-@media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
+/* Rail card: head / picture / text stacked. */
+.legion-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: "head" "media" "body";
+  gap: 0.75rem;
+}
+.legion-card .lc-head { grid-area: head; }
+.legion-card .lc-media { grid-area: media; }
+.legion-card .lc-body { grid-area: body; }
+/* Short windows: a wider card with the words beside the picture, so nothing has to be squeezed or cropped. */
+@media (max-height: 700px) {
+  .legion-rail {
+    --legion-h: 76vh;
+    --legion-w: min(88vw, 1040px);
+  }
+  .legion-card {
+    grid-template-columns: minmax(0, 36%) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "head media" "body media";
+    column-gap: 1.25rem;
+  }
+  .legion-card .lc-body { align-self: start; }
+  .legion-card .lc-media figure { height: 100%; display: flex; flex-direction: column; }
+  .legion-card .lc-media .tile-media { flex: 1; min-height: 0; }
+  .legion-card .lc-media .tile-media > div { height: 100%; aspect-ratio: auto !important; }
+}
+@media (min-width: 1024px) and (min-height: 500px) and (prefers-reduced-motion: no-preference) {
   /* A Lite switch caused by the frame-rate watch keeps the rail (it is only transforms) so the page never
      changes shape under someone who is already scrolling. */
   html:is(:not([data-lite="on"]), [data-lite-fps="1"]) .legion-rail {

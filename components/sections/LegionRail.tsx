@@ -9,8 +9,10 @@ import { motion, useMotionValueEvent, useScroll, useSpring, useTransform, type M
  * smaller on the right. Each card's look is a pure function of its distance from the centre, so it all reverses
  * perfectly when scrolling back. Shown only on wide screens with motion allowed (see .legion-rail in globals.css).
  */
-const CARD_H = "min(82vh, 660px)";
-const CARD_W = `min(64vw, 820px, calc((${CARD_H} - 310px) * 2.14 + 60px))`;
+// Card size lives in CSS variables (see .legion-rail in globals.css) so short windows can switch to a wider,
+// side-by-side card without any JavaScript.
+const CARD_H = "var(--legion-h)";
+const CARD_W = "var(--legion-w)";
 const GAP = "3vw";
 const SCREENS_PER_STEP = 0.85;
 
