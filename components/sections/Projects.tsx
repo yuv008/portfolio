@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { projects, type Project } from "@/components/projects/projectData";
 import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
 import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
 import { Wash } from "@/components/ui/Wash";
+import { useStagger } from "@/components/ui/Parallax";
 import { PROJECT_OPEN_EVENT, explainProject, meetWisp } from "@/lib/wisp";
 
 const ACCENT: Record<string, string> = {
@@ -17,19 +18,21 @@ const ACCENT: Record<string, string> = {
   legify: "#9fc2ff",
 };
 
-/** Bento placement. The first tile is the tall hero of the grid. */
-const LAYOUT: Record<string, { span: string; hero?: boolean }> = {
-  weave: { span: "md:col-span-2 lg:col-span-7 lg:row-span-2", hero: true },
-  "orpheus-tts": { span: "lg:col-span-5" },
-  "smart-pathshala": { span: "lg:col-span-5" },
-  shetniyojan: { span: "lg:col-span-4" },
-  warcast: { span: "lg:col-span-4" },
-  legify: { span: "md:col-span-2 lg:col-span-4" },
+/** Bento placement. The first tile is the tall hero of the grid. `drift` is the tile's scroll-parallax direction. */
+const LAYOUT: Record<string, { span: string; hero?: boolean; drift: number }> = {
+  weave: { span: "md:col-span-2 lg:col-span-7 lg:row-span-2", hero: true, drift: -1 },
+  "orpheus-tts": { span: "lg:col-span-5", drift: 1 },
+  "smart-pathshala": { span: "lg:col-span-5", drift: 1 },
+  shetniyojan: { span: "lg:col-span-4", drift: 1 },
+  warcast: { span: "lg:col-span-4", drift: -1 },
+  legify: { span: "md:col-span-2 lg:col-span-4", drift: 1 },
 };
 
 function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const accent = ACCENT[project.id] ?? "#a8e8ff";
-  const layout = LAYOUT[project.id] ?? { span: "lg:col-span-4" };
+  const layout = LAYOUT[project.id] ?? { span: "lg:col-span-4", drift: 0 };
+  const articleRef = useRef<HTMLElement>(null);
+  useStagger(articleRef, layout.drift);
   const hero = !!layout.hero;
   const washImage =
     project.cover.kind === "hover-video" ? project.cover.image : project.cover.kind === "slides" ? project.cover.images[0] : undefined;
@@ -38,6 +41,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
 
   return (
     <article
+      ref={articleRef}
       id={`project-${project.id}`}
       className={`tile tile-hover group relative flex flex-col overflow-hidden ${layout.span}`}
     >
@@ -209,7 +213,7 @@ export function Projects() {
         </p>
       </div>
 
-      <div className="mx-auto grid max-w-[1400px] gap-5 md:grid-cols-2 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-[1400px] gap-6 md:grid-cols-2 lg:grid-cols-12">
         {projects.map((p) => (
           <Tile key={p.id} project={p} onOpen={() => setOpenId(p.id)} />
         ))}
