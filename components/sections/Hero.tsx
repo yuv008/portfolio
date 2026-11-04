@@ -164,7 +164,7 @@ export function Hero() {
       <a
         href="#stress-test"
         aria-label="See how VEE Legion was tested at 200 concurrent calls"
-        className="tile tile-hover relative z-10 hidden w-[44%] shrink-0 flex-col gap-4 p-4 md:flex"
+        className="tile tile-hover relative z-10 hidden w-[44%] max-w-[560px] shrink-0 flex-col gap-3 self-start p-4 md:mt-14 md:flex"
       >
         <Wash from="#6ee7ff" to="#ab8aff" dim={0.6} />
         <div className="flex items-center justify-between px-1 pt-1">
@@ -176,8 +176,8 @@ export function Hero() {
             200 calls · 0 errors
           </span>
         </div>
-        <ConcurrencyRamp />
-        <p className="px-1 pb-1 text-sm text-text-soft">
+        <div className="[@media(max-height:700px)]:[&_.grid]:!max-w-[290px] [@media(max-height:700px)]:[&_.tile-media]:!min-h-0 [@media(max-height:700px)]:[&_p]:hidden"><ConcurrencyRamp /></div>
+        <p className="px-1 pb-1 text-sm text-text-soft [@media(max-height:820px)]:hidden">
           Simulated callers ramp up against a voice agent. <span className="text-text-strong">See the stress test →</span>
         </p>
       </a>
