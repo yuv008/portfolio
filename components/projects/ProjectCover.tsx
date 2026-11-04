@@ -27,9 +27,14 @@ function HoverVideo({
 }) {
   return (
     <div className="absolute inset-0" style={{ background: "#080808" }} role="img" aria-label={alt}>
-      <ParallaxMedia>
-        <LoopVideo src={video} poster={image} fit={fit} className={fit === "contain" ? "" : "object-top"} />
-      </ParallaxMedia>
+      {/* Letterboxed clips are shown whole, so they must not be scaled up for parallax. */}
+      {fit === "contain" ? (
+        <LoopVideo src={video} poster={image} fit={fit} />
+      ) : (
+        <ParallaxMedia>
+          <LoopVideo src={video} poster={image} fit={fit} className="object-top" />
+        </ParallaxMedia>
+      )}
       {watchHref && (
         <a
           href={watchHref}
