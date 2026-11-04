@@ -20,6 +20,12 @@ export function explainProject(id: string) {
   window.dispatchEvent(new CustomEvent<{ id: string }>(WISP_EXPLAIN_EVENT, { detail: { id } }));
 }
 
+/** Ask the guide to explain any tour stop by its exact element id (e.g. a Journey role). */
+export function explainStop(id: string) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent<{ id: string; exact: boolean }>(WISP_EXPLAIN_EVENT, { detail: { id, exact: true } }));
+}
+
 /** Ask the Projects section to open a project's detail panel. */
 export const PROJECT_OPEN_EVENT = "project:open";
 

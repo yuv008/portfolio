@@ -14,7 +14,7 @@ const BASE_STOPS: Stop[] = [
   { id: "hero", label: "Home", tip: "This is Yuvraj, an AI R&D engineer who builds voice-agent systems, evaluation platforms and AI infrastructure." },
   { id: "stress-test", label: "VEE Legion", tip: "This is VEE Legion, the QA platform he built at VoiceraCX. Scroll to see how simulated callers test an AI agent, then try the demo at the end.", fact: "Verified at 200 concurrent calls with 0 transport errors." },
   { id: "about", label: "About", tip: "Three things he has built: real-time voice pipelines, hybrid vector search, and fine-tuned models.", fact: "Response time cut from 3 seconds to 1.2 seconds." },
-  { id: "experience", label: "Journey", tip: "The timeline of his work and degree. Right now he is AI R&D Engineer at VoiceraCX, building VEE Legion. Open the older roles for details; education is the last stop.", fact: "B.E. in Computer Engineering, Honors in Data Science, at PICT, Pune."},
+  { id: "experience", label: "Journey", tip: "His career drawn like a commit graph: work on the main line and his degree running alongside as a branch that merges in July 2026. Open a role for details, or press Ask Wisp on one and I'll explain it.", fact: "B.E. in Computer Engineering, Honors in Data Science, at PICT, Pune."},
   { id: "projects", label: "Projects", tip: "Weave, Orpheus TTS, Smart Pathshala, ShetNiyojan, WarCast and Legify. Hover the Weave card to see the demo.", fact: "Scroll sideways to browse them all." },
   { id: "skills", label: "Skills", tip: "The stack as a logo wall and a draggable graph. Hover a logo or a node and everything linked to it lights up.", fact: "Evaluation & Testing links to Voice & Inference through Twilio and LiveKit." },
   { id: "achievements", label: "Achievements", tip: "Three first prizes at hackathons plus a 99.35 percentile in MHT-CET. Each prize links to the project that won it."},
@@ -22,8 +22,18 @@ const BASE_STOPS: Stop[] = [
 ];
 
 /** Section stops, with one stop per project tile right after the Projects intro. */
+const JOURNEY_STOPS: Stop[] = [
+  { id: "journey-voiceracx", label: "VoiceraCX · VEE Legion", project: true, tip: "Today he builds VEE Legion at VoiceraCX: simulated callers and red-team attacks that test voice and chat AI agents, verified at 200 concurrent calls.", fact: "0 transport errors across 5 platforms." },
+  { id: "journey-voiceracx-intern", label: "VoiceraCX · Intern", project: true, tip: "As an AI intern there he cut voice response time from 3 seconds to 1.2, and moved retrieval from Chroma to Qdrant, cutting query latency by 90%.", fact: "Redundant API calls down 60%." },
+  { id: "journey-daostreet", label: "DAOStreet", project: true, tip: "At DAOStreet he built Svelte frontend features in a production workflow.", fact: "Feb to June 2025, remote." },
+  { id: "journey-alesa", label: "Alesa AI", project: true, tip: "At Alesa AI in the UK he fine-tuned Llama-3.1-8B with PEFT on a 10,000+ term dream-interpretation dataset.", fact: "Nov 2024 to Mar 2025, remote." },
+  { id: "journey-pict", label: "PICT", project: true, tip: "All of this ran alongside his Computer Engineering degree at PICT, with Honors in Data Science, from Nov 2022.", fact: "The branch that merges into main in July 2026." },
+];
+
 const STOPS: Stop[] = BASE_STOPS.flatMap((stop) =>
-  stop.id === "projects"
+  stop.id === "experience"
+    ? [stop, ...JOURNEY_STOPS]
+    : stop.id === "projects"
     ? [
         { ...stop, tip: "Six projects in a bento grid. Tap any tile for its architecture and design decisions, or press Ask Wisp on a tile and I'll explain it." },
         ...projects.map((p) => ({ id: `project-${p.id}`, label: p.name, tip: p.petScript, fact: p.petFact, project: true })),
@@ -309,8 +319,8 @@ export function WispGuide() {
   /* An "Ask Wisp" button on a project tile: fly over and explain that project. */
   useEffect(() => {
     const onExplain = (e: Event) => {
-      const id = (e as CustomEvent<{ id: string }>).detail?.id;
-      const idx = STOPS.findIndex((st) => st.id === `project-${id}`);
+      const d = (e as CustomEvent<{ id: string; exact?: boolean }>).detail;
+      const idx = STOPS.findIndex((st) => st.id === (d?.exact ? d.id : `project-${d?.id}`));
       if (idx < 0 || pos.current.x === -9999) return;
       setMode("free");
       goToRef.current(idx, false, true);
@@ -443,7 +453,7 @@ export function WispGuide() {
   const content =
     bubble === "meet"
       ? { tip: MEET.tip, fact: MEET.fact, source: "Weave · desktop pet" }
-      : { tip: stop.tip, fact: stop.fact, source: `Stop ${stopIdx + 1} of ${STOPS.length} · ${stop.project ? "Projects · " : ""}${stop.label}` };
+      : { tip: stop.tip, fact: stop.fact, source: `Stop ${stopIdx + 1} of ${STOPS.length} · ${stop.project ? (stop.id.startsWith("journey-") ? "Journey · " : "Projects · ") : ""}${stop.label}` };
 
   const primary =
     bubble === "meet"

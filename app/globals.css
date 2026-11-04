@@ -177,6 +177,14 @@
     30%, 78% { opacity: 1; }
     100% { opacity: 0.12; }
   }
+  @keyframes flow-x {
+    to { background-position: 28px 0; }
+  }
+  @keyframes flow-pulse {
+    0% { left: 0%; opacity: 0; }
+    15%, 85% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
   @keyframes medal-shine {
     0%, 55% { background-position: 160% 0; }
     100% { background-position: -60% 0; }
