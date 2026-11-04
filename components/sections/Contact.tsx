@@ -126,7 +126,7 @@ export function Contact() {
               <p className="max-w-[16rem] text-xs leading-5 text-text-muted">This opens your email app. Nothing is sent from this page.</p>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#8ff0ff_0%,#6ee7ff_38%,#b49cff_100%)] px-6 py-3 font-body text-sm font-bold text-[#06101a] shadow-[0_12px_32px_-10px_rgba(110,231,255,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] transition-all hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-white"
+                className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#f4f4f4_0%,#e6e6e6_38%,#bcbcbc_100%)] px-6 py-3 font-body text-sm font-bold text-[#0f0f0f] shadow-[0_12px_32px_-10px_rgba(230,230,230,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] transition-all hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-white"
               >
                 Send message
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">

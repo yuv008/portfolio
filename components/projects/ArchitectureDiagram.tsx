@@ -4,14 +4,14 @@ import { useMemo } from "react";
 import type { ProjectEdge, ProjectNode } from "./projectData";
 
 const TYPE_COLOR: Record<ProjectNode["type"], string> = {
-  frontend: "#6ee7ff",
-  backend: "#ab8aff",
-  database: "#ffac5e",
-  "vector-db": "#ffd166",
-  ai: "#61ffab",
-  feature: "#d1dce9",
-  data: "#9fb0c3",
-  process: "#ffd166",
+  frontend: "#e6e6e6",
+  backend: "#acacac",
+  database: "#cdcdcd",
+  "vector-db": "#eaeaea",
+  ai: "#efefef",
+  feature: "#dbdbdb",
+  data: "#aeaeae",
+  process: "#eaeaea",
   infra: "#ff7078",
 };
 
@@ -107,7 +107,7 @@ export function ArchitectureDiagram({
       `}</style>
       <defs>
         <marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M0 0 L10 5 L0 10 z" fill="rgba(171,138,255,0.9)" />
+          <path d="M0 0 L10 5 L0 10 z" fill="rgba(172,172,172,0.9)" />
         </marker>
       </defs>
 
@@ -133,9 +133,9 @@ export function ArchitectureDiagram({
         }
         return (
           <g key={i}>
-            <path d={d} fill="none" stroke="rgba(171,138,255,0.55)" strokeWidth={compact ? 1.2 : 1.6} markerEnd="url(#arch-arrow)" className="arch-flow" />
+            <path d={d} fill="none" stroke="rgba(172,172,172,0.55)" strokeWidth={compact ? 1.2 : 1.6} markerEnd="url(#arch-arrow)" className="arch-flow" />
             {e.label && !compact && (
-              <text x={(sx + ex) / 2} y={(sy + ey) / 2 - 6} fill="#7e8e9c" fontSize={10} textAnchor="middle">
+              <text x={(sx + ex) / 2} y={(sy + ey) / 2 - 6} fill="#8c8c8c" fontSize={10} textAnchor="middle">
                 {e.label}
               </text>
             )}
@@ -153,7 +153,7 @@ export function ArchitectureDiagram({
               width={n.w}
               height={n.h}
               rx={compact ? 8 : 12}
-              fill="rgba(14,20,28,0.92)"
+              fill="rgba(19,19,19,0.92)"
               stroke={c}
               strokeOpacity={0.7}
               strokeWidth={1.2}
@@ -164,7 +164,7 @@ export function ArchitectureDiagram({
                 key={i}
                 x={n.x + n.w / 2 + 2}
                 y={n.y + n.h / 2 + (i - (n.lines.length - 1) / 2) * (font + 2) + font / 3}
-                fill="#e9f0f5"
+                fill="#efefef"
                 fontSize={font}
                 textAnchor="middle"
                 fontFamily="var(--font-display), monospace"

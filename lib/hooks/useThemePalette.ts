@@ -21,12 +21,12 @@ const paletteVars: Record<keyof Palette, string> = {
 };
 
 const FALLBACK_PALETTE: Palette = {
-  cyan: "rgb(110, 231, 255)",
-  violet: "rgb(171, 138, 255)",
-  amber: "rgb(255, 172, 94)",
-  mist: "rgb(209, 220, 233)",
-  green: "rgb(97, 255, 171)",
-  surface: "rgb(19, 26, 36)",
+  cyan: "rgb(230, 230, 230)",
+  violet: "rgb(172, 172, 172)",
+  amber: "rgb(205, 205, 205)",
+  mist: "rgb(219, 219, 219)",
+  green: "rgb(239, 239, 239)",
+  surface: "rgb(25, 25, 25)",
 };
 
 function readPalette(): Palette {

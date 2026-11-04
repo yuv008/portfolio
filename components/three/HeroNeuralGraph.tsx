@@ -77,7 +77,7 @@ function NeuralGraphScene() {
 
   return (
     <>
-      <color attach="background" args={["#080c12"]} />
+      <color attach="background" args={["#0c0c0c"]} />
       <ambientLight intensity={0.8} />
       <pointLight position={[0, 0, 5]}  intensity={25} color={palette.cyan} />
       <pointLight position={[4, -2, 1]} intensity={18} color={palette.violet} />

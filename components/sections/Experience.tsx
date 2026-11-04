@@ -101,12 +101,12 @@ function Pill({ value, label }: { value: string; label: string }) {
 function CurrentRole({ item }: { item: Item }) {
   return (
     <article className="tile p-2.5">
-      <Wash from="#6ee7ff" to="#ab8aff" dim={0.5} />
+      <Wash from="#e6e6e6" to="#acacac" dim={0.5} />
       <div className="grid gap-2.5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="relative">
           <ConcurrencyRamp />
           <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 font-display text-[10px] uppercase tracking-[0.16em] text-neural-green backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-neural-green shadow-[0_0_8px_rgba(97,255,171,0.9)]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-neural-green shadow-[0_0_8px_rgba(239,239,239,0.9)]" />
             Current role
           </span>
         </div>
@@ -210,7 +210,7 @@ export function Experience() {
             aria-hidden="true"
           />
           <div className="relative">
-            <span className="absolute -left-8 top-8 hidden h-3.5 w-3.5 rounded-full border-2 border-neural-cyan bg-background shadow-[0_0_12px_rgba(110,231,255,0.7)] md:block" aria-hidden="true" />
+            <span className="absolute -left-8 top-8 hidden h-3.5 w-3.5 rounded-full border-2 border-neural-cyan bg-background shadow-[0_0_12px_rgba(230,230,230,0.7)] md:block" aria-hidden="true" />
             <CurrentRole item={current} />
           </div>
           {rest.map((item) => (

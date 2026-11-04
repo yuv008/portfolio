@@ -34,7 +34,7 @@ export function VideoLightbox({
   return createPortal(
     <div
       className="fixed inset-0 z-[95] flex items-center justify-center p-3 md:p-8"
-      style={{ background: "rgba(4,7,11,0.86)", backdropFilter: "blur(6px)" }}
+      style={{ background: "rgba(7,7,7,0.86)", backdropFilter: "blur(6px)" }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -46,7 +46,7 @@ export function VideoLightbox({
           onClick={onClose}
           aria-label="Close video"
           className="absolute -top-12 right-0 flex h-9 w-9 items-center justify-center rounded-full text-text-soft hover:text-text-strong"
-          style={{ background: "rgba(8,12,18,0.7)", border: "1px solid rgba(255,255,255,0.14)" }}
+          style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.14)" }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             close

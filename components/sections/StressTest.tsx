@@ -218,7 +218,7 @@ function AgentTestDemo() {
             <p
               className="rounded-xl px-3 py-2 text-sm leading-6 text-text-strong"
               style={{
-                background: t.who === "agent" ? "rgba(171,138,255,0.14)" : "rgba(255,255,255,0.06)",
+                background: t.who === "agent" ? "rgba(172,172,172,0.14)" : "rgba(255,255,255,0.06)",
                 border: t.checks?.some((c) => !c.ok) ? "1px solid rgba(255,112,120,0.55)" : "1px solid rgba(255,255,255,0.06)",
               }}
             >
@@ -231,8 +231,8 @@ function AgentTestDemo() {
                     key={c.label}
                     className="rounded-full px-2 py-0.5 text-[10px]"
                     style={{
-                      color: c.ok ? "rgb(97,255,171)" : "rgb(255,112,120)",
-                      background: c.ok ? "rgba(97,255,171,0.10)" : "rgba(255,112,120,0.12)",
+                      color: c.ok ? "rgb(239,239,239)" : "rgb(255,112,120)",
+                      background: c.ok ? "rgba(239,239,239,0.10)" : "rgba(255,112,120,0.12)",
                     }}
                   >
                     {c.ok ? "✓" : "✗"} {c.label}
@@ -254,7 +254,7 @@ function AgentTestDemo() {
           {running ? "Running…" : done ? "Run again" : "Run test"}
         </button>
         {done && (
-          <p className="text-sm" style={{ color: failed ? "rgb(255,112,120)" : "rgb(97,255,171)" }}>
+          <p className="text-sm" style={{ color: failed ? "rgb(255,112,120)" : "rgb(239,239,239)" }}>
             <span className="font-display text-xs uppercase tracking-[0.16em]">{failed ? "Fail" : "Pass"}</span>
             <span className="ml-2 text-text-soft">
               {checks.length - failed} of {checks.length} checks passed
@@ -269,7 +269,7 @@ function AgentTestDemo() {
           target="_blank"
           rel="noopener noreferrer"
           className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 font-display text-[0.6rem] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
-          style={{ background: "rgba(110,231,200,0.14)", border: "1px solid rgba(110,231,200,0.4)" }}
+          style={{ background: "rgba(225,225,225,0.14)", border: "1px solid rgba(225,225,225,0.4)" }}
         >
           Want this for your agents? Join the private beta ↗
         </a>
@@ -285,7 +285,7 @@ function StepImage({ step, playing = true }: { step: Step; playing?: boolean }) 
   return (
     <figure className="tile p-2.5">
       {/* Stacked steps share one spot, so only the active one loads its image wash. */}
-      <Wash image={playing ? step.image : undefined} from="#2f5fe8" to="#2f5fe8" dim={0.34} />
+      <Wash image={playing ? step.image : undefined} from="#6c6c6c" to="#6c6c6c" dim={0.34} />
       <div className="tile-media p-2.5">
         <div className="overflow-hidden rounded-[0.85rem]" style={{ aspectRatio: "960 / 448" }}>
           {step.clip ? (
@@ -363,7 +363,7 @@ export function StressTest() {
                 type="button"
                 onClick={() => setVideo(true)}
                 className="flex items-center gap-1.5 rounded-full px-4 py-2 text-text-strong transition-colors hover:brightness-125"
-                style={{ background: "rgba(110,231,255,0.14)", border: "1px solid rgba(110,231,255,0.35)" }}
+                style={{ background: "rgba(230,230,230,0.14)", border: "1px solid rgba(230,230,230,0.35)" }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                   play_arrow
@@ -392,7 +392,7 @@ export function StressTest() {
                     {s.chips && (
                       <div className="mt-4 flex gap-3">
                         {s.chips.map((c) => (
-                          <div key={c.label} className="rounded-2xl px-5 py-3" style={{ background: "rgba(97,255,171,0.08)", border: "1px solid rgba(97,255,171,0.25)" }}>
+                          <div key={c.label} className="rounded-2xl px-5 py-3" style={{ background: "rgba(239,239,239,0.08)", border: "1px solid rgba(239,239,239,0.25)" }}>
                             <p className="font-display text-2xl font-semibold text-neural-green">{c.value}</p>
                             <p className="mt-0.5 text-[11px] text-text-soft">{c.label}</p>
                           </div>
@@ -432,7 +432,7 @@ export function StressTest() {
                     {s.chips && (
                       <div className="mt-3 flex gap-3">
                         {s.chips.map((c) => (
-                          <div key={c.label} className="rounded-2xl px-4 py-2" style={{ background: "rgba(97,255,171,0.08)", border: "1px solid rgba(97,255,171,0.25)" }}>
+                          <div key={c.label} className="rounded-2xl px-4 py-2" style={{ background: "rgba(239,239,239,0.08)", border: "1px solid rgba(239,239,239,0.25)" }}>
                             <p className="font-display text-xl font-semibold text-neural-green">{c.value}</p>
                             <p className="text-[10px] text-text-soft">{c.label}</p>
                           </div>
@@ -465,7 +465,7 @@ export function StressTest() {
                 {s.chips && (
                   <div className="flex shrink-0 gap-2">
                     {s.chips.map((c) => (
-                      <div key={c.label} className="rounded-xl px-3 py-1.5" style={{ background: "rgba(97,255,171,0.08)", border: "1px solid rgba(97,255,171,0.25)" }}>
+                      <div key={c.label} className="rounded-xl px-3 py-1.5" style={{ background: "rgba(239,239,239,0.08)", border: "1px solid rgba(239,239,239,0.25)" }}>
                         <p className="font-display text-lg font-semibold leading-none text-neural-green">{c.value}</p>
                         <p className="mt-0.5 text-[10px] text-text-soft">{c.label}</p>
                       </div>

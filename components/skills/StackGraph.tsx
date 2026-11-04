@@ -181,7 +181,7 @@ export function StackGraph({
         ctx!.beginPath();
         ctx!.moveTo(pa.x, pa.y);
         ctx!.quadraticCurveTo(mx, my, pb.x, pb.y);
-        ctx!.strokeStyle = f && on ? "rgba(110,231,255,0.7)" : on ? "rgba(190,205,225,0.2)" : "rgba(190,205,225,0.05)";
+        ctx!.strokeStyle = f && on ? "rgba(230,230,230,0.7)" : on ? "rgba(203,203,203,0.2)" : "rgba(203,203,203,0.05)";
         ctx!.lineWidth = f && on ? 1.2 : 1;
         ctx!.stroke();
       }
@@ -193,13 +193,13 @@ export function StackGraph({
         const isHover = hover === n;
         const r = n.hub ? 7 : 3.6;
         ctx!.globalAlpha = on ? 1 : 0.28;
-        ctx!.fillStyle = n.hub ? "#e9f0f5" : isHover ? "#6ee7ff" : "#9fb0c3";
-        if (f && on && !n.hub) ctx!.fillStyle = "#6ee7ff";
+        ctx!.fillStyle = n.hub ? "#efefef" : isHover ? "#e6e6e6" : "#aeaeae";
+        if (f && on && !n.hub) ctx!.fillStyle = "#e6e6e6";
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx!.fill();
         if (n.hub) {
-          ctx!.strokeStyle = "rgba(110,231,255,0.45)";
+          ctx!.strokeStyle = "rgba(230,230,230,0.45)";
           ctx!.lineWidth = 1;
           ctx!.beginPath();
           ctx!.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
@@ -209,7 +209,7 @@ export function StackGraph({
         ctx!.font = n.hub
           ? `600 ${isCompact() ? 12 : 14}px var(--font-display), monospace`
           : `${isCompact() ? 10 : 11}px var(--font-body), sans-serif`;
-        ctx!.fillStyle = n.hub ? "#e9f0f5" : on && f ? "#cfeaf5" : "rgba(160,176,196,0.9)";
+        ctx!.fillStyle = n.hub ? "#efefef" : on && f ? "#e5e5e5" : "rgba(174,174,174,0.9)";
         ctx!.textAlign = "center";
         ctx!.textBaseline = "top";
         ctx!.fillText(label, p.x, p.y + r + (n.hub ? 9 : 5));

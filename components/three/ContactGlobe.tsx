@@ -5,14 +5,14 @@ export function ContactGlobe() {
       aria-label="Stylised globe marking Pune, India"
       role="img"
       className="relative flex h-full w-full items-center justify-center overflow-hidden"
-      style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(110,231,255,0.10), transparent 62%)" }}
+      style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(230,230,230,0.10), transparent 62%)" }}
     >
       <div
         className="absolute h-44 w-44 rounded-full border border-neural-cyan/60"
         style={{
           background:
-            "radial-gradient(circle at 35% 30%, rgba(143,240,255,0.55), rgba(110,231,255,0.16) 38%, rgba(171,138,255,0.14) 70%, rgba(8,12,18,0.4))",
-          boxShadow: "0 0 60px -6px rgba(110,231,255,0.35), inset 0 0 34px rgba(110,231,255,0.18)",
+            "radial-gradient(circle at 35% 30%, rgba(244,244,244,0.55), rgba(230,230,230,0.16) 38%, rgba(172,172,172,0.14) 70%, rgba(12,12,12,0.4))",
+          boxShadow: "0 0 60px -6px rgba(230,230,230,0.35), inset 0 0 34px rgba(230,230,230,0.18)",
         }}
       >
         <span className="absolute inset-y-0 left-1/4 w-1/2 rounded-full border-x border-neural-cyan/30" />
@@ -25,7 +25,7 @@ export function ContactGlobe() {
             className="tile-anim absolute inset-0 rounded-full bg-neural-green"
             style={{ animation: "tile-ping 2.2s ease-out infinite" }}
           />
-          <span className="absolute inset-0 rounded-full border-2 border-neural-green bg-neural-green shadow-[0_0_14px_rgba(97,255,171,0.9)]" />
+          <span className="absolute inset-0 rounded-full border-2 border-neural-green bg-neural-green shadow-[0_0_14px_rgba(239,239,239,0.9)]" />
         </span>
       </div>
       <span className="absolute left-[18%] top-[22%] h-1 w-1 rounded-full bg-neural-cyan/60" />

@@ -10,12 +10,12 @@ import { useStagger } from "@/components/ui/Parallax";
 import { PROJECT_OPEN_EVENT, explainProject, meetWisp } from "@/lib/wisp";
 
 const ACCENT: Record<string, string> = {
-  weave: "#b9a8ff",
-  "orpheus-tts": "#a8e8ff",
-  "smart-pathshala": "#dcb8ff",
-  shetniyojan: "#7ee0a6",
-  warcast: "#ffb36b",
-  legify: "#9fc2ff",
+  weave: "#c6c6c6",
+  "orpheus-tts": "#f4f4f4",
+  "smart-pathshala": "#dbdbdb",
+  shetniyojan: "#dddddd",
+  warcast: "#d3d3d3",
+  legify: "#d4d4d4",
 };
 
 /** Bento placement. The first tile is the tall hero of the grid. `drift` is the tile's scroll-parallax direction. */
@@ -29,7 +29,7 @@ const LAYOUT: Record<string, { span: string; hero?: boolean; drift: number }> = 
 };
 
 function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
-  const accent = ACCENT[project.id] ?? "#a8e8ff";
+  const accent = ACCENT[project.id] ?? "#f4f4f4";
   const layout = LAYOUT[project.id] ?? { span: "lg:col-span-4", drift: 0 };
   const articleRef = useRef<HTMLElement>(null);
   useStagger(articleRef, layout.drift);
@@ -55,7 +55,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
           {project.featured && (
             <span
               className="pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.18em]"
-              style={{ fontFamily: "var(--font-display), monospace", color: accent, background: "rgba(8,12,18,0.7)", border: `1px solid ${accent}40` }}
+              style={{ fontFamily: "var(--font-display), monospace", color: accent, background: "rgba(12,12,12,0.7)", border: `1px solid ${accent}40` }}
             >
               Featured
             </span>
@@ -122,7 +122,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
             <p className="text-[10px] uppercase tracking-[0.18em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
               How it fits together
             </p>
-            <div className="mt-3 h-[170px] rounded-2xl p-3" style={{ background: "rgba(8,12,18,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="mt-3 h-[170px] rounded-2xl p-3" style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} compact className="h-full w-full" />
             </div>
           </div>
@@ -205,7 +205,7 @@ export function Projects() {
           </p>
           <h2 className="text-7xl font-bold leading-none tracking-tighter md:text-8xl" style={{ fontFamily: "var(--font-display), monospace" }}>
             THE{" "}
-            <span className="bg-gradient-to-br from-[#a8e8ff] to-[#dcb8ff] bg-clip-text text-transparent">FORGE</span>
+            <span className="bg-gradient-to-br from-[#f4f4f4] to-[#dbdbdb] bg-clip-text text-transparent">FORGE</span>
           </h2>
         </div>
         <p className="max-w-xs text-sm leading-relaxed text-text-soft md:ml-auto md:text-right">
@@ -219,7 +219,7 @@ export function Projects() {
         ))}
       </div>
 
-      {open && <ProjectDetail project={open} accent={ACCENT[open.id] ?? "#a8e8ff"} onClose={close} />}
+      {open && <ProjectDetail project={open} accent={ACCENT[open.id] ?? "#f4f4f4"} onClose={close} />}
     </section>
   );
 }

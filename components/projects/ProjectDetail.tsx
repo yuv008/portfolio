@@ -33,7 +33,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
   return createPortal(
     <div
       className="fixed inset-0 z-[90] flex items-center justify-center p-3 md:p-8"
-      style={{ background: "rgba(4,7,11,0.78)", backdropFilter: "blur(6px)" }}
+      style={{ background: "rgba(7,7,7,0.78)", backdropFilter: "blur(6px)" }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -44,7 +44,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
         aria-label={`${project.name} details`}
         className="relative flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-[2rem]"
         style={{
-          background: "rgba(16,22,30,0.98)",
+          background: "rgba(21,21,21,0.98)",
           border: `1px solid ${accent}40`,
           boxShadow: `0 0 60px ${accent}18, 0 24px 60px rgba(0,0,0,0.5)`,
         }}
@@ -55,7 +55,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
           onClick={onClose}
           aria-label="Close details"
           className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full text-text-soft hover:text-text-strong"
-          style={{ background: "rgba(8,12,18,0.7)", border: "1px solid rgba(255,255,255,0.14)" }}
+          style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.14)" }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
             close
@@ -171,7 +171,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
 
               {tab === "Architecture" && (
                 <div>
-                  <div className="rounded-2xl p-4" style={{ background: "rgba(8,12,18,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="rounded-2xl p-4" style={{ background: "rgba(12,12,12,0.7)", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} className="h-auto max-h-[420px] w-full" />
                   </div>
                   <div className="mt-3 flex flex-wrap gap-3">

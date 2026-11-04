@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="relative z-10 px-4 pb-10 pt-6">
       <div className={`mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-full px-5 py-3 ${glass}`}>
         <div className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0a0f16]">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0e0e0e]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/icon.svg" alt="" width={22} height={22} className="h-[22px] w-[22px]" />
           </span>
