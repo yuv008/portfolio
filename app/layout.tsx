@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Instrument_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "@/components/ui/Toaster";
 import { HeroFieldLazy } from "@/components/three/HeroFieldLazy";
 import { LiteMode } from "@/components/ui/LiteMode";
 import { MotionDetails } from "@/components/ui/MotionDetails";
@@ -106,17 +106,7 @@ export default function RootLayout({
           scrollLinked
         />
         <div className="relative z-10">
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                border: "1px solid rgba(var(--neural-cyan), 0.22)",
-                background: "rgba(var(--neural-surface), 0.94)",
-                color: "rgb(var(--neural-text))",
-                fontFamily: "var(--font-display)",
-              },
-            }}
-          />
+          <Toaster />
           <TopNavBar />
 
           {children}

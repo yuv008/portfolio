@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useInView, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Wash } from "@/components/ui/Wash";
 import { explainStop } from "@/lib/wisp";
 
@@ -330,9 +329,25 @@ function Gutter({ row, lit }: { row: Row; lit: boolean }) {
 
 function TimelineRow({ row, children }: { row: Row; children: React.ReactNode }) {
   const ref = useRef<HTMLLIElement>(null);
-  const reduce = useReducedMotion();
+  const [reduce, setReduce] = useState(false);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -45% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   // A role lights up once it has scrolled into the upper part of the screen.
-  const seen = useInView(ref, { margin: "0px 0px -45% 0px", once: true });
   const lit = !!reduce || seen;
   return (
     <li ref={ref} className="grid gap-x-3 md:grid-cols-[92px_minmax(0,1fr)]">

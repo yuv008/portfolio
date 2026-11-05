@@ -4,7 +4,36 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { LoopVideo } from "@/components/ui/LoopVideo";
 import { Wash } from "@/components/ui/Wash";
 import { VideoLightbox } from "@/components/ui/VideoLightbox";
-import { LegionRail } from "@/components/sections/LegionRail";
+import dynamic from "next/dynamic";
+import { LITE_EVENT } from "@/lib/lite";
+
+/* The pinned rail (and framer-motion with it) is only downloaded on screens that show it; the placeholder keeps
+   its exact height (see .legion-rail in globals.css and SCREENS_PER_STEP in LegionRail.tsx) so nothing shifts. */
+const RAIL_HEIGHT = "calc(5.25 * 100vh)"; // (6 steps - 1) * 0.85 + 1 screens
+const RailPlaceholder = () => <div className="legion-rail" style={{ height: RAIL_HEIGHT }} aria-hidden="true" />;
+const LegionRail = dynamic(() => import("@/components/sections/LegionRail").then((m) => m.LegionRail), {
+  ssr: false,
+  loading: RailPlaceholder,
+});
+const RAIL_QUERY = "(min-width: 1024px) and (min-height: 500px) and (prefers-reduced-motion: no-preference)";
+function useRailShown() {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(RAIL_QUERY);
+    const update = () => {
+      const d = document.documentElement.dataset;
+      setShown(mq.matches && (d.lite !== "on" || d.liteFps === "1"));
+    };
+    update();
+    mq.addEventListener("change", update);
+    window.addEventListener(LITE_EVENT, update);
+    return () => {
+      mq.removeEventListener("change", update);
+      window.removeEventListener(LITE_EVENT, update);
+    };
+  }, []);
+  return shown;
+}
 
 /* ── Steps ─────────────────────────────────────────────────── */
 
@@ -306,6 +335,7 @@ function StepImage({ step, playing = true }: { step: Step; playing?: boolean }) 
 /* ── Section ───────────────────────────────────────────────── */
 
 export function StressTest() {
+  const railShown = useRailShown();
   const [active, setActive] = useState(0);
   const [video, setVideo] = useState(false);
   const refs = useRef<(HTMLDivElement | null)[]>([]);
@@ -448,39 +478,43 @@ export function StressTest() {
       </div>
 
       {/* Wide screens with motion: the steps ride a pinned horizontal rail. Everyone else gets the layout above. */}
-      <LegionRail
-        count={STEPS.length}
-        labels={STEPS.map((s) => s.title)}
-        renderCard={(i, on) => {
-          const s = STEPS[i];
-          return (
-            <div className="tile legion-card h-full p-5">
-              <div className="lc-head flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-display text-[10px] uppercase tracking-[0.2em] text-neural-cyan">{s.kicker}</p>
-                  <h3 className="mt-1.5 font-serif text-3xl font-normal tracking-[-0.01em] text-text-strong">
-                    {s.title}
-                  </h3>
-                </div>
-                {s.chips && (
-                  <div className="flex shrink-0 gap-2">
-                    {s.chips.map((c) => (
-                      <div key={c.label} className="rounded-xl px-3 py-1.5" style={{ background: "rgba(239,239,239,0.08)", border: "1px solid rgba(239,239,239,0.25)" }}>
-                        <p className="font-display text-lg font-semibold leading-none text-neural-green">{c.value}</p>
-                        <p className="mt-0.5 text-[10px] text-text-soft">{c.label}</p>
-                      </div>
-                    ))}
+      {railShown ? (
+        <LegionRail
+          count={STEPS.length}
+          labels={STEPS.map((s) => s.title)}
+          renderCard={(i, on) => {
+            const s = STEPS[i];
+            return (
+              <div className="tile legion-card h-full p-5">
+                <div className="lc-head flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-display text-[10px] uppercase tracking-[0.2em] text-neural-cyan">{s.kicker}</p>
+                    <h3 className="mt-1.5 font-serif text-3xl font-normal tracking-[-0.01em] text-text-strong">
+                      {s.title}
+                    </h3>
                   </div>
-                )}
+                  {s.chips && (
+                    <div className="flex shrink-0 gap-2">
+                      {s.chips.map((c) => (
+                        <div key={c.label} className="rounded-xl px-3 py-1.5" style={{ background: "rgba(239,239,239,0.08)", border: "1px solid rgba(239,239,239,0.25)" }}>
+                          <p className="font-display text-lg font-semibold leading-none text-neural-green">{c.value}</p>
+                          <p className="mt-0.5 text-[10px] text-text-soft">{c.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className={`lc-media min-h-0 overflow-x-hidden [&_figcaption]:hidden ${s.demo ? "overflow-y-auto" : "overflow-y-hidden"}`}>
+                  {s.demo ? <AgentTestDemo /> : <StepImage step={s} playing={on} />}
+                </div>
+                <p className="lc-body text-sm leading-6 text-text-soft">{s.body}</p>
               </div>
-              <div className={`lc-media min-h-0 overflow-x-hidden [&_figcaption]:hidden ${s.demo ? "overflow-y-auto" : "overflow-y-hidden"}`}>
-                {s.demo ? <AgentTestDemo /> : <StepImage step={s} playing={on} />}
-              </div>
-              <p className="lc-body text-sm leading-6 text-text-soft">{s.body}</p>
-            </div>
-          );
-        }}
-      />
+            );
+          }}
+        />
+      ) : (
+        <RailPlaceholder />
+      )}
 
       {video && <VideoLightbox src="/legion/legion-promo.mp4" poster="/legion/legion-poster.webp" title="VEE Legion launch video" onClose={() => setVideo(false)} />}
     </section>

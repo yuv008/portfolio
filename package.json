@@ -15,7 +15,6 @@
     "next": "^15.3.9",
     "react": "^19",
     "react-dom": "^19",
-    "react-hot-toast": "^2.6.0",
     "three": "^0.183.2"
   },
   "devDependencies": {

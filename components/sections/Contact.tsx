@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import { ContactGlobe } from "@/components/three/ContactGlobe";
 import { sectionIds, socialLinks } from "@/lib/constants";
 
