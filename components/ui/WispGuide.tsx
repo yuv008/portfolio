@@ -422,8 +422,8 @@ export function WispGuide() {
 
   const scrollTo = (id: string) => {
     const isTile = STOPS.find((st) => st.id === id)?.project;
-    document
-      .getElementById(id)
+    const landing = document.getElementById(`${id}-landing`);
+    (landing && landing.offsetParent !== null ? landing : document.getElementById(id))
       ?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: isTile ? "center" : "start" });
   };
 

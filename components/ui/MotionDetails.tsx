@@ -53,7 +53,7 @@ export function MotionDetails() {
       { threshold: 0.6 },
     );
     const watch = () =>
-      document.querySelectorAll<HTMLElement>(".section-kicker, [data-decode]").forEach((el) => {
+      document.querySelectorAll<HTMLElement>(".section-kicker:not([data-nodecode]), [data-decode]").forEach((el) => {
         if (el.dataset.decodeWatched) return;
         // Only plain text labels: never touch elements that hold other markup.
         if (el.childNodes.length === 1 && el.firstChild?.nodeType === Node.TEXT_NODE) {
