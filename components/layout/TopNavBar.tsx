@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { navLinks } from "@/lib/constants";
 import { usePageSignals } from "@/lib/hooks/usePageSignals";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
@@ -28,27 +27,18 @@ export function TopNavBar() {
 
   return (
     <>
-      {/* Small signature on wide screens, since the nav no longer carries a wordmark */}
-      <Link
-        href="#hero"
-        className={`group/sig fixed left-8 top-6 z-[60] hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong xl:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
-      >
-        <span className="h-2 w-2 rounded-full bg-gradient-to-br from-neural-cyan to-neural-violet shadow-[0_0_10px_rgba(230,230,230,0.7)]" aria-hidden="true" />
-        Yuvraj Sanghai
-      </Link>
-
-      {/* Mirror of the signature on the right, so the corners balance on wide screens */}
-      <a
-        href="#contact"
-        className={`fixed right-8 top-6 z-[60] hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong xl:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
-      >
-        Open to work
-        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(193,193,193,0.7)]" aria-hidden="true" />
-      </a>
-
-      <nav aria-label="Sections" className="fixed inset-x-0 top-4 z-[60] flex justify-center px-3">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <ul className={`group/nav flex items-center gap-0.5 rounded-full p-1 transition-[gap] duration-300 hover:gap-1 focus-within:gap-1 sm:gap-1 sm:p-1.5 ${glass}`}>
+      {/* Below 1280px the controls sit together in the centre. From 1280px the nav is three columns: name on the left,
+          the icon pill exactly centred, and the actions on the right (with room for the pill to widen on hover). */}
+      <nav aria-label="Sections" className="fixed inset-x-0 top-4 z-[60] flex justify-center px-3 xl:grid xl:grid-cols-[1fr_auto_1fr] xl:items-center xl:gap-x-6 xl:px-8">
+        <Link
+          href="#hero"
+          className={`group/sig hidden items-center gap-2.5 justify-self-start font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong xl:col-start-1 xl:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
+        >
+          <span className="h-2 w-2 rounded-full bg-gradient-to-br from-neural-cyan to-neural-violet shadow-[0_0_10px_rgba(230,230,230,0.7)]" aria-hidden="true" />
+          Yuvraj Sanghai
+        </Link>
+        <div className="flex items-center gap-2 sm:gap-3 xl:contents">
+          <ul className={`group/nav flex items-center xl:col-start-2 gap-0.5 rounded-full p-1 transition-[gap] duration-300 hover:gap-1 focus-within:gap-1 sm:gap-1 sm:p-1.5 ${glass}`}>
             {navLinks.map((link) => {
               const active = activeId === link.id;
               return (
@@ -61,13 +51,12 @@ export function TopNavBar() {
                       active ? "text-white" : "text-text-soft hover:text-white"
                     }`}
                   >
-                    {active && (
-                      <motion.span
-                        layoutId="nav-active"
-                        className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(230,230,230,0.30),rgba(172,172,172,0.34))] shadow-[0_0_18px_-2px_rgba(230,230,230,0.4),inset_0_0_0_1px_rgba(255,255,255,0.22)]"
-                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                      />
-                    )}
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-0 rounded-full bg-[linear-gradient(135deg,rgba(230,230,230,0.30),rgba(172,172,172,0.34))] shadow-[0_0_18px_-2px_rgba(230,230,230,0.4),inset_0_0_0_1px_rgba(255,255,255,0.22)] transition-[opacity,transform] duration-300 ease-out ${
+                        active ? "scale-100 opacity-100" : "scale-75 opacity-0"
+                      }`}
+                    />
                     <span
                       className="material-symbols-outlined relative shrink-0"
                       style={{ fontSize: 21, fontVariationSettings: active ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
@@ -85,6 +74,14 @@ export function TopNavBar() {
             })}
           </ul>
 
+          <div className="flex items-center gap-2 sm:gap-3 xl:col-start-3 xl:justify-self-end">
+          <a
+            href="#contact"
+            className={`mr-2 hidden items-center gap-2.5 font-body text-sm font-semibold tracking-tight text-text-soft transition-all duration-300 hover:text-text-strong min-[1440px]:flex ${isScrolled ? "pointer-events-none -translate-y-1 opacity-0" : "opacity-100"}`}
+          >
+            Open to work
+            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(193,193,193,0.7)]" aria-hidden="true" />
+          </a>
           <button
             type="button"
             aria-label="Ask Wisp"
@@ -108,6 +105,7 @@ export function TopNavBar() {
             </span>
             <span className="hidden font-body text-[0.95rem] font-bold tracking-tight sm:inline">Connect</span>
           </Link>
+          </div>
         </div>
       </nav>
     </>
