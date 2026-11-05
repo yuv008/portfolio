@@ -92,7 +92,43 @@ export function WispGuide() {
   const [chip, setChip] = useState(false); // small first-visit "Take the tour" hint, never a popup
   const chipCleanup = useRef<(() => void) | null>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const petRef = useRef<HTMLDivElement>(null);
+  const bubbleOpen = useRef(false);
   const [bubblePos, setBubblePos] = useState<{ left: number; top: number; maxH?: number } | null>(null);
+
+  bubbleOpen.current = !!bubble;
+
+  /* Phones: while the page scrolls, the pet fades and tucks half off the edge, then comes back once scrolling stops. */
+  useEffect(() => {
+    if (window.innerWidth >= 768) return;
+    let t = 0;
+    const show = () => {
+      const el = petRef.current;
+      if (!el) return;
+      el.style.transform = "";
+      el.style.opacity = "";
+    };
+    const onScroll = () => {
+      const el = petRef.current;
+      if (!el || bubbleOpen.current) return;
+      el.style.transform = "translateX(52%)";
+      el.style.opacity = "0.4";
+      window.clearTimeout(t);
+      t = window.setTimeout(show, 800);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(t);
+    };
+  }, []);
+  // Never stay tucked while a bubble is open.
+  useEffect(() => {
+    if (bubble && petRef.current) {
+      petRef.current.style.transform = "";
+      petRef.current.style.opacity = "";
+    }
+  }, [bubble]);
 
   const win = () => frame.current?.contentWindow as WispWin | null | undefined;
   const later = (fn: () => void, ms: number) => {
@@ -104,6 +140,8 @@ export function WispGuide() {
     const { w, h } = size.current;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    // Phones: always the bottom-right corner, small, so it never parks over the reading column.
+    if (vw < 768) return { x: vw - w - 6, y: vh - h - 12, right: true };
     const leftEdge = vw >= 1280 ? 116 : 16; // clear of the side nav on wide screens
     const el = STOPS[idx]?.project ? document.getElementById(STOPS[idx].id) : null;
     if (el && vw >= 768) {
@@ -197,8 +235,8 @@ export function WispGuide() {
 
   /* Mount: pick a size, load the frame lazily, place the pet. */
   useEffect(() => {
-    const small = window.innerWidth < 640;
-    size.current = small ? { w: 105, h: 91 } : { w: 150, h: 130 };
+    const phone = window.innerWidth < 768;
+    size.current = phone ? { w: 78, h: 68 } : { w: 150, h: 130 };
     try {
       seen.current = window.localStorage.getItem(STORAGE_KEY) === "seen";
     } catch {
@@ -477,6 +515,8 @@ export function WispGuide() {
         willChange: "transform",
       }}
     >
+      {/* The pet itself (not its bubble) sits in its own layer so it can tuck aside on phones while scrolling. */}
+      <div ref={petRef} className="absolute inset-0" style={{ transition: "transform 0.45s cubic-bezier(0.2,0.8,0.2,1), opacity 0.45s ease" }}>
       {ready && (
         <iframe
           ref={frame}
@@ -507,6 +547,8 @@ export function WispGuide() {
         className="absolute inset-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-neural-violet"
         style={{ pointerEvents: "auto", background: "transparent", cursor: "pointer" }}
       />
+
+      </div>
 
       {chip && !bubble && (
         <button
