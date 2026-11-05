@@ -18,7 +18,9 @@ const SPY_ITEMS = [...navLinks, { id: "contact", spyIds: ["contact"] }];
  */
 function goTo(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
   if (!href.startsWith("#") || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-  const el = document.getElementById(href.slice(1));
+  // A section can mark a better landing point (e.g. The_Forge intro's settled moment); used only while it is shown.
+  const landing = document.getElementById(`${href.slice(1)}-landing`);
+  const el = landing && landing.offsetParent !== null ? landing : document.getElementById(href.slice(1));
   if (!el) return;
   e.preventDefault();
   const top = el.getBoundingClientRect().top + window.scrollY;

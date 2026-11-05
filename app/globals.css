@@ -526,3 +526,138 @@
 .toast-in {
   animation: toast-in 0.25s ease-out;
 }
+
+/* ── The_Forge entrance (components/sections/ForgeIntro.tsx) ──────────────────────────────────────────────────
+   A 250vh block with a sticky 100vh stage. Its view timeline (`contain` range = while the stage is pinned) drives:
+     0–40%  columns slide in (outer from above, middle from below), staggered
+     40–80% the grid zooms in, outer columns spread, the middle column splits open, images dim
+     74–90% the title settles and the line and button appear
+   Only shown on wide screens, with motion, outside Lite mode, where scroll-driven animations are supported. */
+.forge-intro { display: none; }
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    html:is(:not([data-lite="on"]), [data-lite-fps="1"]) .forge-static { display: none; }
+    html:is(:not([data-lite="on"]), [data-lite-fps="1"]) .forge-intro { display: block; }
+    html:is(:not([data-lite="on"]), [data-lite-fps="1"]) .forge-grid { padding-top: 2.5rem; }
+  }
+}
+.forge-intro {
+  position: relative;
+  height: 250vh;
+  view-timeline: --forge block;
+}
+.forge-landing {
+  position: absolute;
+  left: 0;
+  top: calc(150vh * 0.88);
+  width: 1px;
+  height: 1px;
+}
+.forge-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.forge-gallery {
+  /* the grid is sized so its four rows always fit the screen: height is 0.873 x its width */
+  --gw: min(64vw, 1000px, 105vh);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--gw);
+  margin-left: calc(var(--gw) / -2);
+  margin-top: calc(var(--gw) * -0.4365);
+  display: flex;
+  gap: calc(var(--gw) * 0.03);
+  animation: forge-zoom linear both, forge-dim linear both;
+  animation-timeline: --forge, --forge;
+  animation-range: contain 40% contain 80%, contain 55% contain 80%;
+}
+.forge-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gw) * 0.03);
+}
+.forge-col-0 { animation: forge-spread-left linear both; animation-timeline: --forge; animation-range: contain 40% contain 80%; }
+.forge-col-2 { animation: forge-spread-right linear both; animation-timeline: --forge; animation-range: contain 40% contain 80%; }
+.forge-item {
+  aspect-ratio: 16 / 10;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  background: #0d0d0e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.8);
+  animation: forge-drop cubic-bezier(0.45, 0, 0.55, 1) both;
+  animation-timeline: --forge;
+}
+.forge-col-1 .forge-item { animation-name: forge-rise; }
+.forge-col-1 .forge-item.forge-up { animation: forge-rise cubic-bezier(0.45, 0, 0.55, 1) both, forge-split-up cubic-bezier(0.45, 0, 0.55, 1) both; animation-timeline: --forge, --forge; }
+.forge-col-1 .forge-item.forge-down { animation: forge-rise cubic-bezier(0.45, 0, 0.55, 1) both, forge-split-down cubic-bezier(0.45, 0, 0.55, 1) both; animation-timeline: --forge, --forge; }
+.forge-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.forge-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  text-align: center;
+  padding: 0 1.5rem;
+  pointer-events: none;
+}
+.forge-content > * { pointer-events: auto; }
+.forge-content .section-title { text-shadow: 0 2px 24px rgba(0, 0, 0, 0.85), 0 0 2px rgba(0, 0, 0, 0.6); }
+.forge-content p { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.9); }
+html .forge-intro .forge-content .section-title,
+html .forge-intro .forge-content .section-title + p {
+  animation: none;
+}
+/* The title fades in early, sitting lower (centred on its own), then rises into place as the rest appears. */
+.forge-content > div:first-child {
+  animation: forge-title-in linear both, forge-title-up cubic-bezier(0.45, 0, 0.55, 1) both;
+  animation-timeline: --forge, --forge;
+  animation-range: entry 80% contain 12%, contain 74% contain 86%;
+}
+.forge-content > div:first-child > p,
+.forge-content > p,
+.forge-content > .forge-cta {
+  animation: forge-appear cubic-bezier(0.25, 1, 0.5, 1) both;
+  animation-timeline: --forge;
+  animation-range: contain 78% contain 90%;
+}
+.forge-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.65rem 1.25rem;
+  font-family: var(--font-display), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgb(var(--neural-text));
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background-color 0.2s ease;
+}
+.forge-cta:hover { background: rgba(255, 255, 255, 0.16); }
+
+@keyframes forge-drop { from { translate: 0 -105vh; } to { translate: 0 0; } }
+@keyframes forge-rise { from { translate: 0 105vh; } to { translate: 0 0; } }
+@keyframes forge-zoom { from { transform: scale(1); } to { transform: scale(1.9); } }
+@keyframes forge-dim { from { opacity: 1; } to { opacity: 0.32; } }
+@keyframes forge-spread-left { from { transform: none; } to { transform: translateX(-40%); } }
+@keyframes forge-spread-right { from { transform: none; } to { transform: translateX(40%); } }
+@keyframes forge-split-up { from { transform: none; } to { transform: translateY(-42%); } }
+@keyframes forge-split-down { from { transform: none; } to { transform: translateY(42%); } }
+@keyframes forge-title-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes forge-title-up { from { translate: 0 3.6rem; } to { translate: 0 0; } }
+@keyframes forge-appear {
+  from { opacity: 0; visibility: hidden; transform: translateY(12px); }
+  to { opacity: 1; visibility: visible; transform: none; }
+}

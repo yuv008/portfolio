@@ -6,6 +6,7 @@ import { isLite } from "@/lib/lite";
 import { projects, type Project } from "@/components/projects/projectData";
 import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
+import { ForgeIntro } from "@/components/sections/ForgeIntro";
 import { Wash } from "@/components/ui/Wash";
 import { useStagger } from "@/components/ui/Parallax";
 import { PROJECT_OPEN_EVENT, explainProject, meetWisp } from "@/lib/wisp";
@@ -249,29 +250,18 @@ export function Projects() {
   const open = projects.find((p) => p.id === openId) ?? null;
 
   return (
-    <section id="projects" className="relative z-10 px-8 pb-20 pt-28 md:px-20">
-      <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end">
-        <div>
-          <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-neural-cyan" style={{ fontFamily: "var(--font-display), monospace" }}>
-            Manifest_v{projects.length}.0
-          </p>
-          <h2 className="section-title">
-            The_{" "}
-            <span className="bg-gradient-to-r from-neural-cyan to-neural-violet bg-clip-text text-transparent">Forge</span>
-          </h2>
-        </div>
-        <p className="max-w-xs text-sm leading-relaxed text-text-soft md:ml-auto md:text-right">
-          Six projects, from voice models to company memory. Open any tile for its architecture and design decisions, or ask Wisp to explain it.
-        </p>
-      </div>
+    <section id="projects" className="relative z-10 pb-20">
+      <ForgeIntro count={projects.length} />
 
+      <div id="forge-grid" className="forge-grid scroll-mt-24 px-8 md:px-20">
       <div className="mx-auto grid max-w-[1400px] gap-6 md:grid-cols-2 lg:grid-cols-12">
         {projects.map((p) => (
           <Tile key={p.id} project={p} onOpen={() => setOpenId(p.id)} />
         ))}
       </div>
+      </div>
 
-      {open && <ProjectDetail project={open} accent={ACCENT[open.id] ?? "#f4f4f4"} onClose={close} />}
+      {open &&<ProjectDetail project={open} accent={ACCENT[open.id] ?? "#f4f4f4"} onClose={close} />}
     </section>
   );
 }
