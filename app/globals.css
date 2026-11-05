@@ -129,6 +129,8 @@
     transform: translateY(-2px);
   }
   /* Cursor spotlight and edge sheen on hover (pointer devices only; off in Lite mode). */
+  .tile::after,
+  .tile::before,
   .tile-spot::after,
   .tile-spot::before {
     content: "";
@@ -139,9 +141,11 @@
     opacity: 0;
     transition: opacity 0.3s ease;
   }
+  .tile::after,
   .tile-spot::after {
     background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.09), transparent 62%);
   }
+  .tile::before,
   .tile-spot::before {
     padding: 1px;
     background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.6), transparent 62%);
@@ -150,9 +154,16 @@
     mask-composite: exclude;
   }
   @media (hover: hover) {
+    .tile:hover::after,
+    .tile:hover::before,
     .tile-spot:hover::after,
     .tile-spot:hover::before {
       opacity: 1;
+    }
+    /* A tiny press-down on clickable tiles. */
+    .tile-hover:active {
+      transform: translateY(-1px) scale(0.985);
+      transition-duration: 0.1s;
     }
   }
   .ring-arc {
@@ -403,6 +414,8 @@
 [data-lite="on"] .arch-flow {
   animation: none !important;
 }
+[data-lite="on"] .tile::before,
+[data-lite="on"] .tile::after,
 [data-lite="on"] .tile-spot::before,
 [data-lite="on"] .tile-spot::after {
   display: none !important;
@@ -423,4 +436,61 @@
   backdrop-filter: none !important;
   background-image: none !important;
   background-color: rgba(23, 23, 23, 0.94) !important;
+}
+
+/* Project tile -> detail panel morph (see Projects.tsx). */
+::view-transition-group(vt-project-media),
+::view-transition-group(vt-project-title) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.28s;
+}
+::view-transition-old(vt-project-title),
+::view-transition-new(vt-project-title) {
+  height: 100%;
+  width: auto;
+}
+
+/* Section titles rise into view from behind their baseline as they scroll in; intro lines follow.
+   Scroll-driven, so it runs off the main thread. Skipped where unsupported, in Lite mode and with
+   reduced motion (the text is simply there). The hero is left alone so nothing delays the first paint. */
+@keyframes title-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+    clip-path: inset(-0.3em -0.3em 100% -0.3em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(-0.3em -0.3em -0.35em -0.3em);
+  }
+}
+@keyframes copy-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    html:not([data-lite="on"]) .section-title {
+      animation: title-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 30%;
+    }
+    html:not([data-lite="on"]) .section-copy,
+    html:not([data-lite="on"]) .section-title + p {
+      animation: copy-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 24%;
+    }
+  }
 }

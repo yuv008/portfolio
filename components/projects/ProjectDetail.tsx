@@ -66,7 +66,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
         <div className="overflow-y-auto">
           {/* The cover sits in a framed black screen and is clipped to it, so zooming slideshows can never spill over the text below. */}
           <div className="p-2.5 pb-0">
-            <div className="tile-media relative h-[220px] p-2 md:h-[340px]">
+            <div className="tile-media relative h-[220px] p-2 md:h-[340px]" style={{ viewTransitionName: "vt-project-media" }}>
               <div className="relative h-full w-full overflow-hidden rounded-[0.8rem]">
                 {project.cover.kind === "hover-video" && project.cover.fullVideo ? (
                   <video
@@ -88,7 +88,9 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
             <p className="font-display text-[10px] uppercase tracking-[0.2em]" style={{ color: accent }}>
               {project.period}
             </p>
-            <h3 className="mt-1 font-serif text-5xl font-normal tracking-[-0.01em] text-text-strong">{project.name}</h3>
+            <h3 className="mt-1 w-fit font-serif text-5xl font-normal tracking-[-0.01em] text-text-strong" style={{ viewTransitionName: "vt-project-title" }}>
+              {project.name}
+            </h3>
             <p className="mt-2 max-w-2xl text-base text-text-soft">{project.tagline}</p>
 
             <div className="mt-4 flex flex-wrap gap-2">
