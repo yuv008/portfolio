@@ -1,8 +1,13 @@
 /**
  * Soft blurred colour wash behind a tile's content, like the reference's blurred photo backdrops.
- * Give it an image to blur (its colours become the wash) or two colours for a gradient wash.
+ * Give it an image (its colours become the wash) or two colours for a gradient wash.
  * The parent must be a `.tile` (it creates the stacking context and clips the wash).
+ *
+ * Images are not blurred live (a 64px CSS blur on a large image is very expensive to paint). Each one has a tiny
+ * pre-blurred copy in /public/wash, made by scripts/build-washes.py; add new images to that script.
  */
+const washFor = (src: string) => "/wash/" + src.replace(/^\//, "").replace(/\//g, "-").replace(/\.[a-z]+$/i, ".webp");
+
 export function Wash({
   image,
   from = "#e6e6e6",
@@ -19,12 +24,12 @@ export function Wash({
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={image}
+          src={washFor(image)}
           alt=""
           loading="lazy"
           decoding="async"
           draggable={false}
-          className="absolute -inset-1/4 h-[150%] w-[150%] max-w-none object-cover opacity-70 blur-3xl saturate-[1.7]"
+          className="absolute -inset-1/4 h-[150%] w-[150%] max-w-none object-cover opacity-70"
         />
       ) : (
         <div

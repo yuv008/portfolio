@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { isPlaying, levels, subscribe, toggle } from "@/lib/orpheusAudio";
 import { useLite } from "@/lib/lite";
+import { OVERLAY_EVENT, overlayOpen } from "@/lib/overlay";
 
 /**
  * A softly iridescent orb (pale blue, with a faint rainbow rim) that breathes while idle and, when you press play, moves with the real Orpheus TTS sample:
@@ -134,7 +135,8 @@ export function OrpheusOrb() {
     };
     const frame = () => {
       raf = 0;
-      if (!visible) return;
+      // The tile's orb pauses while the project panel covers the page; the panel's own orb keeps going.
+      if (!visible || (!inPanel && overlayOpen())) return;
       const time = (performance.now() - t0) / 1000;
       draw(time);
       // Animate while listening, or when motion is allowed; otherwise hold the still frame.
@@ -150,6 +152,9 @@ export function OrpheusOrb() {
       if (visible) start();
     });
     io.observe(host);
+    const inPanel = !!host.closest('[role="dialog"]');
+    const onOverlay = () => start();
+    window.addEventListener(OVERLAY_EVENT, onOverlay);
     const ro = new ResizeObserver(() => {
       if (visible) {
         draw((performance.now() - t0) / 1000);
@@ -166,6 +171,7 @@ export function OrpheusOrb() {
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
+      window.removeEventListener(OVERLAY_EVENT, onOverlay);
       ro.disconnect();
       cv.removeEventListener("webglcontextlost", onLost);
       gl.getExtension("WEBGL_lose_context")?.loseContext();

@@ -32,9 +32,13 @@ function enabled() {
 function reset(it: Item) {
   it.el.style.translate = "";
   it.el.style.scale = "";
+  it.el.style.willChange = "";
 }
 
 function apply(it: Item) {
+  // Its own compositor layer: moving it then only shifts a cached texture. Without this, every scroll frame
+  // repainted the tile, including its blurred colour wash, which made the Projects grid very slow to scroll.
+  if (!it.el.style.willChange) it.el.style.willChange = "transform";
   const r = it.host.getBoundingClientRect();
   const d = r.top + r.height / 2 - window.innerHeight / 2; // px below the screen centre
   if (it.mode === "media") {

@@ -12,6 +12,21 @@ import { meetWisp } from "@/lib/wisp";
  */
 const SPY_ITEMS = [...navLinks, { id: "contact", spyIds: ["contact"] }];
 
+/**
+ * Section links. Nearby targets scroll smoothly; far ones (more than two screens away) jump straight there, so
+ * the page does not have to animate through every section (and the pinned Legion rail) on the way.
+ */
+function goTo(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+  if (!href.startsWith("#") || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+  const el = document.getElementById(href.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  const top = el.getBoundingClientRect().top + window.scrollY;
+  const far = Math.abs(top - window.scrollY) > window.innerHeight * 2;
+  window.scrollTo({ top, behavior: far ? "instant" : "smooth" });
+  if (window.location.hash !== href) history.pushState(null, "", href);
+}
+
 export function TopNavBar() {
   // Contact has no icon (the Connect button is its entry), but it is tracked so the last
   // icon does not stay highlighted while you are in it.
@@ -45,6 +60,7 @@ export function TopNavBar() {
                 <li key={link.id} className="group relative">
                   <Link
                     href={link.href}
+                    onClick={(e) => goTo(e, link.href)}
                     aria-label={link.label}
                     aria-current={active ? "location" : undefined}
                     className={`hit relative flex h-9 items-center justify-center rounded-full px-[0.55rem] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neural-cyan/60 sm:h-10 sm:px-[0.65rem] ${
@@ -96,6 +112,7 @@ export function TopNavBar() {
 
           <Link
             href="#contact"
+            onClick={(e) => goTo(e, "#contact")}
             aria-label="Connect"
             className="group flex h-11 items-center gap-3 rounded-full bg-[linear-gradient(135deg,#f4f4f4_0%,#e6e6e6_38%,#bcbcbc_100%)] p-1 pr-1 text-[#0f0f0f] shadow-[0_12px_32px_-10px_rgba(230,230,230,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] outline-none transition-all hover:scale-[1.04] hover:shadow-[0_14px_38px_-8px_rgba(172,172,172,0.65),inset_0_1px_0_rgba(255,255,255,0.5)] focus-visible:ring-2 focus-visible:ring-white sm:h-[3.25rem] sm:pr-6"
           >

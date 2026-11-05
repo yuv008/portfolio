@@ -6,6 +6,7 @@ import { NODE_TYPE_COLORS } from "./ArchitectureDiagram";
 import { PannableDiagram } from "./PannableDiagram";
 import { ProjectCover } from "./ProjectCover";
 import type { Project } from "./projectData";
+import { setOverlay } from "@/lib/overlay";
 
 const TABS = ["Overview", "Architecture", "Decisions"] as const;
 type Tab = (typeof TABS)[number];
@@ -18,13 +19,15 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
+    setOverlay(true); // background effects pause while the panel covers the page
+    closeRef.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
+      setOverlay(false);
       window.removeEventListener("keydown", onKey);
     };
   }, [onClose]);
@@ -34,7 +37,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
   return createPortal(
     <div
       className="fixed inset-0 z-[90] flex items-center justify-center p-3 md:p-8"
-      style={{ background: "rgba(7,7,7,0.78)", backdropFilter: "blur(6px)" }}
+      style={{ background: "rgba(7,7,7,0.86)" }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
