@@ -394,9 +394,23 @@
     column-gap: 1.25rem;
   }
   .legion-card .lc-body { align-self: start; }
-  .legion-card .lc-media figure { height: 100%; display: flex; flex-direction: column; }
-  .legion-card .lc-media .tile-media { flex: 1; min-height: 0; }
-  .legion-card .lc-media .tile-media > div { height: 100%; aspect-ratio: auto !important; }
+}
+/* The clip always keeps its true 960x448 shape (never cropped): the media area is a size container, and the
+   picture takes the full width unless that would make it taller than the space, in which case it narrows and
+   centres. 40px = the frame's padding (two 10px insets on each side). */
+.legion-card .lc-media {
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.legion-card .lc-media > figure {
+  width: min(100%, calc((100cqh - 40px) * 960 / 448 + 40px));
+  flex: none;
+}
+.legion-card .lc-media > :not(figure) {
+  width: 100%;
+  align-self: stretch;
 }
 @media (min-width: 1024px) and (min-height: 500px) and (prefers-reduced-motion: no-preference) {
   /* A Lite switch caused by the frame-rate watch keeps the rail (it is only transforms) so the page never
