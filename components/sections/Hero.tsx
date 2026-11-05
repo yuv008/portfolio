@@ -30,6 +30,7 @@ export function Hero() {
           <span
             className="text-[10px] uppercase tracking-[0.2em]"
             style={{ fontFamily: "var(--font-display), monospace", color: "#e6e6e6" }}
+            data-decode
           >
             AI R&D Engineer
           </span>

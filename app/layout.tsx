@@ -5,6 +5,7 @@ import { TopNavBar } from "@/components/layout/TopNavBar";
 import { Toaster } from "react-hot-toast";
 import { HeroFieldLazy } from "@/components/three/HeroFieldLazy";
 import { LiteMode } from "@/components/ui/LiteMode";
+import { MotionDetails } from "@/components/ui/MotionDetails";
 
 
 // Labels, numbers and buttons: a quiet mono. Body copy: Instrument Sans. Big headlines: Instrument Serif.
@@ -76,6 +77,7 @@ export default function RootLayout({
       </head>
       <body className="font-body text-text-strong relative">
         <LiteMode />
+        <MotionDetails />
         <HeroFieldLazy
           className="pointer-events-none fixed inset-0 z-0"
           colors={["#e6e6e6", "#acacac", "#dbdbdb"]}

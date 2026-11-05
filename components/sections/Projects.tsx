@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import { isLite } from "@/lib/lite";
 import { projects, type Project } from "@/components/projects/projectData";
 import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
@@ -57,7 +59,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
     >
       <Wash image={washImage} from={glow} to={glow} dim={washImage ? 0.52 : 0.6} />
       <div className="shrink-0 p-2.5 pb-0">
-        <div className="tile-media cursor-pointer p-2" style={{ height: hero ? 430 : 210 }} onClick={onOpen}>
+        <div data-vt="media" className="tile-media cursor-pointer p-2" style={{ height: hero ? 430 : 210 }} onClick={onOpen}>
           <div className="relative h-full w-full overflow-hidden rounded-[0.8rem]">
             <ProjectCover project={project} />
           </div>
@@ -83,7 +85,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
           </p>
         </div>
 
-        <h3 className={`mt-2 font-serif font-normal tracking-[-0.01em] text-text-strong ${hero ? "text-6xl" : "text-4xl"}`}>
+        <h3 data-vt="title" className={`mt-2 w-fit font-serif font-normal tracking-[-0.01em] text-text-strong ${hero ? "text-6xl" : "text-4xl"}`}>
           {project.name}
         </h3>
         <p className="mt-2 text-sm leading-6 text-text-soft">{project.tagline}</p>
@@ -180,9 +182,60 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
   );
 }
 
+/**
+ * Opening a project morphs its tile's picture and name into the detail panel (and back on close) with the
+ * browser's View Transitions API. Falls back to an instant open where that is unsupported, in Lite mode, with
+ * reduced motion, or when the tile is off screen (e.g. opened from an Achievements link).
+ */
+function morphParts(id: string) {
+  const tile = document.getElementById(`project-${id}`);
+  const media = tile?.querySelector<HTMLElement>('[data-vt="media"]');
+  const title = tile?.querySelector<HTMLElement>('[data-vt="title"]');
+  if (!tile || !media || !title) return null;
+  // Only morph when most of the picture is on screen; otherwise it would fly in from off the edge.
+  const r = media.getBoundingClientRect();
+  const visible = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+  if (visible < r.height * 0.5) return null;
+  return { media, title };
+}
+const canMorph = () =>
+  typeof document !== "undefined" &&
+  "startViewTransition" in document &&
+  !isLite() &&
+  !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const name = (els: { media: HTMLElement; title: HTMLElement }, on: boolean) => {
+  els.media.style.viewTransitionName = on ? "vt-project-media" : "";
+  els.title.style.viewTransitionName = on ? "vt-project-title" : "";
+};
+
 export function Projects() {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const close = useCallback(() => setOpenId(null), []);
+  const [openId, setOpenIdRaw] = useState<string | null>(null);
+  const openIdRef = useRef<string | null>(null);
+  openIdRef.current = openId;
+
+  const setOpenId = useCallback((id: string | null) => {
+    const current = openIdRef.current;
+    const parts = canMorph() ? morphParts(id ?? current ?? "") : null;
+    if (!parts) {
+      setOpenIdRaw(id);
+      return;
+    }
+    if (id) {
+      // Opening: the tile carries the names in the old snapshot, the panel carries them in the new one.
+      name(parts, true);
+      document.startViewTransition(() => {
+        name(parts, false);
+        flushSync(() => setOpenIdRaw(id));
+      });
+    } else {
+      const vt = document.startViewTransition(() => {
+        flushSync(() => setOpenIdRaw(null));
+        name(parts, true);
+      });
+      vt.finished.finally(() => name(parts, false));
+    }
+  }, []);
+  const close = useCallback(() => setOpenId(null), [setOpenId]);
 
   // Other sections (Achievements) can open a project's detail panel.
   useEffect(() => {
@@ -192,7 +245,7 @@ export function Projects() {
     };
     window.addEventListener(PROJECT_OPEN_EVENT, onOpen);
     return () => window.removeEventListener(PROJECT_OPEN_EVENT, onOpen);
-  }, []);
+  }, [setOpenId]);
   const open = projects.find((p) => p.id === openId) ?? null;
 
   return (
