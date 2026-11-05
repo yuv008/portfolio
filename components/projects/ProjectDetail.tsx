@@ -126,7 +126,7 @@ export function ProjectDetail({ project, accent, onClose }: { project: Project; 
                   role="tab"
                   aria-selected={t === tab}
                   onClick={() => setTab(t)}
-                  className="-mb-px whitespace-nowrap px-3 py-2 font-display text-[11px] uppercase tracking-[0.15em] transition-colors md:px-4"
+                  className="hit relative -mb-px whitespace-nowrap px-3 py-2 font-display text-[11px] uppercase tracking-[0.15em] transition-colors md:px-4"
                   style={{
                     color: t === tab ? "rgb(var(--neural-text))" : "rgb(var(--neural-text-muted))",
                     borderBottom: `2px solid ${t === tab ? accent : "transparent"}`,

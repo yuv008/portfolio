@@ -353,7 +353,7 @@ export default function HeroField({
       }
     };
 
-    const clock = new THREE.Clock();
+    let prevNow = 0; // timestamp of the last rendered frame, for the frame delta
     let raf = 0;
     let lastRenderAt = 0;
     const frame = (now: number) => {
@@ -365,7 +365,8 @@ export default function HeroField({
       }
       lastRenderAt = now;
       adapt(now);
-      const dt = Math.min(clock.getDelta(), 0.05);
+      const dt = prevNow ? Math.min((now - prevNow) / 1000, 0.05) : 0;
+      prevNow = now;
       uniforms.uTime.value += dt;
       points.rotation.y += dt * 0.05;
       if (near) near.rotation.y += dt * 0.08;
@@ -386,7 +387,7 @@ export default function HeroField({
     };
     function start() {
       if (reduceMotion || raf || contextLost) return;
-      clock.getDelta();
+      prevNow = 0;
       lastRenderAt = 0;
       sampleStart = 0; // don't count a pause as a slow frame
       raf = requestAnimationFrame(frame);

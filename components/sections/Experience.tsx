@@ -113,7 +113,7 @@ function AskWisp({ id, name }: { id: string; name: string }) {
       type="button"
       onClick={() => explainStop(id)}
       aria-label={`Ask Wisp to explain ${name}`}
-      className="inline-flex items-center gap-1.5 rounded-full border border-white/12 px-3 py-1.5 font-display text-[10px] uppercase tracking-[0.15em] text-text-soft transition-colors hover:text-text-strong"
+      className="hit relative inline-flex items-center gap-1.5 rounded-full border border-white/12 px-3 py-1.5 font-display text-[10px] uppercase tracking-[0.15em] text-text-soft transition-colors hover:text-text-strong"
     >
       <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">
         chat_bubble
@@ -138,7 +138,7 @@ function MiniRamp() {
           />
         ))}
       </div>
-      <p className="mt-2 font-display text-[9px] uppercase tracking-[0.16em] text-text-muted">Concurrency ramp · illustrative</p>
+      <p className="mt-2 font-display text-[10px] uppercase tracking-[0.16em] text-text-muted">Concurrency ramp · illustrative</p>
     </div>
   );
 }
@@ -179,7 +179,7 @@ function CurrentRole({ item }: { item: Item }) {
         ))}
         <span className="ml-auto flex items-center gap-3">
           <AskWisp id={`journey-${item.id}`} name={item.company} />
-          <a href="#stress-test" className="inline-flex items-center gap-1 text-xs font-semibold text-text-soft transition-colors hover:text-neural-cyan">
+          <a href="#stress-test" className="hit relative inline-flex items-center gap-1 text-xs font-semibold text-text-soft transition-colors hover:text-neural-cyan">
             See VEE Legion
             <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">
               arrow_upward
@@ -226,7 +226,7 @@ function CompactRole({ item }: { item: Item }) {
           aria-expanded={open}
           aria-controls={`details-${item.id}`}
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center gap-1.5 font-display text-[10px] uppercase tracking-[0.15em] text-text-muted transition-colors hover:text-text-strong"
+          className="hit relative inline-flex items-center gap-1.5 font-display text-[10px] uppercase tracking-[0.15em] text-text-muted transition-colors hover:text-text-strong"
         >
           {open ? "Hide details" : "Details"}
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform .2s" }}>

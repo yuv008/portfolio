@@ -57,7 +57,7 @@ export function TopNavBar() {
                     href={link.href}
                     aria-label={link.label}
                     aria-current={active ? "location" : undefined}
-                    className={`relative flex h-9 items-center justify-center rounded-full px-[0.55rem] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neural-cyan/60 sm:h-10 sm:px-[0.65rem] ${
+                    className={`hit relative flex h-9 items-center justify-center rounded-full px-[0.55rem] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neural-cyan/60 sm:h-10 sm:px-[0.65rem] ${
                       active ? "text-white" : "text-text-soft hover:text-white"
                     }`}
                   >

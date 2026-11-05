@@ -25,7 +25,7 @@ export function PannableDiagram({ project, height = 230, className = "mt-3" }: {
       >
         <ArchitectureDiagram nodes={project.architecture.nodes} edges={project.architecture.edges} className="w-auto max-w-none select-none" style={{ height }} />
       </div>
-      <p className="pointer-events-none absolute bottom-1.5 right-4 text-[9px] uppercase tracking-[0.16em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
+      <p className="pointer-events-none absolute bottom-1.5 right-4 text-[10px] uppercase tracking-[0.16em] text-text-muted" style={{ fontFamily: "var(--font-display), monospace" }}>
         Drag to explore →
       </p>
     </div>
