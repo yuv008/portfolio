@@ -494,3 +494,14 @@
     }
   }
 }
+
+/* A larger, invisible touch area around small controls (about 44px tall), without changing how they look. */
+.hit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(calc(100% + 12px), 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}

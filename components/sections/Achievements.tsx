@@ -76,7 +76,7 @@ function Ring({ value, label }: { value: number; label: string }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-display text-[22px] font-bold leading-none text-text-strong">{value}</span>
-        <span className="mt-1 font-display text-[8px] uppercase tracking-[0.25em] text-text-muted">{label}</span>
+        <span className="mt-1 font-display text-[10px] uppercase tracking-[0.25em] text-text-muted">{label}</span>
       </div>
     </div>
   );
@@ -125,7 +125,7 @@ export function Achievements() {
                   <button
                     type="button"
                     onClick={() => openProject(w.project!.id)}
-                    className="mt-auto self-start pt-5 text-xs font-semibold text-text-soft underline-offset-4 transition-colors hover:text-neural-cyan hover:underline"
+                    className="hit relative mt-auto self-start pt-5 text-xs font-semibold text-text-soft underline-offset-4 transition-colors hover:text-neural-cyan hover:underline"
                   >
                     Built {w.project.name} →
                   </button>

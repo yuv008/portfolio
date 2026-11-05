@@ -66,7 +66,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
           <span className="pointer-events-none absolute left-5 top-4 h-2 w-2 rounded-full" style={{ background: glow, boxShadow: `0 0 8px ${glow}` }} />
           {project.featured && (
             <span
-              className="pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-[9px] uppercase tracking-[0.18em]"
+              className="pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em]"
               style={{ fontFamily: "var(--font-display), monospace", color: accent, background: "rgba(12,12,12,0.7)", border: `1px solid ${accent}40` }}
             >
               Featured
@@ -133,7 +133,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
           <button
             type="button"
             onClick={onOpen}
-            className="rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
+            className="hit relative rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
             style={{ fontFamily: "var(--font-display), monospace", background: `${accent}26`, border: `1px solid ${accent}55` }}
           >
             Details
@@ -141,7 +141,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
           <button
             type="button"
             onClick={() => explainProject(project.id)}
-            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-text-soft transition-colors hover:text-text-strong"
+            className="hit relative flex items-center gap-1.5 rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-text-soft transition-colors hover:text-text-strong"
             style={{ fontFamily: "var(--font-display), monospace", border: "1px solid rgba(255,255,255,0.12)" }}
             aria-label={`Ask Wisp to explain ${project.name}`}
           >
@@ -155,7 +155,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
               href={github}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2 py-2 text-[10px] uppercase tracking-[0.15em] text-text-muted transition-colors hover:text-text-strong"
+              className="hit relative px-2 py-2 text-[10px] uppercase tracking-[0.15em] text-text-muted transition-colors hover:text-text-strong"
               style={{ fontFamily: "var(--font-display), monospace" }}
             >
               GitHub ↗
@@ -170,7 +170,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
             <button
               type="button"
               onClick={(e) => meetWisp(e.currentTarget)}
-              className="rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] transition-colors hover:brightness-125"
+              className="hit relative rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] transition-colors hover:brightness-125"
               style={{ fontFamily: "var(--font-display), monospace", color: accent, border: `1px solid ${accent}55` }}
             >
               Meet Wisp

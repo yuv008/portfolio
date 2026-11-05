@@ -189,7 +189,7 @@ function AgentTestDemo() {
             role="tab"
             aria-selected={s.id === id}
             onClick={() => pick(s.id)}
-            className={`rounded-full px-3 py-1 font-display text-[0.6rem] uppercase tracking-[0.15em] transition-colors ${
+            className={`hit relative rounded-full px-3 py-1 font-display text-[0.65rem] uppercase tracking-[0.15em] transition-colors ${
               s.id === id ? "bg-neural-violet/25 text-text-strong" : "border border-surface-border/30 text-text-muted hover:text-text-soft"
             }`}
           >
@@ -214,7 +214,7 @@ function AgentTestDemo() {
         {shown === 0 && <p className="text-xs text-text-muted">Press “Run test” to start the call.</p>}
         {scenario.turns.slice(0, shown).map((t, i) => (
           <div key={i} className={t.who === "agent" ? "pl-8" : "pr-8"}>
-            <p className="mb-1 font-display text-[9px] uppercase tracking-[0.16em] text-text-muted">{t.who === "agent" ? "Agent under test" : "Caller"}</p>
+            <p className="mb-1 font-display text-[10px] uppercase tracking-[0.16em] text-text-muted">{t.who === "agent" ? "Agent under test" : "Caller"}</p>
             <p
               className="rounded-xl px-3 py-2 text-sm leading-6 text-text-strong"
               style={{
@@ -249,7 +249,7 @@ function AgentTestDemo() {
           type="button"
           onClick={() => run(scenario)}
           disabled={running}
-          className="rounded-full bg-neural-violet/25 px-4 py-1.5 font-display text-[0.6rem] uppercase tracking-[0.15em] text-text-strong transition-colors hover:bg-neural-violet/40 disabled:opacity-50"
+          className="hit relative rounded-full bg-neural-violet/25 px-4 py-1.5 font-display text-[0.65rem] uppercase tracking-[0.15em] text-text-strong transition-colors hover:bg-neural-violet/40 disabled:opacity-50"
         >
           {running ? "Running…" : done ? "Run again" : "Run test"}
         </button>
@@ -268,7 +268,7 @@ function AgentTestDemo() {
           href="https://legion.voiceracx.ai"
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 font-display text-[0.6rem] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
+          className="hit relative mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 font-display text-[0.65rem] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
           style={{ background: "rgba(225,225,225,0.14)", border: "1px solid rgba(225,225,225,0.4)" }}
         >
           Want this for your agents? Join the private beta ↗
@@ -296,7 +296,7 @@ function StepImage({ step, playing = true }: { step: Step; playing?: boolean }) 
           )}
         </div>
       </div>
-      <figcaption className="px-2 pb-1 pt-2.5 font-display text-[9px] uppercase tracking-[0.16em] text-text-muted">
+      <figcaption className="px-2 pb-1 pt-2.5 font-display text-[10px] uppercase tracking-[0.16em] text-text-muted">
         {step.alt} · from the VEE Legion launch video
       </figcaption>
     </figure>
@@ -358,11 +358,11 @@ export function StressTest() {
             <p className="mt-4 max-w-xl text-sm leading-7 text-text-soft">
               I defined the product and built the backend of VEE Legion. It tests AI agents the way customers do, with simulated callers and red-team attackers, then shows exactly where they break. Break the agent before your customers do.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-4 font-display text-[0.6rem] uppercase tracking-[0.15em]">
+            <div className="mt-6 flex flex-wrap items-center gap-4 font-display text-[0.65rem] uppercase tracking-[0.15em]">
               <button
                 type="button"
                 onClick={() => setVideo(true)}
-                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-text-strong transition-colors hover:brightness-125"
+                className="hit relative flex items-center gap-1.5 rounded-full px-4 py-2 text-text-strong transition-colors hover:brightness-125"
                 style={{ background: "rgba(230,230,230,0.14)", border: "1px solid rgba(230,230,230,0.35)" }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
@@ -370,7 +370,7 @@ export function StressTest() {
                 </span>
                 Watch launch video
               </button>
-              <a href="https://legion.voiceracx.ai" target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-neural-cyan">
+              <a href="https://legion.voiceracx.ai" target="_blank" rel="noopener noreferrer" className="hit relative text-text-muted hover:text-neural-cyan">
                 legion.voiceracx.ai ↗
               </a>
             </div>

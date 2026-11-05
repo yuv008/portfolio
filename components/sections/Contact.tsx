@@ -176,7 +176,7 @@ export function Contact() {
                     key={l.label}
                     href={l.href}
                     target={l.external ? "_blank" : undefined}
-                    rel={l.external ? "noreferrer" : undefined}
+                    rel={l.external ? "noopener noreferrer" : undefined}
                     className="group flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/25 px-3.5 py-3 transition-colors hover:border-neural-cyan/40"
                   >
                     <span className="flex min-w-0 items-center gap-3">

@@ -12,7 +12,7 @@ export function LiteToggle({ className = "" }: { className?: string }) {
       onClick={() => setLite(!lite, "user", true)}
       aria-pressed={lite}
       title={lite ? "Lite mode reduces motion and effects. Click to turn it off." : "Turn on Lite mode: fewer effects, smoother on slower devices."}
-      className={`rounded-full px-1 text-text-muted transition-colors hover:text-white ${className}`}
+      className={`hit relative rounded-full px-1 text-text-muted transition-colors hover:text-white ${className}`}
     >
       Lite mode: {lite ? (auto ? "on (auto)" : "on") : "off"}
     </button>

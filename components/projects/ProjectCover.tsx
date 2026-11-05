@@ -26,22 +26,25 @@ function HoverVideo({
   fit?: "cover" | "contain";
 }) {
   return (
-    <div className="absolute inset-0" style={{ background: "#080808" }} role="img" aria-label={alt}>
-      {/* Letterboxed clips are shown whole, so they must not be scaled up for parallax. */}
-      {fit === "contain" ? (
-        <LoopVideo src={video} poster={image} fit={fit} />
-      ) : (
-        <ParallaxMedia>
-          <LoopVideo src={video} poster={image} fit={fit} className="object-top" />
-        </ParallaxMedia>
-      )}
+    <div className="absolute inset-0" style={{ background: "#080808" }}>
+      {/* The picture carries the description; the "Watch demo" link sits beside it, not inside it. */}
+      <div className="absolute inset-0" role="img" aria-label={alt}>
+        {/* Letterboxed clips are shown whole, so they must not be scaled up for parallax. */}
+        {fit === "contain" ? (
+          <LoopVideo src={video} poster={image} fit={fit} />
+        ) : (
+          <ParallaxMedia>
+            <LoopVideo src={video} poster={image} fit={fit} className="object-top" />
+          </ParallaxMedia>
+        )}
+      </div>
       {watchHref && (
         <a
           href={watchHref}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-3 right-4 z-10 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] uppercase tracking-widest"
+          className="hit absolute bottom-3 right-4 z-10 flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] uppercase tracking-widest"
           style={{
             fontFamily: "var(--font-display), monospace",
             background: "rgba(12,12,12,0.7)",

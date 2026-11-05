@@ -37,7 +37,7 @@ export function Hero() {
         </div>
         <a
           href="#stress-test"
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full transition-colors hover:brightness-125"
+          className="hit relative inline-flex items-center gap-2 px-3 py-1 rounded-full transition-colors hover:brightness-125"
           style={{ background: "rgba(172,172,172,0.08)", border: "1px solid rgba(172,172,172,0.25)" }}
         >
           <span
@@ -142,7 +142,7 @@ export function Hero() {
                     />
                   )}
                   <p
-                    className="text-[0.6rem] uppercase tracking-[0.28em]"
+                    className="text-[0.65rem] uppercase tracking-[0.28em]"
                     style={{ fontFamily: "var(--font-display), monospace", color: "rgb(140,140,140)" }}
                   >
                     {item.label}

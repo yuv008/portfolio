@@ -90,7 +90,7 @@ export function LegionRail({
               onClick={() => jump(i)}
               aria-label={`Go to step ${i + 1}: ${l}`}
               aria-current={i === active ? "step" : undefined}
-              className="h-1.5 rounded-full transition-all duration-300"
+              className="hit relative h-1.5 rounded-full transition-all duration-300"
               style={{ width: i === active ? 28 : 8, background: i === active ? "#e6e6e6" : "rgba(255,255,255,0.25)" }}
             />
           ))}

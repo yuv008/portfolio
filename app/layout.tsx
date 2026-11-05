@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Instrument_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { TopNavBar } from "@/components/layout/TopNavBar";
@@ -37,6 +37,7 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://yuvrajms.tech"),
+  alternates: { canonical: "/" },
   title: "Yuvraj Sanghai — AI R&D Engineer",
   description:
     "AI R&D Engineer. I build VEE Legion, which finds failures in voice and chat AI agents before customers do, and the voice systems behind them.",
@@ -54,6 +55,23 @@ export const metadata: Metadata = {
     description: "Voice and chat AI agents fail in ways nobody sees until a customer complains. I build the QA platform that finds those failures first.",
     images: ["/og-image.png"],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0b",
+};
+
+/** Structured data so search engines can connect the site with the same person's other profiles. */
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Yuvraj Sanghai",
+  jobTitle: "AI R&D Engineer",
+  url: "https://yuvrajms.tech",
+  image: "https://yuvrajms.tech/og-image.png",
+  sameAs: ["https://linkedin.com/in/yuvraj008", "https://github.com/yuv008", "https://huggingface.co/yuv008"],
+  alumniOf: { "@type": "CollegeOrUniversity", name: "Pune Institute of Computer Technology" },
+  knowsAbout: ["Voice AI", "AI agent evaluation", "Speech synthesis", "Retrieval-augmented generation", "LLM fine-tuning", "AI infrastructure"],
 };
 
 export default function RootLayout({
@@ -76,6 +94,7 @@ export default function RootLayout({
         <link rel="preload" href="/fonts/material-symbols-subset.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="font-body text-text-strong relative">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
         <LiteMode />
         <MotionDetails />
         <HeroFieldLazy
