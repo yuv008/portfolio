@@ -32,11 +32,14 @@ export function liteReason(): LiteReason {
   return ((typeof document !== "undefined" && document.documentElement.dataset.liteReason) || "off") as LiteReason;
 }
 
-export function setLite(on: boolean, reason: LiteReason, persist = false) {
+/** `fromFps` marks a switch made by the frame-rate watch, so layouts do not swap under someone mid-scroll.
+ *  It is set before the change event fires, so listeners always see the final state. */
+export function setLite(on: boolean, reason: LiteReason, persist = false, fromFps = false) {
   const el = document.documentElement;
   el.dataset.lite = on ? "on" : "off";
   el.dataset.liteReason = on ? reason : "off";
-  delete el.dataset.liteFps;
+  if (on && fromFps) el.dataset.liteFps = "1";
+  else delete el.dataset.liteFps;
   if (persist) {
     try {
       window.localStorage.setItem(KEY, on ? "on" : "off");
@@ -99,9 +102,7 @@ export function initLite(): () => void {
         const fps = (frames * 1000) / (t - start);
         slowWindows = fps < 24 ? slowWindows + 1 : 0;
         if (slowWindows >= 2) {
-          setLite(true, "auto");
-          // Flag that this came from the frame-rate watch, so layouts do not swap under someone mid-scroll.
-          document.documentElement.dataset.liteFps = "1";
+          setLite(true, "auto", false, true);
           return;
         }
         start = t;

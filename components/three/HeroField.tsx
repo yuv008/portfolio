@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
 
 type HeroFieldProps = {
   /** Three colors: base, flow highlight, sparse accent. Swap for your site tokens. */
@@ -51,6 +50,8 @@ float snoise(vec3 v){
 }`;
 
 const VERT = /* glsl */ `
+precision highp float;
+uniform mat4 modelViewMatrix, projectionMatrix;
 uniform float uTime, uFreq, uAmp, uShape, uTwist, uSize, uPixelRatio;
 uniform vec3 uOffset;
 attribute vec3 aSeed;
@@ -86,6 +87,7 @@ void main(){
 }`;
 
 const FRAG = /* glsl */ `
+precision highp float;
 uniform vec3 uC1, uC2, uC3; uniform float uOpacity;
 varying float vMix; varying float vR; varying float vNear;
 void main(){
@@ -118,80 +120,127 @@ export default function HeroField({
     // Phones put the densest part of the field right behind body text
     const baseOpacity = isSmall ? opacity * 0.7 : opacity;
 
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: "high-performance" });
-    } catch {
-      return; // No WebGL: the hero simply shows its normal background.
-    }
-    // The background is decorative, so render at device-independent resolution.
-    renderer.setPixelRatio(1);
-    renderer.setClearColor(0x000000, 0);
-    mount.appendChild(renderer.domElement);
+    // Plain WebGL (no three.js): one shader, two point layers. Decorative, so it renders at 1x resolution.
+    const canvas = document.createElement("canvas");
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.display = "block";
+    const gl = canvas.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: true, powerPreference: "high-performance" });
+    if (!gl) return; // No WebGL: the hero simply shows its normal background.
+    mount.appendChild(canvas);
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    const FOV = 50;
     const baseZ = isSmall ? 6.4 : 4.6;
-    camera.position.set(0, 0.4, baseZ);
+    const cam = { x: 0, y: 0.4, z: baseZ, aspect: 1 };
 
     // Two layers give real parallax: a dense, distant cloud and a sparse, larger one that sits nearer the
     // camera. The camera pans and dollies, so the near layer slides further than the far one.
     const nearCount = scrollLinked ? Math.round(count * 0.1) : 0;
     const farCount = count - nearCount;
-    const makeGeo = (n: number) => {
-      const g = new THREE.BufferGeometry();
+    const makeSeeds = (n: number) => {
       const sd = new Float32Array(n * 3);
       for (let i = 0; i < sd.length; i++) sd[i] = Math.random();
-      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 3), 3));
-      g.setAttribute("aSeed", new THREE.BufferAttribute(sd, 3));
-      g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 10);
-      return g;
+      return sd;
     };
-    const geo = makeGeo(farCount);
-    const geoNear = nearCount ? makeGeo(nearCount) : null;
-
-    const uniforms = {
-      uTime: { value: 0 },
-      uFreq: { value: 0.85 },
-      uAmp: { value: 0.8 },
-      uShape: { value: shape },
-      uTwist: { value: 0.8 },
-      uOffset: { value: new THREE.Vector3(Math.random() * 50, Math.random() * 50, Math.random() * 50) },
-      uSize: { value: isSmall ? 18 : 16 },
-      uPixelRatio: { value: renderer.getPixelRatio() },
-      uOpacity: { value: baseOpacity },
-      uC1: { value: new THREE.Color(colors[0]) },
-      uC2: { value: new THREE.Color(colors[1]) },
-      uC3: { value: new THREE.Color(colors[2]) },
+    const farSeeds = makeSeeds(farCount);
+    const nearSeeds = nearCount ? makeSeeds(nearCount) : null;
+    const offset = [Math.random() * 50, Math.random() * 50, Math.random() * 50];
+    // Colours are given in sRGB and used in linear space, matching how the shader looked under three.js.
+    const lin = (hex: string) => {
+      const n = parseInt(hex.replace("#", ""), 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
+        const v = c / 255;
+        return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
     };
+    const C = colors.map(lin);
 
-    const mat = new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader: VERT,
-      fragmentShader: FRAG,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    const points = new THREE.Points(geo, mat);
-    scene.add(points);
+    const state = { time: 0, shape, opacity: baseOpacity };
+    const layers = [
+      { seeds: farSeeds, count: farCount, draw: farCount, size: isSmall ? 18 : 16, op: 1, rot: 0, spin: 0.05, scale: 1, pos: [0, 0, 0] },
+      ...(nearSeeds
+        ? [{ seeds: nearSeeds, count: nearCount, draw: nearCount, size: (isSmall ? 18 : 16) * 2.1, op: 0.55, rot: 0, spin: 0.08, scale: 1.75, pos: [0.2, -0.1, 0.9] }]
+        : []),
+    ];
 
-    const nearUniforms = THREE.UniformsUtils.clone(uniforms);
-    nearUniforms.uSize.value = uniforms.uSize.value * 2.1;
-    const matNear = new THREE.ShaderMaterial({
-      uniforms: nearUniforms,
-      vertexShader: VERT,
-      fragmentShader: FRAG,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    const near = geoNear ? new THREE.Points(geoNear, matNear) : null;
-    if (near) {
-      near.scale.setScalar(1.75);
-      near.position.set(0.2, -0.1, 0.9);
-      scene.add(near);
+    type GLRes = { prog: WebGLProgram; bufs: WebGLBuffer[]; loc: Record<string, WebGLUniformLocation | null>; aSeed: number };
+    let res: GLRes | null = null;
+    const compile = (type: number, src: string) => {
+      const sh = gl.createShader(type)!;
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      return sh;
+    };
+    const initGL = (): GLRes | null => {
+      const prog = gl.createProgram()!;
+      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
+      gl.useProgram(prog);
+      const bufs = layers.map((L) => {
+        const b = gl.createBuffer()!;
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, L.seeds, gl.STATIC_DRAW);
+        return b;
+      });
+      const names = ["modelViewMatrix", "projectionMatrix", "uTime", "uFreq", "uAmp", "uShape", "uTwist", "uOffset", "uSize", "uPixelRatio", "uOpacity", "uC1", "uC2", "uC3"];
+      const loc = Object.fromEntries(names.map((n) => [n, gl.getUniformLocation(prog, n)]));
+      gl.uniform1f(loc.uFreq, 0.85);
+      gl.uniform1f(loc.uAmp, 0.8);
+      gl.uniform1f(loc.uTwist, 0.8);
+      gl.uniform3f(loc.uOffset, offset[0], offset[1], offset[2]);
+      gl.uniform1f(loc.uPixelRatio, 1);
+      gl.uniform3fv(loc.uC1, C[0]);
+      gl.uniform3fv(loc.uC2, C[1]);
+      gl.uniform3fv(loc.uC3, C[2]);
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+      gl.blendEquation(gl.FUNC_ADD);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive, as before
+      gl.clearColor(0, 0, 0, 0);
+      return { prog, bufs, loc, aSeed: gl.getAttribLocation(prog, "aSeed") };
+    };
+    res = initGL();
+    if (!res) {
+      canvas.remove();
+      return;
     }
+
+    const proj = new Float32Array(16);
+    const mv = new Float32Array(16);
+    const setProjection = () => {
+      const f = 1 / Math.tan(((FOV / 2) * Math.PI) / 180);
+      const near = 0.1;
+      const far = 100;
+      proj.fill(0);
+      proj[0] = f / cam.aspect;
+      proj[5] = f;
+      proj[10] = (far + near) / (near - far);
+      proj[11] = -1;
+      proj[14] = (2 * far * near) / (near - far);
+    };
+    const render = () => {
+      if (!res) return;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniformMatrix4fv(res.loc.projectionMatrix, false, proj);
+      gl.uniform1f(res.loc.uTime, state.time);
+      gl.uniform1f(res.loc.uShape, state.shape);
+      layers.forEach((L, i) => {
+        // model-view = translate(position - camera) * rotateY * scale (the camera never rotates)
+        const c = Math.cos(L.rot) * L.scale;
+        const sn = Math.sin(L.rot) * L.scale;
+        mv.set([c, 0, -sn, 0, 0, L.scale, 0, 0, sn, 0, c, 0, L.pos[0] - cam.x, L.pos[1] - cam.y, L.pos[2] - cam.z, 1]);
+        gl.uniformMatrix4fv(res!.loc.modelViewMatrix, false, mv);
+        gl.uniform1f(res!.loc.uSize, L.size);
+        gl.uniform1f(res!.loc.uOpacity, state.opacity * L.op);
+        gl.bindBuffer(gl.ARRAY_BUFFER, res!.bufs[i]);
+        gl.enableVertexAttribArray(res!.aSeed);
+        gl.vertexAttribPointer(res!.aSeed, 3, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.POINTS, 0, L.draw);
+      });
+    };
 
     // Adaptive quality: seeds are random, so drawing a prefix of the buffer
     // is an even thinning of the whole field. Only ever steps down.
@@ -224,25 +273,22 @@ export default function HeroField({
     let targetZ = camZ;
     let approach = 0; // 0 at the top, 1 when the camera is closest; used to ease the opacity a little
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
-    const unitW = () => 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
+    const unitW = () => 2 * Math.tan(((FOV / 2) * Math.PI) / 180) * cam.aspect;
     const applyCamera = () => {
       const wide = scrollLinked && (mount.clientWidth || 1) >= 900;
-      camera.position.x = -(wide ? camF : 0) * unitW() * camZ + pointer.x * 0.12;
-      camera.position.y = 0.4 - pointer.y * 0.06;
-      camera.position.z = camZ;
+      cam.x = -(wide ? camF : 0) * unitW() * camZ + pointer.x * 0.12;
+      cam.y = 0.4 - pointer.y * 0.06;
+      cam.z = camZ;
     };
     const resize = () => {
       const w = mount.clientWidth || 1;
       const h = mount.clientHeight || 1;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
+      cam.aspect = w / h;
+      setProjection();
       applyCamera();
-      renderer.setSize(w, h, false);
-      renderer.domElement.style.width = "100%";
-      renderer.domElement.style.height = "100%";
-      uniforms.uPixelRatio.value = renderer.getPixelRatio();
-      nearUniforms.uPixelRatio.value = renderer.getPixelRatio();
-      if (reduceMotion) renderer.render(scene, camera);
+      canvas.width = w;
+      canvas.height = h;
+      if (reduceMotion) render();
     };
     const ro = new ResizeObserver(resize);
     ro.observe(mount);
@@ -273,14 +319,12 @@ export default function HeroField({
       targetShape = shape + (1 - shape) * t * t * (3 - 2 * t);
       if (reduceMotion) {
         // No animation: jump straight to the new state and draw once
-        uniforms.uOpacity.value = targetOpacity;
-        uniforms.uShape.value = targetShape;
-        nearUniforms.uOpacity.value = targetOpacity * 0.55;
-        nearUniforms.uShape.value = targetShape;
+        state.opacity = targetOpacity;
+        state.shape = targetShape;
         camF = targetF;
         camZ = targetZ;
         applyCamera();
-        renderer.render(scene, camera);
+        render();
       }
     };
     if (scrollLinked) {
@@ -295,18 +339,19 @@ export default function HeroField({
     };
     if (scrollLinked && finePointer && !reduceMotion) window.addEventListener("pointermove", onPointer, { passive: true });
 
-    // Only animate when the hero is on screen and the tab is visible
+    // Only animate when the field is on screen and the tab is visible
     let onScreen = true;
     const io = new IntersectionObserver(([entry]) => {
       onScreen = entry.isIntersecting;
       if (onScreen) start();
     });
     io.observe(mount);
-    const onVisibility = () => { if (!document.hidden) start(); };
+    const onVisibility = () => {
+      if (!document.hidden) start();
+    };
     document.addEventListener("visibilitychange", onVisibility);
 
-    // If the GPU drops the context, stop drawing instead of freezing; three.js
-    // rebuilds its resources on restore and the loop picks back up.
+    // If the GPU drops the context, stop drawing; rebuild the program and buffers when it comes back.
     let contextLost = false;
     const onContextLost = (e: Event) => {
       e.preventDefault();
@@ -316,11 +361,12 @@ export default function HeroField({
     };
     const onContextRestored = () => {
       contextLost = false;
-      if (reduceMotion) renderer.render(scene, camera);
+      res = initGL();
+      if (reduceMotion) render();
       else start();
     };
-    renderer.domElement.addEventListener("webglcontextlost", onContextLost);
-    renderer.domElement.addEventListener("webglcontextrestored", onContextRestored);
+    canvas.addEventListener("webglcontextlost", onContextLost);
+    canvas.addEventListener("webglcontextrestored", onContextRestored);
 
     // If rendered frames fall below ~26fps, progressively thin the field.
     let sampleStart = 0;
@@ -345,11 +391,8 @@ export default function HeroField({
       if (avg <= 38) return;
       if (drawCount > minCount) {
         drawCount = Math.max(minCount, Math.round(drawCount * 0.7));
-        geo.setDrawRange(0, drawCount);
-        geoNear?.setDrawRange(0, Math.round(drawCount * (nearCount / Math.max(farCount, 1))));
-      } else if (renderer.getPixelRatio() > 1) {
-        renderer.setPixelRatio(1);
-        resize();
+        layers[0].draw = drawCount;
+        if (layers[1]) layers[1].draw = Math.round(drawCount * (nearCount / Math.max(farCount, 1)));
       }
     };
 
@@ -367,22 +410,18 @@ export default function HeroField({
       adapt(now);
       const dt = prevNow ? Math.min((now - prevNow) / 1000, 0.05) : 0;
       prevNow = now;
-      uniforms.uTime.value += dt;
-      points.rotation.y += dt * 0.05;
-      if (near) near.rotation.y += dt * 0.08;
+      state.time += dt;
+      layers.forEach((L) => (L.rot += dt * L.spin));
       const ease = 1 - Math.exp(-dt * 4);
       const slow = 1 - Math.exp(-dt * 2.2); // the camera glides more slowly than the fades
-      uniforms.uOpacity.value += (targetOpacity - uniforms.uOpacity.value) * ease;
-      uniforms.uShape.value += (targetShape - uniforms.uShape.value) * ease;
+      state.opacity += (targetOpacity - state.opacity) * ease;
+      state.shape += (targetShape - state.shape) * ease;
       camF += (targetF - camF) * slow;
       camZ += (targetZ - camZ) * slow;
       pointer.x += (pointer.tx - pointer.x) * slow;
       pointer.y += (pointer.ty - pointer.y) * slow;
       applyCamera();
-      nearUniforms.uTime.value = uniforms.uTime.value;
-      nearUniforms.uShape.value = uniforms.uShape.value;
-      nearUniforms.uOpacity.value = uniforms.uOpacity.value * 0.55;
-      renderer.render(scene, camera);
+      render();
       raf = requestAnimationFrame(frame);
     };
     function start() {
@@ -393,7 +432,7 @@ export default function HeroField({
       raf = requestAnimationFrame(frame);
     }
 
-    if (reduceMotion) renderer.render(scene, camera); // single still frame
+    if (reduceMotion) render(); // single still frame
     else start();
 
     return () => {
@@ -401,17 +440,17 @@ export default function HeroField({
       ro.disconnect();
       pageRo.disconnect();
       io.disconnect();
-      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
-      renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
+      canvas.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextrestored", onContextRestored);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointer);
       document.removeEventListener("visibilitychange", onVisibility);
-      geo.dispose();
-      geoNear?.dispose();
-      mat.dispose();
-      matNear.dispose();
-      renderer.dispose();
-      renderer.domElement.remove();
+      if (res) {
+        res.bufs.forEach((b) => gl.deleteBuffer(b));
+        gl.deleteProgram(res.prog);
+      }
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      canvas.remove();
     };
     // Re-init only if these change
     // eslint-disable-next-line react-hooks/exhaustive-deps
