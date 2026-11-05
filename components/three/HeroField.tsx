@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { OVERLAY_EVENT, overlayOpen } from "@/lib/overlay";
 
 type HeroFieldProps = {
   /** Three colors: base, flow highlight, sparse accent. Swap for your site tokens. */
@@ -130,6 +131,9 @@ export default function HeroField({
     mount.appendChild(canvas);
 
     const FOV = 50;
+    // The dots are soft, so the field is drawn at 75% resolution and stretched to fill the screen: about 44% less
+    // fill work for the GPU, with no visible difference.
+    const SCALE = 0.75;
     const baseZ = isSmall ? 6.4 : 4.6;
     const cam = { x: 0, y: 0.4, z: baseZ, aspect: 1 };
 
@@ -190,7 +194,7 @@ export default function HeroField({
       gl.uniform1f(loc.uAmp, 0.8);
       gl.uniform1f(loc.uTwist, 0.8);
       gl.uniform3f(loc.uOffset, offset[0], offset[1], offset[2]);
-      gl.uniform1f(loc.uPixelRatio, 1);
+      gl.uniform1f(loc.uPixelRatio, SCALE); // point sizes follow the drawing resolution, so dots keep their size
       gl.uniform3fv(loc.uC1, C[0]);
       gl.uniform3fv(loc.uC2, C[1]);
       gl.uniform3fv(loc.uC3, C[2]);
@@ -286,8 +290,8 @@ export default function HeroField({
       cam.aspect = w / h;
       setProjection();
       applyCamera();
-      canvas.width = w;
-      canvas.height = h;
+      canvas.width = Math.max(1, Math.round(w * SCALE));
+      canvas.height = Math.max(1, Math.round(h * SCALE));
       if (reduceMotion) render();
     };
     const ro = new ResizeObserver(resize);
@@ -346,6 +350,10 @@ export default function HeroField({
       if (onScreen) start();
     });
     io.observe(mount);
+    const onOverlay = () => {
+      if (!overlayOpen()) start();
+    };
+    window.addEventListener(OVERLAY_EVENT, onOverlay);
     const onVisibility = () => {
       if (!document.hidden) start();
     };
@@ -401,7 +409,8 @@ export default function HeroField({
     let lastRenderAt = 0;
     const frame = (now: number) => {
       raf = 0;
-      if (!onScreen || document.hidden || contextLost) return;
+      // Paused while the tab is hidden, the field is off screen, or a panel covers the page.
+      if (!onScreen || document.hidden || contextLost || overlayOpen()) return;
       if (lastRenderAt && now - lastRenderAt < 1000 / 30) {
         raf = requestAnimationFrame(frame);
         return;
@@ -445,6 +454,7 @@ export default function HeroField({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointer);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener(OVERLAY_EVENT, onOverlay);
       if (res) {
         res.bufs.forEach((b) => gl.deleteBuffer(b));
         gl.deleteProgram(res.prog);
