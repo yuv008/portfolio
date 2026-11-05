@@ -4,19 +4,21 @@
  * ".forge-intro" in globals.css), so it costs no JavaScript per frame. Phones, Lite mode, reduced motion and
  * browsers without scroll-driven animations get the plain header instead, and the images are never loaded there.
  */
+/** Real screens of each project's site or app. Listed row by row (three columns), dark and light screens alternate,
+ *  and no project repeats within a row or a column. */
 const IMAGES = [
-  { src: "weave-hero", alt: "Weave answering which provider was chosen for SSO" },
-  { src: "warcast-home", alt: "WarCast home page" },
+  { src: "weave-landing", alt: "Weave landing page" },
   { src: "legify-home", alt: "Legify landing page" },
-  { src: "shetniyojan-home", alt: "ShetNiyojan home page" },
+  { src: "warcast-home", alt: "WarCast home page" },
+  { src: "shetniyojan-dashboard", alt: "ShetNiyojan farm dashboard" },
   { src: "orpheus-orb", alt: "The Orpheus TTS orb" },
+  { src: "legify-viewer", alt: "Legify document viewer with extracted text" },
   { src: "warcast-search", alt: "WarCast search results" },
+  { src: "shetniyojan-home", alt: "ShetNiyojan home page" },
+  { src: "weave-hero", alt: "Weave answering which provider was chosen for SSO" },
   { src: "legify-dashboard", alt: "Legify document dashboard" },
-  { src: "pathshala-architecture", alt: "Smart Pathshala architecture" },
-  { src: "weave-architecture", alt: "Weave architecture" },
-  { src: "warcast-code", alt: "WarCast scraper code" },
-  { src: "shetniyojan-insights", alt: "ShetNiyojan cost suggestions" },
   { src: "warcast-dashboard", alt: "WarCast sentiment dashboard" },
+  { src: "shetniyojan-insights", alt: "ShetNiyojan cost suggestions" },
 ];
 
 const COLUMNS = [0, 1, 2].map((c) => IMAGES.filter((_, i) => i % 3 === c));
