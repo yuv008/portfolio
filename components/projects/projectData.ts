@@ -386,6 +386,109 @@ export const projects: Project[] = [
       "If I were starting over, I'd evaluate SQLite with CRDT sync (like CR-SQLite) instead of PostgreSQL for true offline-first. The current sync model has edge cases with conflict resolution that a CRDT approach would handle more elegantly.",
   },
   {
+    id: "bloomlog",
+    name: "BloomLog",
+    tagline: "A gentle daily companion for mood, water, meals and tiny wins",
+    featured: false,
+    stack: ["Next.js 16", "React 19", "Tailwind CSS 4", "Framer Motion", "Supabase", "TanStack Query", "Groq", "PWA"],
+    period: "May 2026",
+    cover: {
+      kind: "slides",
+      images: ["/covers/bloomlog-today.webp", "/covers/bloomlog-rhythm.webp"],
+    },
+    petScript:
+      "BloomLog is a gentle daily companion: mood, water, meals, sleep and small wins in about a minute, with no streaks and no guilt. It works offline in the browser and syncs through Supabase when it can.",
+    petFact: "Seven moods, each one changes the sky behind the app.",
+    links: {
+      live: "https://bloomlog-six.vercel.app",
+    },
+    architecture: {
+      nodes: [
+        { id: "pwa", label: "Next.js PWA", type: "frontend", tooltip: "Installable, with a service worker and an offline page" },
+        { id: "api", label: "Data Layer", type: "process", tooltip: "One API for every read and write: Supabase first, local storage as the fallback" },
+        { id: "local", label: "Local Storage", type: "database", tooltip: "Guest mode: everything works on the device with no account" },
+        { id: "auth", label: "Supabase\nAnonymous Auth", type: "backend" },
+        { id: "pg", label: "Postgres + RLS", type: "database", tooltip: "Every table scoped to the signed-in user" },
+        { id: "edge", label: "Edge Functions", type: "backend", tooltip: "Whisper picker and weekly recap" },
+        { id: "quests", label: "Quests + Garden", type: "feature", tooltip: "3 quests a day from a pool of 23; finishing one adds decor to your garden" },
+        { id: "routes", label: "AI Routes", type: "backend", tooltip: "Daily per-user caps; recipes cached by their ingredient list" },
+        { id: "groq", label: "Groq · Llama", type: "ai", tooltip: "8B for food estimates, 70B for recipes; JSON checked against a schema" },
+        { id: "vercel", label: "Vercel · Mumbai", type: "infra" },
+      ],
+      edges: [
+        { from: "pwa", to: "api" },
+        { from: "api", to: "local", label: "fallback" },
+        { from: "api", to: "auth" },
+        { from: "auth", to: "pg" },
+        { from: "pg", to: "edge" },
+        { from: "pwa", to: "quests" },
+        { from: "pwa", to: "routes" },
+        { from: "routes", to: "groq" },
+        { from: "vercel", to: "pwa" },
+      ],
+    },
+    decisions: [
+      {
+        question: "Why work without an account?",
+        answer:
+          "Asking for a sign-up before someone has logged a single glass of water loses them. Every read and write goes through one data layer: it uses Supabase only when an anonymous session really exists, and otherwise saves to the device. That design came from a production bug: with anonymous sign-ins switched off, the app tried Supabase with guest ids and nothing worked. Now it falls back to local storage, and cloud sync is a bonus rather than a requirement.",
+      },
+      {
+        question: "How do you build a tracker without guilt?",
+        answer:
+          "No streaks, no red numbers. Mood is weather (sunny, rainy, golden hour), and the background changes with it. Each day offers three tiny quests picked from a pool of 23, the same three for a given person and day, and 8 of them tick themselves off from what you already logged (a met water goal, a homemade breakfast). The reward is a piece of decor in your garden, not points.",
+      },
+      {
+        question: "How do the AI features stay cheap and predictable?",
+        answer:
+          "Food estimates use the fast 8B model in JSON mode with a 200-token cap, and every answer is checked against a schema before it's shown. Recipes use the 70B model and are cached by a hash of the ingredient list, so the same fridge never pays twice. Each person gets a daily allowance (30 estimates, 10 recipes), and the app is fully usable with AI switched off.",
+      },
+      {
+        question: "Why put meals and water on the calendar?",
+        answer:
+          "Logging and planning were two separate places, so the day never looked whole. The calendar now merges what you planned with what you did: meals and a met water goal appear as entries on the day. Days begin and end at midnight in your own time zone rather than the server's, so an 11 pm dinner in Pune still counts as today.",
+      },
+    ],
+    metrics: [
+      { label: "Daily check-in", value: "60", unit: "sec", detail: "Mood, water, meals, sleep and tiny quests in about a minute" },
+      { label: "Sign-ups needed", value: "0", detail: "Works offline on the device; syncs through Supabase when available" },
+      { label: "Tiny quests", value: "23", detail: "Three a day; 8 tick themselves off from what you logged" },
+      { label: "Moods", value: "7", detail: "Mood as weather: each one changes the sky and particles" },
+    ],
+    reflection:
+      "The production bug where nothing worked taught me the most: the app trusted that a cloud session existed. Making local storage the default and the cloud the bonus fixed it and made the app feel instant. Next: garden plants that grow over days (the field exists, the progression doesn't yet) and a native shell for phones.",
+    journey: [
+      {
+        phase: "A soft room",
+        icon: "gear",
+        color: "var(--accent)",
+        content:
+          "A small design system of cream, blush and sage tokens, Fraunces and Inter, and gentle springs that respect reduced motion. Mood-as-weather sets the tone for the whole app.",
+      },
+      {
+        phase: "Local first",
+        icon: "settings",
+        color: "var(--signal-amber)",
+        content:
+          "Rebuilt the data layer after a production failure: one API that tries Supabase only with a real session, falls back to the device, and keeps the React Query cache in step so onboarding no longer loops.",
+      },
+      {
+        phase: "Nourish and AI",
+        icon: "zap",
+        color: "var(--signal-green)",
+        content:
+          "A food log with gentle calorie and macro rings, AI estimates and recipes from what's in your fridge on Groq, with daily caps and a cache.",
+      },
+      {
+        phase: "Your rhythm",
+        icon: "cloud",
+        color: "var(--text-secondary)",
+        content:
+          "A calendar with week, day and month views, repeating routines, and meals and water folded in, so planning and logging live in one place.",
+      },
+    ],
+  },
+  {
     id: "shetniyojan",
     name: "ShetNiyojan",
     tagline: "Intelligent agricultural planning from seed to sale",
