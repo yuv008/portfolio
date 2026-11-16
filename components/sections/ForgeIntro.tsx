@@ -14,9 +14,9 @@ const IMAGES = [
   { src: "orpheus-orb", alt: "The Orpheus TTS orb" },
   { src: "legify-viewer", alt: "Legify document viewer with extracted text" },
   { src: "warcast-search", alt: "WarCast search results" },
-  { src: "shetniyojan-home", alt: "ShetNiyojan home page" },
+  { src: "bloomlog-today", alt: "BloomLog today, calendar and nourish screens" },
   { src: "weave-hero", alt: "Weave answering which provider was chosen for SSO" },
-  { src: "legify-dashboard", alt: "Legify document dashboard" },
+  { src: "bloomlog-rhythm", alt: "BloomLog water bottle, month calendar and nutrition screens" },
   { src: "warcast-dashboard", alt: "WarCast sentiment dashboard" },
   { src: "shetniyojan-insights", alt: "ShetNiyojan cost suggestions" },
 ];
@@ -48,7 +48,7 @@ function Header({ count, centred = false }: { count: number; centred?: boolean }
         </h2>
       </div>
       <p className={`text-sm leading-relaxed text-text-soft ${centred ? "max-w-md" : "max-w-xs md:ml-auto md:text-right"}`}>
-        Six projects, from voice models to company memory. Open any tile for its architecture and design decisions, or ask Wisp to explain it.
+        Seven projects, from voice models to company memory. Open any tile for its architecture and design decisions, or ask Wisp to explain it.
       </p>
     </>
   );

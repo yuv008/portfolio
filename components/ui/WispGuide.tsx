@@ -35,7 +35,7 @@ const STOPS: Stop[] = BASE_STOPS.flatMap((stop) =>
     ? [stop, ...JOURNEY_STOPS]
     : stop.id === "projects"
     ? [
-        { ...stop, tip: "Six projects in a bento grid. Tap any tile for its architecture and design decisions, or press Ask Wisp on a tile and I'll explain it." },
+        { ...stop, tip: "Seven projects in a bento grid. Tap any tile for its architecture and design decisions, or press Ask Wisp on a tile and I'll explain it." },
         ...projects.map((p) => ({ id: `project-${p.id}`, label: p.name, tip: p.petScript, fact: p.petFact, project: true })),
       ]
     : [stop],

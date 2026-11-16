@@ -16,6 +16,7 @@ const GLOW: Record<string, string> = {
   weave: "#b9a8ff",
   "orpheus-tts": "#a8e8ff",
   "smart-pathshala": "#dcb8ff",
+  bloomlog: "#f4b8c6",
   shetniyojan: "#7ee0a6",
   warcast: "#ffb36b",
   legify: "#9fc2ff",
@@ -25,19 +26,21 @@ const ACCENT: Record<string, string> = {
   weave: "#c6c6c6",
   "orpheus-tts": "#f4f4f4",
   "smart-pathshala": "#dbdbdb",
+  bloomlog: "#e2e2e2",
   shetniyojan: "#dddddd",
   warcast: "#d3d3d3",
   legify: "#d4d4d4",
 };
 
-/** Bento placement. The first tile is the tall hero of the grid. `drift` is the tile's scroll-parallax direction. */
+/** Bento placement: the tall hero with two tiles beside it, then a two-by-two block. `drift` is the tile's scroll-parallax direction. */
 const LAYOUT: Record<string, { span: string; hero?: boolean; drift: number }> = {
   weave: { span: "md:col-span-2 lg:col-span-7 lg:row-span-2", hero: true, drift: -1 },
   "orpheus-tts": { span: "lg:col-span-5", drift: 1 },
   "smart-pathshala": { span: "lg:col-span-5", drift: 1 },
-  shetniyojan: { span: "lg:col-span-4", drift: 1 },
-  warcast: { span: "lg:col-span-4", drift: -1 },
-  legify: { span: "md:col-span-2 lg:col-span-4", drift: 1 },
+  bloomlog: { span: "lg:col-span-6", drift: 1 },
+  shetniyojan: { span: "lg:col-span-6", drift: -1 },
+  warcast: { span: "lg:col-span-6", drift: 1 },
+  legify: { span: "lg:col-span-6", drift: -1 },
 };
 
 function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {

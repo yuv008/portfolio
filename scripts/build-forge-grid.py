@@ -30,9 +30,9 @@ ITEMS = [
     ("orpheus-orb", CAPS / "orpheus.png", 0.5, 0.5),
     ("legify-viewer", CAPS / "legify-viewer.png", 0.5, 0.0),
     ("warcast-search", ROOT / "covers/warcast-search.webp", 0.5, 0.0),
-    ("shetniyojan-home", ROOT / "covers/shetniyojan-home.webp", 0.5, 0.0),
+    ("bloomlog-today", ROOT / "covers/bloomlog-today.webp", 0.5, 0.5),
     ("weave-hero", ROOT / "weave-hero.png", 0.12, 0.5),
-    ("legify-dashboard", ROOT / "covers/legify-dashboard.webp", 0.5, 0.0),
+    ("bloomlog-rhythm", ROOT / "covers/bloomlog-rhythm.webp", 0.5, 0.5),
     ("warcast-dashboard", ROOT / "covers/warcast-dashboard.webp", 0.5, 0.62),
     ("shetniyojan-insights", CAPS / "shet-8.png", 0.5, 0.0),
 ]

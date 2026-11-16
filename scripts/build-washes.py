@@ -13,6 +13,7 @@ SOURCES = [
     "covers/shetniyojan-home.webp",
     "covers/warcast-home.webp",
     "covers/legify-home.webp",
+    "covers/bloomlog-today.webp",
     "legion/step-problem.webp",
     "legion/step-callers.webp",
     "legion/step-define.webp",
