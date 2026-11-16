@@ -145,10 +145,13 @@ export function WispGuide() {
     const leftEdge = vw >= 1280 ? 116 : 16; // clear of the side nav on wide screens
     const el = STOPS[idx]?.project ? document.getElementById(STOPS[idx].id) : null;
     if (el && vw >= 768) {
-      // Explaining a tile: stand at the viewport edge on the opposite side of it.
+      // Explaining a tile: stand on that tile, in its outer bottom corner, so the pet and its bubble sit over the
+      // project being explained and never over a neighbouring tile.
       const r = el.getBoundingClientRect();
-      const right = r.left + r.width / 2 < vw / 2;
-      return { x: right ? vw - w - 16 : leftEdge, y: vh - h - 20, right };
+      const right = r.left + r.width / 2 > vw / 2;
+      const x = clamp(right ? r.right - w - 12 : r.left + 12, 8, vw - w - 8);
+      const y = clamp(Math.min(r.bottom, vh) - h - 16, 96, vh - h - 20);
+      return { x, y, right };
     }
     const right = idx % 2 === 0;
     return { x: right ? vw - w - 16 : leftEdge, y: vh - h - 20, right };
@@ -175,11 +178,15 @@ export function WispGuide() {
     const clampY = (y: number) => Math.max(top, Math.min(y, vh - bh - edge));
     const fits = (x: number, y: number) => x >= edge && y >= top && x + bw <= vw - edge && y + bh <= vh - edge;
     const alignedX = clampX(rightAligned ? px + w - bw : px);
+    // Above first, then beside the pet on the side facing the middle of the screen (over the tile it is
+    // explaining), and only then below, which can spill onto the next tile.
+    const rightOfPet = { x: px + w + gap, y: clampY(py + h / 2 - bh / 2) };
+    const leftOfPet = { x: px - bw - gap, y: clampY(py + h / 2 - bh / 2) };
     const options = [
       { x: alignedX, y: py - bh - gap }, // above
+      rightAligned ? leftOfPet : rightOfPet, // inward
       { x: alignedX, y: py + h + gap }, // below
-      { x: px + w + gap, y: clampY(py + h / 2 - bh / 2) }, // right of the pet
-      { x: px - bw - gap, y: clampY(py + h / 2 - bh / 2) }, // left of the pet
+      rightAligned ? rightOfPet : leftOfPet, // outward
     ];
     let chosen = options.find((o) => fits(o.x, o.y));
     let maxH: number | undefined;

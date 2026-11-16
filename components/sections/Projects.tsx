@@ -53,6 +53,7 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const washImage =
     project.cover.kind === "hover-video" ? project.cover.image : project.cover.kind === "slides" ? project.cover.images[0] : undefined;
   const github = project.links?.github;
+  const live = project.links?.live;
   const metrics = project.metrics.slice(0, hero ? 3 : 1);
 
   return (
@@ -154,6 +155,18 @@ function Tile({ project, onOpen }: { project: Project; onOpen: () => void }) {
             </span>
             Ask Wisp
           </button>
+          {live && (
+            <a
+              href={live}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hit relative rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-text-strong transition-colors hover:brightness-125"
+              style={{ fontFamily: "var(--font-display), monospace", border: `1px solid ${accent}55` }}
+              aria-label={`Open ${project.name} live (opens in a new tab)`}
+            >
+              Live ↗
+            </a>
+          )}
           {github ? (
             <a
               href={github}
