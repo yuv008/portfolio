@@ -100,6 +100,24 @@ void main(){
   gl_FragColor = vec4(col, a * uOpacity * vNear);
 }`;
 
+// The soft edge fade, drawn inside WebGL as a last pass over the finished field. It is the same curve as the CSS mask
+// `radial-gradient(ellipse at center, #000 35%, transparent 75%)` used to be (an ellipse through the corners, so the
+// ray length is sqrt(2) half-widths), but costs one small quad at the canvas resolution instead of an extra
+// full-screen compositing pass at device resolution on every frame.
+const CSS_MASK = "radial-gradient(ellipse at center, #000 35%, transparent 75%)";
+
+const MASK_VERT = /* glsl */ `
+attribute vec2 aPos;
+void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+const MASK_FRAG = /* glsl */ `
+precision highp float;
+uniform vec2 uRes;
+void main(){
+  float t = 1.41421356 * length(gl_FragCoord.xy / uRes - 0.5);
+  gl_FragColor = vec4(0.0, 0.0, 0.0, clamp((0.75 - t) / 0.4, 0.0, 1.0));
+}`;
+
 export default function HeroField({
   colors = ["#888888", "#dbdbdb", "#f4f4f4"],
   particles = 32000,
@@ -167,7 +185,14 @@ export default function HeroField({
         : []),
     ];
 
-    type GLRes = { prog: WebGLProgram; bufs: WebGLBuffer[]; loc: Record<string, WebGLUniformLocation | null>; aSeed: number };
+    type GLRes = {
+      prog: WebGLProgram;
+      bufs: WebGLBuffer[];
+      loc: Record<string, WebGLUniformLocation | null>;
+      aSeed: number;
+      /** Edge-fade pass; null only if it failed to build, in which case the CSS mask is used instead. */
+      mask: { prog: WebGLProgram; quad: WebGLBuffer; uRes: WebGLUniformLocation | null } | null;
+    };
     let res: GLRes | null = null;
     const compile = (type: number, src: string) => {
       const sh = gl.createShader(type)!;
@@ -175,12 +200,35 @@ export default function HeroField({
       gl.compileShader(sh);
       return sh;
     };
+    // Both programs read their single attribute from slot 0.
+    const link = (vs: string, fs: string, attribute: string) => {
+      const p = gl.createProgram()!;
+      gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+      gl.bindAttribLocation(p, 0, attribute);
+      gl.linkProgram(p);
+      if (gl.getProgramParameter(p, gl.LINK_STATUS)) return p;
+      gl.deleteProgram(p);
+      return null;
+    };
+    const initMask = (): GLRes["mask"] => {
+      const prog = link(MASK_VERT, MASK_FRAG, "aPos");
+      if (!prog) {
+        mount.style.maskImage = CSS_MASK;
+        mount.style.setProperty("-webkit-mask-image", CSS_MASK);
+        return null;
+      }
+      mount.style.maskImage = "";
+      mount.style.removeProperty("-webkit-mask-image");
+      const quad = gl.createBuffer()!;
+      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); // one triangle covering the canvas
+      return { prog, quad, uRes: gl.getUniformLocation(prog, "uRes") };
+    };
     const initGL = (): GLRes | null => {
-      const prog = gl.createProgram()!;
-      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
-      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
-      gl.linkProgram(prog);
-      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
+      const prog = link(VERT, FRAG, "aSeed");
+      if (!prog) return null;
+      const mask = initMask();
       gl.useProgram(prog);
       const bufs = layers.map((L) => {
         const b = gl.createBuffer()!;
@@ -203,7 +251,7 @@ export default function HeroField({
       gl.blendEquation(gl.FUNC_ADD);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive, as before
       gl.clearColor(0, 0, 0, 0);
-      return { prog, bufs, loc, aSeed: gl.getAttribLocation(prog, "aSeed") };
+      return { prog, bufs, loc, aSeed: gl.getAttribLocation(prog, "aSeed"), mask };
     };
     res = initGL();
     if (!res) {
@@ -228,6 +276,8 @@ export default function HeroField({
       if (!res) return;
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.useProgram(res.prog);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive, as before
       gl.uniformMatrix4fv(res.loc.projectionMatrix, false, proj);
       gl.uniform1f(res.loc.uTime, state.time);
       gl.uniform1f(res.loc.uShape, state.shape);
@@ -244,6 +294,17 @@ export default function HeroField({
         gl.vertexAttribPointer(res!.aSeed, 3, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.POINTS, 0, L.draw);
       });
+      const m = res.mask;
+      if (m) {
+        // Edge fade: multiply everything drawn so far, colour and alpha alike, by the mask (dst = dst * mask).
+        gl.useProgram(m.prog);
+        gl.blendFunc(gl.ZERO, gl.SRC_ALPHA);
+        gl.uniform2f(m.uRes, canvas.width, canvas.height);
+        gl.bindBuffer(gl.ARRAY_BUFFER, m.quad);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
     };
 
     // Adaptive quality: seeds are random, so drawing a prefix of the buffer
@@ -278,8 +339,9 @@ export default function HeroField({
     let approach = 0; // 0 at the top, 1 when the camera is closest; used to ease the opacity a little
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
     const unitW = () => 2 * Math.tan(((FOV / 2) * Math.PI) / 180) * cam.aspect;
+    // Kept up to date by resize(): reading the mount's width here, once per frame, forced a style and layout pass.
+    let wide = false;
     const applyCamera = () => {
-      const wide = scrollLinked && (mount.clientWidth || 1) >= 900;
       cam.x = -(wide ? camF : 0) * unitW() * camZ + pointer.x * 0.12;
       cam.y = 0.4 - pointer.y * 0.06;
       cam.z = camZ;
@@ -287,6 +349,7 @@ export default function HeroField({
     const resize = () => {
       const w = mount.clientWidth || 1;
       const h = mount.clientHeight || 1;
+      wide = scrollLinked && w >= 900;
       cam.aspect = w / h;
       setProjection();
       applyCamera();
@@ -458,6 +521,10 @@ export default function HeroField({
       if (res) {
         res.bufs.forEach((b) => gl.deleteBuffer(b));
         gl.deleteProgram(res.prog);
+        if (res.mask) {
+          gl.deleteBuffer(res.mask.quad);
+          gl.deleteProgram(res.mask.prog);
+        }
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       canvas.remove();
@@ -471,12 +538,9 @@ export default function HeroField({
       ref={mountRef}
       aria-hidden="true"
       className={className}
-      style={{
-        pointerEvents: "none",
-        // Fades the edges so it sits behind text without a hard frame
-        maskImage: "radial-gradient(ellipse at center, #000 35%, transparent 75%)",
-        WebkitMaskImage: "radial-gradient(ellipse at center, #000 35%, transparent 75%)",
-      }}
+      // The edges fade so it sits behind text without a hard frame. The fade is drawn in WebGL (see MASK_FRAG);
+      // CSS_MASK is only applied here if that pass cannot be built.
+      style={{ pointerEvents: "none" }}
     />
   );
 }
