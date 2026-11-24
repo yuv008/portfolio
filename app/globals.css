@@ -423,6 +423,12 @@
   }
 }
 
+/* Looping decorative animations pause while their tile is well off screen (see components/ui/MotionDetails.tsx).
+   !important because most of them set `animation` inline, which would otherwise reset the play state. */
+[data-anim-off] :is(.tile-anim, .arch-flow) {
+  animation-play-state: paused !important;
+}
+
 /* Lite mode (see lib/lite.ts): drop the expensive effects. */
 [data-lite="on"] .tile-anim,
 [data-lite="on"] .arch-flow {

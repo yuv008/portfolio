@@ -338,10 +338,16 @@ export function StressTest() {
   const railShown = useRailShown();
   const [active, setActive] = useState(0);
   const [video, setVideo] = useState(false);
-  const refs = useRef<(HTMLDivElement | null)[]>([]);
+  const refs = useRef<(HTMLLIElement | null)[]>([]);
+  const listRef = useRef<HTMLOListElement>(null);
 
+  // The step nearest the middle of the screen is active. It is only measured while the list is on screen: it is
+  // hidden on wide screens that show the rail, and elsewhere a scroll anywhere on the page used to measure all six
+  // steps every frame.
   useEffect(() => {
+    const list = listRef.current;
     let frame = 0;
+    let listening = false;
     const update = () => {
       frame = 0;
       const mid = window.innerHeight / 2;
@@ -362,13 +368,31 @@ export function StressTest() {
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
+    const listen = (on: boolean) => {
+      if (on === listening) return;
+      listening = on;
+      if (on) {
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
+      } else {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", onScroll);
+        if (frame) cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    };
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const io = list
+      ? new IntersectionObserver(([e]) => {
+          listen(e.isIntersecting);
+          update(); // settle on the right step as the list enters or leaves the screen
+        })
+      : null;
+    if (io && list) io.observe(list);
+    else listen(true);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (frame) cancelAnimationFrame(frame);
+      io?.disconnect();
+      listen(false);
     };
   }, []);
 
@@ -436,7 +460,7 @@ export function StressTest() {
           </div>
 
           {/* Steps */}
-          <ol className="legion-steps space-y-6 lg:space-y-0">
+          <ol ref={listRef} className="legion-steps space-y-6 lg:space-y-0">
             {STEPS.map((s, i) => (
               <li
                 key={s.id}

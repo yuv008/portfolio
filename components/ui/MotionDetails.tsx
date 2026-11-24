@@ -32,13 +32,52 @@ function decode(el: HTMLElement) {
   requestAnimationFrame(step);
 }
 
+/** Looping decorative animations (see the `[data-anim-off]` rule in globals.css). */
+const LOOPS = ".tile-anim, .arch-flow";
+
+/**
+ * Looping animations keep running when they are far off screen, and most of them (shine sweeps, dash flows, the
+ * moving pulse) are repainted on the main thread every frame, which also re-layerizes the whole page; the ramp's
+ * eighty cells each hold a compositor layer. So each one's tile (or, outside a tile, its parent) is marked
+ * `data-anim-off` while it is well outside the viewport, which pauses the loops inside. They resume before they
+ * scroll back into view, so nothing visible changes.
+ */
+function pauseOffscreenLoops() {
+  const watched = new Set<Element>();
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (e.isIntersecting) e.target.removeAttribute("data-anim-off");
+        else e.target.setAttribute("data-anim-off", "");
+      }),
+    { rootMargin: "300px 0px" },
+  );
+  const scan = () =>
+    document.querySelectorAll(LOOPS).forEach((el) => {
+      const scope = el.closest(".tile") ?? el.parentElement;
+      if (!scope || watched.has(scope)) return;
+      watched.add(scope);
+      io.observe(scope);
+    });
+  scan();
+  const later = window.setTimeout(scan, 2000); // sections that mount a little later
+  return () => {
+    window.clearTimeout(later);
+    io.disconnect();
+    watched.forEach((el) => el.removeAttribute("data-anim-off"));
+  };
+}
+
 /**
  * Small page-wide motion details, mounted once in the layout:
  *  - section kickers (and anything marked data-decode) decode the first time they scroll into view,
- *  - every tile gets a cursor spotlight: one shared pointer listener sets --mx/--my on the tile under the cursor.
- * Both are skipped in Lite mode and with reduced motion; the spotlight only runs on fine pointers.
+ *  - every tile gets a cursor spotlight: one shared pointer listener sets --mx/--my on the tile under the cursor,
+ *  - looping decorative animations pause while they are off screen.
+ * The first two are skipped in Lite mode and with reduced motion; the spotlight only runs on fine pointers.
  */
 export function MotionDetails() {
+  useEffect(() => pauseOffscreenLoops(), []);
+
   useEffect(() => {
     if (reduced()) return;
 

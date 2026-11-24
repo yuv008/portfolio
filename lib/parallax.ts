@@ -35,11 +35,10 @@ function reset(it: Item) {
   it.el.style.willChange = "";
 }
 
-function apply(it: Item) {
+function apply(it: Item, r: DOMRect) {
   // Its own compositor layer: moving it then only shifts a cached texture. Without this, every scroll frame
   // repainted the tile, including its blurred colour wash, which made the Projects grid very slow to scroll.
   if (!it.el.style.willChange) it.el.style.willChange = "transform";
-  const r = it.host.getBoundingClientRect();
   const d = r.top + r.height / 2 - window.innerHeight / 2; // px below the screen centre
   if (it.mode === "media") {
     const max = r.height * ((MEDIA_SCALE - 1) / 2) * 0.9;
@@ -56,9 +55,11 @@ function update() {
     items.forEach(reset);
     return;
   }
-  items.forEach((it) => {
-    if (it.visible) apply(it);
-  });
+  // Measure every tile first, then write: reading a rect right after writing the previous tile's style forced a
+  // fresh style recalculation per tile.
+  const visible = Array.from(items).filter((it) => it.visible);
+  const rects = visible.map((it) => it.host.getBoundingClientRect());
+  visible.forEach((it, i) => apply(it, rects[i]));
 }
 
 const schedule = () => {
